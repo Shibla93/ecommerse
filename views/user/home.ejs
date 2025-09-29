@@ -1,0 +1,376 @@
+<%- include("../../views/partials/user/header") %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+
+
+<style>
+  /* General Reset */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero__items {
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero__text {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+  }
+
+  .hero__text h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .hero__text p {
+    font-size: 1.1rem;
+    color: #ddd;
+    margin-bottom: 20px;
+  }
+
+  .primary-btn {
+    background-color: #00c4b4;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+
+  .primary-btn:hover {
+    background-color: #009688;
+    transform: translateY(-3px);
+  }
+
+  .hero__social {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hero__social a {
+    color: #fff;
+    font-size: 1.5rem;
+    transition: color 0.3s;
+  }
+
+  .hero__social a:hover {
+    color: #00c4b4;
+  }
+
+  /* Banner Section */
+  .banner {
+    padding: 40px 0;
+  }
+
+  .banner-flex-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .banner_item {
+    flex: 1;
+    min-width: 200px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    transition: transform 0.3s;
+  }
+
+  .banner_item:hover {
+    transform: scale(1.05);
+  }
+
+  .banner_item_pic img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .banner_item_text h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 15px 0 10px;
+  }
+
+  .banner_item_text a {
+    background-color: #00c4b4;
+    padding: 10px 20px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+  }
+
+  .banner_item_text a:hover {
+    background-color: #009688;
+  }
+
+  /* Product Section */
+  .product {
+    padding: 40px 0;
+  }
+
+  .product-cart-wrap {
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .product-cart-wrap:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .product-img img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s;
+  }
+
+  .product-img:hover img {
+    transform: scale(1.05);
+  }
+
+  .wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+    padding: 8px;
+    color: #333;
+    font-size: 1.2rem;
+    transition: color 0.3s, background-color 0.3s;
+  }
+
+  .wishlist-btn:hover {
+    color: #ff4c4c;
+    background-color: #f0f0f0;
+  }
+
+  .wishlist-btn.active {
+    color: #ff4c4c;
+  }
+
+  .product-content-wrap h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .product-content-wrap p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+  }
+
+  .product-content-wrap p .text-muted {
+    font-size: 0.85rem;
+    margin-left: 10px;
+  }
+
+  .product-content-wrap a {
+    background-color: #00c4b4;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 5px;
+    color: #fff;
+    transition: background-color 0.3s;
+  }
+
+  .product-content-wrap a:hover {
+    background-color: #009688;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 992px) {
+    .product__filter .col-lg-3 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+    .hero__items {
+      height: 60vh;
+    }
+    .hero__text h2 {
+      font-size: 1.8rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .product__filter .col-lg-3 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    .banner_item {
+      min-width: 100%;
+    }
+    .banner_item_pic img {
+      height: 400px;
+    }
+  }
+</style>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero__slider owl-carousel">
+    
+        <div class="hero__items set-bg" data-setbg="/img/hero/hero-1.jpg">
+            <div class="container">
+             <div class="row"> 
+              <div class="col-xl-5 col-lg-7 col-md-8">
+               
+              </div>
+            </div> 
+          </div> 
+        </div>
+     <div class="hero__items set-bg" data-setbg="/img/hero/hero-2.jpg">
+            <div class="container">
+             <div class="row"> 
+              <div class="col-xl-5 col-lg-7 col-md-8">
+               
+              </div>
+            </div> 
+          </div> 
+        </div>
+      
+    
+  </div>
+</section>
+
+<!-- Banner Section -->
+<section class="banner spad">
+  <div class="container">
+    <div class="banner-flex-row">
+      <div class="banner_item">
+        <div class="banner_item_pic">
+          <img src="/img/banner/banner-1.jpg" alt="Men Collections">
+        </div>
+        <div class="banner_item_text">
+          <h2>MEN COLLECTIONS</h2>
+          <a href="/shop">Shop now</a>
+        </div>
+      </div>
+      <div class="banner_item">
+        <div class="banner_item_pic">
+          <img src="/img/banner/banner-2.jpg" alt="Women Collections">
+        </div>
+        <div class="banner_item_text">
+          <h2>WOMEN COLLECTIONS</h2>
+          <a href="/shop">Shop now</a>
+        </div>
+      </div>
+      <div class="banner_item">
+        <div class="banner_item_pic">
+          <img src="/img/banner/banner-3.jpg" alt="Smart Watches">
+        </div>
+        <div class="banner_item_text">
+          <h2>SMART WATCHES</h2>
+          <a href="/shop">Shop now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Product Section -->
+<section class="product spad">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <ul class="filter__controls">
+          <li data-filter=".new-arrivals">New Arrivals</li>
+        </ul>
+      </div>
+    </div>
+    
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+ <script>
+  $(document).ready(function () {
+    $(".hero__slider").owlCarousel({
+      items: 1,
+      loop: true,
+      autoplay: true,
+      autoplayTimeout: 4000,
+      nav: true,
+      dots: true,
+      lazyLoad: true,
+      navText: ['<i class="fa fa-chevron-left"></i>', '<i class="fa fa-chevron-right"></i>'],
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".set-bg").forEach(function (el) {
+      const bg = el.getAttribute("data-setbg");
+      if (bg) {
+        el.style.backgroundImage = `url(${bg})`;
+        el.style.backgroundSize = "cover";
+        el.style.backgroundPosition = "center";
+      }
+    });
+
+    document.querySelectorAll(".wishlist-btn").forEach((btn) => {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        this.classList.toggle("active");
+        const productId = this.getAttribute("href").split("=")[1];
+        fetch(`/addToWishlist?id=${productId}`, { method: "GET" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Product added to wishlist!");
+            } else {
+              alert("Failed to add product to wishlist.");
+            }
+          });
+      });
+    });
+  });
+</script> 
+
+<%- include("../../views/partials/user/footer.ejs") %>

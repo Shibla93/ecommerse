@@ -1,0 +1,49 @@
+const Brand=require("../../model/brandSchema.js")
+const Category=require("../../model/categorySchema")
+const Product=require("../../model/productSchema")
+const mongoose = require("mongoose");
+const Messages = require('../../constants/messages');
+const StatusCodes = require("../../constants/StatusCodes");
+
+
+
+const addproduct=async(req,res)=>{
+    try{
+          const brands = await Brand.find();
+    const categories = await Category.find();
+
+    console.log("Brands from DB:", brands);   // ✅ check
+    console.log("Categories from DB:", categories);
+
+        return res.render("admin/addproduct",{brands,categories})
+    }catch(error){
+        return res.redirect("/admin/pageError")
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports={
+    addproduct
+}
+
+

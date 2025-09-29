@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Products List</title>
+  <style>
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .variant-table { margin-top: 10px; width: 100%; border-collapse: collapse; }
+    .variant-table th, .variant-table td { border: 1px solid #aaa; padding: 5px; }
+    a.button { padding: 5px 10px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>Products List</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Brand</th>
+        <th>Category</th>
+        <!-- <th>Discount</th>
+        <th>Product Offer</th> -->
+        <th>Variants</th>
+        <th>Listed?</th>
+        <th>Deleted?</th>
+        <th>Actions</th> <!-- New column for Edit/Delete -->
+      </tr>
+    </thead>
+    <tbody>
+      <% products.forEach(product => { %>
+        <tr>
+          <td><%= product.name %></td>
+          <td><%= product.brand %></td>
+          <td>
+            <% product.categories.forEach(cat => { %>
+              <%= cat.name || cat._id %><br/>
+            <% }) %>
+          </td>
+          <td><%= product.discount %>%</td>
+          <td><%= product.productOffer %>%</td>
+          <td>
+            <table class="variant-table">
+              <thead>
+                <tr>
+                  <th>Dial Color</th>
+                  <th>Strap Color</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Images</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% product.variants.forEach(v => { %>
+                  <tr>
+                    <td><%= v.dialColor %></td>
+                    <td><%= v.strapColor %></td>
+                    <td><%= v.price %></td>
+                    <td><%= v.stock %></td>
+                    <td>
+                      <% v.images.forEach(img => { %>
+                        <a href="<%= img.url %>" target="_blank">Image</a><br/>
+                      <% }) %>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </td>
+          <td><%= product.isListed ? "Yes" : "No" %></td>
+          <td><%= product.isDeleted ? "Yes" : "No" %></td>
+          <td>
+            <a class="button" href="/products/edit/<%= product._id %>">Edit</a>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</body>
+</html>

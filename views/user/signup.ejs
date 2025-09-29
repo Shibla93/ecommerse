@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column; /* stack header, main, footer */
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      flex-shrink: 0; /* stays at top */
+    }
+
+    main {
+      flex: 1; /* take all available space between header & footer */
+      display: flex;
+      justify-content: center;
+      align-items: center; /* centers form vertically + horizontally */
+    }
+
+    footer {
+      flex-shrink: 0; /* stays at bottom */
+    }
+
+    .form-container {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      background-color: #fff;
+      padding-bottom: 20px;
+      padding: 15px;
+      padding-top: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+       width: 500px; /* ✅ Increased width */
+  max-width: 90%; 
+      text-align: center;
+    }
+
+    .form-container h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #000;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .form-group button {
+      width: 100%;
+      padding: 10px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      
+    }
+
+    .form-group button:hover {
+      background: #333;
+    }
+
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      
+      color: #fff;
+      border-radius: 4px;
+      padding: 8px;
+      text-decoration: none;
+    }
+.social-btns {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .social-btns button {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+
+    .form-links {
+      margin-top: 10px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .form-links a {
+      color: #4285f4;
+      text-decoration: none;
+    }
+
+    .form-links a:hover {
+      text-decoration: underline;
+    }
+    .error-message{
+        color:red;
+        font-size:0.75rem;
+        display: none;
+      }
+       .signup-image .sign-in-link {
+        color: #333;
+        text-decoration: none;
+      }
+      .signup-image .sign-in-link:hover {
+        color: #ff7f50;
+      }
+
+.signup-section {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .signup-form,
+      .signup-image {
+        flex: 1;
+        padding: 10px;
+      }
+      .signup-form {
+        max-width: 50%;
+      }
+
+  </style>
+</head>
+<body>
+  <!-- ✅ Header include -->
+  <!-- <header>
+    <%- include("../../views/partials/user/header") %>
+  </header> -->
+
+  <!-- ✅ Signup form centered in middle -->
+  <main>
+    <!--  -->
+    <div class="signup-form">
+
+    <div class="form-container">
+      <h2>Sign Up</h2>
+       <form id="signupform" method="POST" action="/signup"  novalidate>
+
+      <div class="form-group">
+        <label for="name">Username</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name"  />
+        <div id="error1" class="error-message" ></div>
+      </div>
+      <div class="form-group">
+        <label for="signup-email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter email" />
+        <div id="error2" class="error-message" ></div>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="phone" id="phone" name="phone" placeholder="Enter phone number" />
+        <div id="error3" class="error-message" ></div>
+      </div>
+      <div class="form-group">
+        <label for="signup-password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter password"  />
+        <div id="error4" class="error-message" ></div>
+      </div>
+      <div class="form-group">
+        <label for="signup-confirm-password">Confirm Password</label>
+        <input type="password" id="cpass"  name="confirmpassword" placeholder="Confirm password" required />
+      </div>
+      <div id="error5" class="error-message" ></div>
+      <!-- <%if(locals.message && message.length>0){%>
+              <div class="alert alert-danger text-center">
+                <%=message%>
+              </div>
+              <%}%> -->
+
+      <div class="form-group">
+        <button type="submit">Sign Up</button>
+      </div>
+      <div class="form-group">
+        <a href="/auth/google" class="google-btn">
+          <img src="img/googlesignup(3).png" alt="Google Logo" width="20" height="20" />
+          
+        </a>
+      </div>
+      
+      <div class="form-links">
+        <a href="/login" id="login-link">Already have an account? Login</a>
+      </div>
+      <div class="signup-image">
+                <a href="/">
+                  <img src="img/hero/hero-2.jpg" alt="wriston store" />
+                </a>
+    </div>
+
+  </main>
+
+  <!-- ✅ Footer include -->
+  <footer>
+    <%- include("../../views/partials/user/footer") %>
+  </footer>
+</body>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script>
+  let nameId=document.getElementById("name");
+  let emailId=document.getElementById("email");
+  let phoneId=document.getElementById("phone");
+  let passId=document.getElementById("password");
+  let cpassId=document.getElementById("cpass");
+
+
+
+  let er1=document.getElementById("error1");
+  let er2=document.getElementById("error2");
+  let er3=document.getElementById("error3");
+  let er4=document.getElementById("error4");
+  let er5=document.getElementById("error5");
+
+  
+  function nameValidate(){
+const nameval=nameId.value.trim();
+if(nameval===""){
+  er1.style.display="block";
+  er1.innerHTML="Name is required";
+  return false
+} else if (!/^[A-Za-z\s]{2,}$/.test(nameval)) {
+      er1.style.display = "block";
+      er1.innerHTML = "Only letters and spaces are allowed";
+      return false;
+    } else {
+      er1.style.display = "none";
+      return true;
+    }
+  }
+
+  function emailValidate(){
+
+    const emailval = emailId.value.trim();
+    const emailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ ;
+    if (emailval === "") {
+      er2.style.display = "block";
+      er2.innerHTML = "Email is required";
+      return false;
+    } else if (!emailpattern.test(emailval)) {
+      er2.style.display = "block";
+      er2.innerHTML = "Invalid email format";
+      return false;
+    } else {
+      er2.style.display = "none";
+      return true;
+    }
+  }
+
+
+  function phoneValidate(){
+    let phoneval=phoneId.value.trim();
+    let phonepattern= /^[6-9]\d{9}$/;
+    if(phoneval===""){
+      er3.style.display="block";
+      er3.innerHTML="phone number is required";
+      return false;
+    }else if(!phonepattern.test(phoneval)){
+       er3.style.display="block"
+       er3.innerHTML="invalid phone number";
+       return false;
+    }else{
+      er3.style.display="none";
+      return true;
+    }
+
+  }
+  
+function passwordValidate() {
+    const passval = passId.value.trim();
+     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (passval === "") {
+      er4.style.display = "block";
+      er4.innerHTML = "Password is required";
+      return false;
+    } else if (!passwordRegex.test(passval)) {
+    er4.style.display = "block";
+    er4.innerHTML =
+      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
+    return false;
+    } else {
+      er4.style.display = "none";
+      return true;
+    }
+  }
+
+ function confirmPasswordValidate() {
+  const passval = passId.value.trim();
+  const cpassval = cpassId.value.trim();
+
+  if (cpassval === "") {
+    er5.style.display = "block";
+    er5.innerHTML = "Please confirm your password";
+    return false;
+  } else if (passval !== cpassval) {
+    er5.style.display = "block";
+    er5.innerHTML = "Passwords do not match";
+    return false;
+  } else {
+    er5.style.display = "none";
+    return true;
+  }
+ }
+
+
+ const form = document.getElementById('signupform');
+
+form.addEventListener('submit', function(e) {
+  let valid = true;
+
+  if (!nameValidate()) valid = false;
+  if (!emailValidate()) valid = false;
+  if (!phoneValidate()) valid = false;
+  if (!passwordValidate()) valid = false;
+  if (!confirmPasswordValidate()) valid = false;
+
+  if (!valid) {
+    e.preventDefault(); 
+  }
+});
+
+
+ 
+  nameId.addEventListener("input", nameValidate);
+  emailId.addEventListener("input", emailValidate);
+  phoneId.addEventListener("input", phoneValidate);
+  passId.addEventListener("input", passwordValidate);
+  cpassId.addEventListener("input", confirmPasswordValidate);
+</script>
+
+
+

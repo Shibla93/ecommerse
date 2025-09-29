@@ -1,0 +1,220 @@
+
+<!-- <%- include("../../views/partials/user/header") %> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your OTP</title>
+    <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            border: 2px solid #000;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            border: none;
+            background-color: #ddd;
+            border-radius: 5px;
+        }
+        .resend {
+            font-size: 14px;
+            color: #04080c;
+            margin-bottom: 20px;
+        }
+        .resend:hover{
+            color:black;
+        }
+        .submit-btn {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #timer {
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 10px;
+}
+.error { 
+    color: red; 
+    font-weight: bold; 
+    margin-bottom: 10px;
+ }
+    </style>
+</head>
+<body>
+    <form id="otpForm" action="/verifyOtp" method="POST">
+    <main class="verify-otp-page">
+    <div class="container">
+
+        
+        <div class="title">Verify Your OTP</div>
+
+        
+        <!-- <% if (typeof message !== "undefined" && message) { %>
+          <div class="error"><%= message %></div>
+        <% } %> -->
+
+        <div class="otp-inputs">
+             <input type="hidden" name="otp" id="hiddenOtp">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+            <input type="text" maxlength="1" class="otp-input">
+        </div>
+        <h6 id="timer">00:60s</h6>
+        <div class="resend"><button type="button" id="resndotp" style="display:none">resend OTP</button></div>
+        <button class="submit-btn">verify</button>
+    </div>
+    </main>
+   </form>
+   
+   
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+<% if (typeof error !== "undefined" && error) { %>
+   Swal.fire("Error", "<%= error %>", "error");
+<% } %>
+
+<% if (typeof success !== "undefined" && success) { %>
+   Swal.fire("Success", "<%= success %>", "success");
+<% } %>
+
+
+    const inputs=document.querySelectorAll(".otp-input")
+    window.addEventListener("load", () => {
+    inputs[0].focus();
+  });
+
+    inputs.forEach((input,i)=>{
+     input.addEventListener("input",()=>{
+        if (input.value && i < inputs.length - 1) {
+        inputs[i + 1].focus();
+        }
+     })
+      input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !input.value && i > 0) {
+        inputs[i - 1].focus(); 
+      }
+    });
+    })
+    let timer;
+    let otpExpired = false;
+
+    
+
+function startTimer(){
+    let timeLeft=60;
+    otpExpired = false;
+    const t1 = document.getElementById("timer");
+    document.getElementById("resndotp").style.display = "none";
+    clearInterval(timer)
+
+     timer=setInterval(()=>{
+        timeLeft--;
+        t1.textContent="00:"+timeLeft+"s";
+        t1.style.color="green"
+        
+
+
+    if(timeLeft<=0){
+        clearInterval(timer);
+       otpExpired = true;
+       Swal.fire("Expired!", "Your OTP has expired.", "error");
+
+      document.getElementById("resndotp").style.display = "inline-block";
+    }
+},1000)
+}
+
+
+    startTimer();
+   
+    document.getElementById("resndotp").addEventListener("click", async (e) => {
+    const btn = e.target;
+      btn.disabled = true;  
+     
+      try {
+        const response = await fetch("/resendOtp", { method: "POST" });
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire("Sent!", "OTP resent successfully.", "success");
+          startTimer();
+        } else {
+          Swal.fire("Error!", "Failed to resend OTP.", "error");
+        }
+      } catch (err) {
+        Swal.fire("Error!", "Something went wrong.", "error");
+      } finally {
+    btn.disabled = false; 
+  }
+    });
+
+
+  const otpForm = document.getElementById("otpForm");
+const hiddenOtp = document.getElementById("hiddenOtp");
+
+otpForm.addEventListener("submit", (e) => {
+  let otpValue = "";
+  inputs.forEach(input => otpValue += input.value);
+  if(otpValue.length<inputs.length){
+    e.preventDefault();
+    Swal.fire("Error!", "Please enter full OTP.", "error");
+  }
+
+  if(otpExpired) {
+    e.preventDefault();
+    Swal.fire("Error!", "OTP expired. Please resend.", "error");
+    return;
+  }
+  hiddenOtp.value = otpValue;  
+});
+</script>
+</body>
+</html>
+

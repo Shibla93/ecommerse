@@ -1,0 +1,248 @@
+<%- include("../../views/partials/admin/header") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #050505;
+            margin: 0;
+            padding: 20px;
+            color: whitesmoke;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Search bar styles */
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .search-container input[type="text"] {
+            padding: 8px 12px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-container .search-btn,
+        .search-container .clear-btn {
+            padding: 8px 14px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #fff;
+            transition: 0.3s;
+        }
+        .search-container .search-btn {
+            background-color: #007bff;
+        }
+        .search-container .search-btn:hover {
+            background-color: #0069d9;
+        }
+        .search-container .clear-btn {
+            background-color: #6c757d;
+        }
+        .search-container .clear-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* Table styles */
+        .table {
+            width: 90%;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background: #080808;
+            color: #fff;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #100f0f;
+            color: #000;
+        }
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        /* Block/Unblock button styles */
+        button.block-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button.block-btn.block {
+            background-color: #dc3545; /* red */
+        }
+        button.block-btn.block:hover {
+            background-color: #b02a37;
+        }
+        button.block-btn.unblock {
+            background-color: #28a745; /* green */
+        }
+        button.block-btn.unblock:hover {
+            background-color: #218838;
+        }
+
+        /* Pagination */
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+             display: flex;
+            justify-content: center;  
+             align-items: center;      
+           margin-top: 20px;
+           gap: 6px;  
+        }
+        .pagination a {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: black;
+            text-decoration: none;
+        }
+        .pagination a.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>CUSTOMERS</h2>
+    </div>
+
+    <!-- Search bar -->
+    <form action="/admin/customers" method="GET" class="search-container">
+        <input type="text" name="search" placeholder="Search by name or email" value="<%= typeof search !== 'undefined' ? search : '' %>">
+        <button type="submit" class="search-btn">Search</button>
+        <button type="button" class="clear-btn" onclick="window.location.href='/admin/customers'">Clear</button>
+    </form>
+
+    
+    <div class="table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% customers.forEach((cust)=>{ %>
+                    <tr>
+                        <td><%= cust.name %></td>
+                        <td><%= cust.email %></td>
+                        <td>
+                          <button class="block-btn <%= cust.isBlocked ? 'unblock' : 'block' %>" 
+                       data-id="<%= cust._id %>">
+                          <%= cust.isBlocked ? 'Unblock' : 'Block' %>
+                             </button>
+
+
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+       
+        
+        <div class="pagination">
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <a href="/admin/customers?page=<%= i %>&search=<%= search %>" 
+                   class="<%= currentPage === i ? 'active' : '' %>">
+                   <%= i %>
+                </a>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>
+<%- include("../../views/partials/admin/footer") %>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+<script>
+  
+  document.addEventListener("DOMContentLoaded", () => {
+
+  
+    document.querySelectorAll(".block-btn").forEach((btn) => {
+
+      
+      btn.addEventListener("click", async () => {
+        
+        const userId = btn.dataset.id;
+
+        
+        const isBlocked = btn.classList.contains("unblock");
+
+        
+        const confirmText = isBlocked 
+          ? "Do you really want to unblock this user?" 
+          : "Do you really want to block this user?";
+
+        
+        const ok = await swal({
+          title: "Are you sure?",
+          text: confirmText,
+          icon: "warning",
+          buttons: ["Cancel", "Yes"],
+          dangerMode: true,
+        });
+
+        if (!ok) return;
+
+       
+        const url = isBlocked ? `/admin/customers/unblock/${userId}` : `/admin/customers/block/${userId}`;
+
+        try {
+          
+          const res = await fetch(url, { method: "POST" });
+          const data = await res.json();
+
+          
+          if (data.success) {
+            swal("Success", data.message, "success");
+            
+
+            btn.innerText = isBlocked ? "Block" : "Unblock";
+            btn.classList.toggle("block");
+            btn.classList.toggle("unblock");
+          } else {
+            swal("Error", data.error || "Something went wrong", "error");
+          }
+        } catch (err) {
+          swal("Error", "Server error!", "error");
+        }
+      });
+    });
+  });
+</script>

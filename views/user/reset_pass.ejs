@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wriston Reset Password</title>
+     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+   rel="stylesheet">
+   <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+   <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+   <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
+   <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
+   <link rel="stylesheet" href="css/nice-select.css" type="text/css">
+   <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
+   <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
+   <link rel="stylesheet" href="css/style.css" type="text/css">
+   <link rel="stylesheet" href="css/maind134.css">
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+   
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo img {
+            width: 100px;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+        }
+        input[type="password"]::placeholder {
+            font-size: 14px;
+            color: #999;
+            font-weight: 400;
+        }
+        button {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #333;
+        }
+        .error-message{
+        color:red;
+        font-size:0.75rem;
+        display: none;
+      }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="img/userlogo (8).png"alt="Wriston Logo">
+        </div>
+        <h2>Reset Password</h2>
+        <form id="form1" method=post action="/reset-Newpass">
+        <div class="form-group">
+            <input type="password" id="p1" name="p1" placeholder="New Password">
+             <div id="error1" class="error-message" ></div>
+            <input type="password" id="p2" name="p2" placeholder="Confirm Password">
+             <div id="error2" class="error-message" ></div>
+               <% if (typeof error !== 'undefined' && error) { %>
+<div class="alert alert-danger"><%= error %></div>
+<% } %>
+
+
+
+            <button>Submit</button>
+        </div>
+        </form>
+    </div>
+
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+    const form=document.getElementById("form1")
+    let newpass=document.getElementById("p1")
+    let cpass=document.getElementById("p2")
+    let er1=document.getElementById("error1")
+    let er2=document.getElementById("error2")
+
+
+
+function passwordValidate() {
+    const passval = newpass.value.trim();
+     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (passval === "") {
+      er1.style.display = "block";
+      er1.innerHTML = "Password is required";
+      return false;
+    } else if (!passwordRegex.test(passval)) {
+    er1.style.display = "block";
+    er1.innerHTML =
+      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
+    return false;
+    } else {
+      er1.style.display = "none";
+      return true;
+    }
+  }
+
+ function confirmPasswordValidate() {
+  const passval = newpass.value.trim();
+  const cpassval = cpass.value.trim();
+
+  if (cpassval === "") {
+    er2.style.display = "block";
+    er2.innerHTML = "Please confirm your password";
+    return false;
+  } else if (passval !== cpassval) {
+    er2.style.display = "block";
+    er2.innerHTML = "Passwords do not match";
+    return false;
+  } else {
+    er2.style.display = "none";
+    return true;
+  }
+ }
+
+
+ form.addEventListener('submit', function(e) {
+  let valid = true;
+
+  
+  if (!passwordValidate())
+   valid = false;
+  if (!confirmPasswordValidate()) 
+  valid = false;
+
+  if (!valid) {
+    e.preventDefault(); 
+  }
+});
+
+
+ newpass.addEventListener("input", passwordValidate);
+  cpass.addEventListener("input", confirmPasswordValidate);
+  
+const successMsg = "<%= typeof success !== 'undefined' ? success : '' %>";
+  const errorMsg   = "<%= typeof error   !== 'undefined' ? error   : '' %>";
+
+  if (successMsg) {
+    Swal.fire("Success", successMsg, "success");
+  }
+
+  if (errorMsg) {
+    Swal.fire("Error", errorMsg, "error");
+  }
+</script>
