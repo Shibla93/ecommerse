@@ -34,7 +34,7 @@ router.post("/brand",adminAuth,brandController.addBrand)
 router.post("/brand/block/:id", brandController.blockBrand);
 
 router.get("/addproduct",adminAuth,productController.addproduct)
-//router.post("/products", upload.array('images', 4),productController.createProduct)
+router.post("/products", upload.array('images', 4),productController.createProduct)
 
 
 

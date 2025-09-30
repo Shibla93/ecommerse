@@ -12,8 +12,7 @@ const addproduct=async(req,res)=>{
           const brands = await Brand.find();
     const categories = await Category.find();
 
-    console.log("Brands from DB:", brands);   // ✅ check
-    console.log("Categories from DB:", categories);
+    
 
         return res.render("admin/addproduct",{brands,categories})
     }catch(error){
@@ -21,6 +20,10 @@ const addproduct=async(req,res)=>{
     }
 }
 
+
+const createdAt=async(req,res)=>{
+    
+}
 
 
 
