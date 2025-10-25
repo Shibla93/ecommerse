@@ -1,5 +1,6 @@
 const Messages = {
   PRODUCT_ADDED: "Product added successfully",
+  PRODUCT_EXIST:"product name already exist",
   INVALID_PASSWORD: "Invalid password",
   USER_NOT_FOUND: "User not found",
   EMAIL_EXISTS: "User with this email already exists",
@@ -16,6 +17,10 @@ const Messages = {
    CATEGORY_EXIST:"categry exist ,please choose another name",
    CATEGORY_UNLISTED:"category unlisted",
    CATEGORY_LISTED:"category listed",
+    PRODUCT_UNLISTED:"product unlisted",
+   PRODUCT_LISTED:"product listed",
+   PRODUCT_NOT_FOUND:"product not found",
+   PRODUCT_UPDATED:"product updated",
    ALL_FIELDS_REQUIERED:"all fields are required",
    CATEGORY_NOT_FOUND:"category not found",
    CATEGORY_UPDATED:"Category updated succesfully",
@@ -28,6 +33,13 @@ const Messages = {
    OTP_EXPIRED:"OTP expired,please try again",
    ACCOUNT_CREATED:"Account created successfully. Please login!",
    OTP_VERIFIED:"OTP Verified successfully",
+   PRODUCT_NAME_VALID:"Product name is required and must be at least 2 characters",
+    PRODUCT_BRAND_STRAPE:"brand and strape matereil required",
+    CATOGORY_SELECT:"Please select at least one category",
+    VARIENT_REQUIRED:"at least one variant requried",
+    VARIANT_NOTFOUD:"no variant found"
+
+
    
 };
 

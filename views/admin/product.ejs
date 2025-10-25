@@ -1,82 +1,183 @@
+<%- include("../../views/partials/admin/header") %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Products List</title>
+  <meta charset="UTF-8" />
+  <title>Product Table</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <style>
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .variant-table { margin-top: 10px; width: 100%; border-collapse: collapse; }
-    .variant-table th, .variant-table td { border: 1px solid #aaa; padding: 5px; }
-    a.button { padding: 5px 10px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+    .container { width: 95%; margin: 30px auto; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    h1 { text-align: center; margin-bottom: 20px; }
+    #searchInput { width: 100%; max-width: 400px; margin: 0 auto 20px auto; padding: 10px; border-radius: 20px; border: 1px solid #ccc; display: block; font-size: 16px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ddd; vertical-align: top; }
+    th { background-color: #007bff; color: white; }
+    img.thumbnail { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; }
+    .actions button { margin: 2px; }
+    
+.pagination a {
+  margin: 0 5px;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #007bff;
+}
+.pagination a.active {
+  background: #007bff;
+  color: white;
+}
   </style>
 </head>
 <body>
-  <h2>Products List</h2>
+  <div class="container">
+    <h1>Product Table</h1>
+    <input type="text" id="searchInput" placeholder="Search products..." class="form-control" />
 
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Brand</th>
-        <th>Category</th>
-        <!-- <th>Discount</th>
-        <th>Product Offer</th> -->
-        <th>Variants</th>
-        <th>Listed?</th>
-        <th>Deleted?</th>
-        <th>Actions</th> <!-- New column for Edit/Delete -->
-      </tr>
-    </thead>
-    <tbody>
-      <% products.forEach(product => { %>
+    <table class="table table-striped table-hover mt-3">
+      <thead>
         <tr>
-          <td><%= product.name %></td>
-          <td><%= product.brand %></td>
-          <td>
-            <% product.categories.forEach(cat => { %>
-              <%= cat.name || cat._id %><br/>
-            <% }) %>
-          </td>
-          <td><%= product.discount %>%</td>
-          <td><%= product.productOffer %>%</td>
-          <td>
-            <table class="variant-table">
-              <thead>
-                <tr>
-                  <th>Dial Color</th>
-                  <th>Strap Color</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Images</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% product.variants.forEach(v => { %>
-                  <tr>
-                    <td><%= v.dialColor %></td>
-                    <td><%= v.strapColor %></td>
-                    <td><%= v.price %></td>
-                    <td><%= v.stock %></td>
-                    <td>
-                      <% v.images.forEach(img => { %>
-                        <a href="<%= img.url %>" target="_blank">Image</a><br/>
-                      <% }) %>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </td>
-          <td><%= product.isListed ? "Yes" : "No" %></td>
-          <td><%= product.isDeleted ? "Yes" : "No" %></td>
-          <td>
-            <a class="button" href="/products/edit/<%= product._id %>">Edit</a>
-          </td>
+          <th>Product Name</th>
+          <th>Brand</th>
+          <th>Strap Material</th>
+          <th>Categories</th>
+          <th>Variants</th>
+          <th>Actions</th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% products.forEach(product => { %>
+          <tr>
+            <!-- Product info -->
+            <td><%= product.product %></td>
+            <td><%= product.brand ? product.brand.name : 'N/A' %></td>
+            <td><%= product.strapMaterial || 'N/A' %></td>
+            <td><%= product.categories && product.categories.length ? product.categories.map(c=>c.name).join(', ') : 'N/A' %></td>
+            
+            <!-- Variants -->
+            <td>
+              <% product.variants.forEach(variant => { %>
+                <div style="margin-bottom:10px; padding:5px; border:1px solid #ccc; border-radius:5px;">
+                  <strong>
+                    <%= variant.dialColor ? variant.dialColor+' Dial ' : '' %>
+                    <%= variant.strapColor ? variant.strapColor+' Strap' : '' %>
+                  </strong>
+                  <br>
+                  Price: ₹<%= variant.price.toFixed(2) %> | Stock: <%= variant.stock %>
+                  <br>
+                  <% if (
+  variant.images &&
+  variant.images.length > 0 &&
+  variant.images[0] &&
+  variant.images[0].croppedUrl
+) { %>
+  <img src="<%= variant.images[0].croppedUrl %>" class="thumbnail">
+<% } else if (
+  variant.images &&
+  variant.images.length > 0 &&
+  variant.images[0] &&
+  variant.images[0].originalUrl
+) { %>
+  <img src="<%= variant.images[0].originalUrl %>" class="thumbnail">
+<% } else { %>
+  No Image
+<% } %>
+
+                  <br>
+                  <!-- List/Unlist variant -->
+                  <% if(variant.isListed){ %>
+                    <button class="btn btn-success btn-sm list-btn" data-productid="<%= product._id %>" data-variantid="<%= variant._id %>">Unlist</button>
+                  <% } else { %>
+                    <button class="btn btn-danger btn-sm list-btn" data-productid="<%= product._id %>" data-variantid="<%= variant._id %>">List</button>
+                  <% } %>
+                  <!-- Delete variant -->
+                  <button class="btn btn-danger btn-sm delete-btn" data-productid="<%= product._id %>" data-variantid="<%= variant._id %>">Delete</button>
+                </div>
+              <% }) %>
+            </td>
+
+            <!-- Product-level actions -->
+            <td>
+              <button class="btn btn-success edit-btn" data-productid="<%= product._id %>">Edit Product</button>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+  
+  </div>
+ <div class="d-flex justify-content-center mt-3">
+  <ul class="pagination">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+        <a class="page-link" href="/admin/product?page=<%= i %>&search=<%= search %>"><%= i %></a>
+      </li>
+    <% } %>
+  </ul>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Search
+  document.getElementById('searchInput').addEventListener('keyup', function() {
+    let term = this.value.toLowerCase();
+    document.querySelectorAll('tbody tr').forEach(row=>{
+      row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+  });
+
+  
+
+  // List/Unlist variant
+  document.querySelectorAll('.list-btn').forEach(btn=>{
+    btn.addEventListener('click', async function() {
+      const productId = this.dataset.productid;
+      const variantId = this.dataset.variantid;
+      try {
+        const res = await fetch(`/admin/product/list/${productId}/${variantId}`, {method:'PATCH', headers:{'Content-Type':'application/json'}});
+        const data = await res.json();
+        if(data.success){
+          if(data.message==="listed"){
+            this.textContent="Unlist"; this.classList.remove("btn-danger"); this.classList.add("btn-success");
+          } else {
+            this.textContent="List"; this.classList.remove("btn-success"); this.classList.add("btn-danger");
+          }
+        } else Swal.fire("Error", data.message,"error");
+      } catch(err){ Swal.fire("Error","Something went wrong!","error"); }
+    });
+  });
+
+  // Delete variant
+  document.querySelectorAll('.delete-btn').forEach(btn=>{
+    btn.addEventListener('click', async function(){
+      const productId = this.dataset.productid;
+      const variantId = this.dataset.variantid;
+      const confirm = await Swal.fire({
+        title:'Are you sure?', text:'Delete this variant?', icon:'warning',
+        showCancelButton:true, confirmButtonColor:'#dc3545', cancelButtonColor:'#6c757d', confirmButtonText:'Yes, delete!'
+      });
+      if(!confirm.isConfirmed) return;
+      try{
+        const res = await fetch(`/admin/product/delete/${productId}/${variantId}`, {method:'PATCH', headers:{'Content-Type':'application/json'}});
+        const data = await res.json();
+        if(data.success){ this.closest('div').remove(); Swal.fire("Deleted!", data.message,"success"); }
+        else Swal.fire("Error", data.message,"error");
+      } catch(err){ Swal.fire("Error","Something went wrong!","error"); }
+    });
+  });
+
+  // Edit product
+  document.querySelectorAll('.edit-btn').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const productId = this.dataset.productid;
+      window.location.href = `/admin/product/edit/${productId}`;
+    });
+  });
+</script>
 </body>
 </html>

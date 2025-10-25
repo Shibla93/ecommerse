@@ -2,6 +2,7 @@
 const express=require("express");
 const router=express.Router();
 const userController=require("../controllers/user/userController")
+const upload = require('../helpers/multer'); 
 
 const passport = require("passport");
 const {userAuth,adminAuth}=require("../middlewares/auth")
@@ -53,6 +54,8 @@ router.post("/resendForgotOtp", profileController.resendForgotOtp);
 router.post("/reset-Newpass", profileController.newPass)
 
 
+router.get("/form",userController.getform)
+router.post("/form", upload.any(), userController.postform);
 
 
 

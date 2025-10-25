@@ -1,31 +1,393 @@
-const Brand=require("../../model/brandSchema.js")
-const Category=require("../../model/categorySchema")
-const Product=require("../../model/productSchema")
-const mongoose = require("mongoose");
 const Messages = require('../../constants/messages');
 const StatusCodes = require("../../constants/StatusCodes");
 
 
+const Brand = require("../../model/brandSchema");
+const Category = require("../../model/categorySchema");
+const Product = require("../../model/productSchema");
+const mongoose = require("mongoose");
+const cloudinary = require('../../helpers/cloudinary');
 
-const addproduct=async(req,res)=>{
-    try{
-          const brands = await Brand.find();
+const addproduct = async (req, res) => {
+  try {
+    const brands = await Brand.find();
     const categories = await Category.find();
+
+    return res.render("admin/addproduct", { brands, categories });
+  } catch (error) {
+    console.error("Add Product Page Error:", error);
+  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+  }
+};
+
+const createProduct = async (req, res) => {
+  try {
+    
+    const { product, brand, description, strapMaterial, discount, productOffer } = req.body;
+    
 
     
 
-        return res.render("admin/addproduct",{brands,categories})
-    }catch(error){
-        return res.redirect("/admin/pageError")
+    
+    const parsedCategories = req.body.categories ? JSON.parse(req.body.categories) : [];
+let parsedVariants = [];
+try {
+    parsedVariants = req.body.variants ? JSON.parse(req.body.variants) : [];
+    console.log("FILES:", req.files); 
+
+} catch (e) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: "Invalid variants format" });
+}
+
+if (!parsedVariants.length) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: Messages.VARIENT_REQUIRED });
+}
+
+
+
+    if (!product || product.trim().length < 2){
+        return res.status(StatusCodes.BAD_REQUEST).json({ success:false,message:Messages.PRODUCT_NAME_VALID  });
+    } 
+     
+       const trimmedName = product.trim();
+    const existingProduct = await Product.findOne({ product: { $regex: `^${trimmedName}$`, $options: "i" } });
+
+
+        if (existingProduct) {
+            return res.json({ success:false, message:Messages.PRODUCT_EXIST });
+        }
+
+    
+    if (!brand||!strapMaterial){
+       return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:Messages.PRODUCT_BRAND_STRAPE });
+    }
+    
+    if (!parsedCategories || parsedCategories.length === 0){
+       return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:Messages.CATOGORY_SELECT })
+    };
+    if (!parsedVariants || parsedVariants.length === 0){
+     return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:Messages.VARIENT_REQUIRED })
+    } ;
+   for (let i = 0; i < parsedVariants.length; i++) {
+    const v = parsedVariants[i];  
+    if (!v.dialColor || !v.strapColor) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Dial and Strap color required` });
+    }
+    if (!v.price || v.price <= 0) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Price must be greater than 0` });
+    }
+    if (!v.stock || v.stock < 0) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Stock must be 0 or more` });
+    }
+    if (!v.images || v.images.length < 4) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Minimum 4 images required` });
     }
 }
 
+    const uploadedImages = {};
 
-const createdAt=async(req,res)=>{
+const streamUpload = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "products" },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    stream.end(fileBuffer);
+  });
+};
+
+for (let file of req.files) {
+    const uploadResult = await streamUpload(file.buffer);
+    uploadedImages[file.originalname] = uploadResult.secure_url;
+}
+parsedVariants.forEach((variant) => {
+  variant.images = variant.images.map(img => ({
+    originalUrl: uploadedImages[img.originalFileName],
+    croppedUrl: img.croppedFileName ? uploadedImages[img.croppedFileName] : null 
+  }));
+});
+
+const newProduct = new Product({
+  product,
+  brand,
+  description,
+  strapMaterial,
+  discount,
+  productOffer,
+  variants: parsedVariants,
+  categories: parsedCategories
+});
+
+await newProduct.save();
+res.json({ success: true,message:Messages.PRODUCT_ADDED, product: newProduct });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+  }
+}
+
+const getProduct = async (req, res) => {
+  try {
     
+    
+      const search = (req.query.search || "").trim();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const skip = (page - 1) * limit;
+
+    // 🔹 Build search match stage
+    const matchStage = {
+      "variants.isDeleted": false
+    };
+    if (search) {
+      matchStage.product = { $regex: search, $options: "i" };
+    }
+
+    // 🔹 Count total products with non-deleted variants
+    const totalProductsArr = await Product.aggregate([
+      { $unwind: "$variants" },
+      { $match: matchStage },
+      { $group: { _id: "$_id" } } // unique products
+    ]);
+
+    const totalProducts = totalProductsArr.length;
+    const totalPages = Math.ceil(totalProducts / limit);
+
+  
+
+    const products = await Product.aggregate([
+  { $unwind: "$variants" },
+  { $match: { "variants.isDeleted": false } },
+  { $group: {
+      _id: "$_id",
+      product: { $first: "$product" },
+      brand: { $first: "$brand" },
+      description: { $first: "$description" },
+      strapMaterial: { $first: "$strapMaterial" },
+      discount: { $first: "$discount" },
+      categories: { $first: "$categories" },
+      variants: { $push: "$variants" },
+      productOffer: { $first: "$productOffer" },
+      createdAt: { $first: "$createdAt" },
+      updatedAt: { $first: "$updatedAt" }
+  }},
+  { $sort: { createdAt: -1 } },
+  { $skip: skip },
+  { $limit: limit }
+]);
+         
+
+    res.render("admin/product", { products, search,
+      currentPage: page,
+      totalPages }); 
+  } catch (err) {
+    console.error(err);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+  }
+};
+
+
+const listProduct=async(req,res)=>{
+  try {
+    
+    const  productId= req.params.id;
+    
+    const variantId=req.params.variantId
+    
+    console.log("Product ID:", productId);
+    console.log("Variant ID:", variantId);
+
+        const product = await Product.findById(productId)
+        console.log(product)
+         if (!product) {
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.PRODUCT_NOT_FOUND });
+    }
+    
+
+    const variant=product.variants.id(variantId);
+    
+        if (!variant) {
+            return res.status(404).json({ success: false, message:Messages.VARIANT_NOTFOUD });
+        }
+
+
+    console.log(variant)
+         variant.isListed = !variant.isListed;
+          
+
+
+
+    
+    await product.save();
+  
+    
+    return res.json({
+      success: true,
+      message: variant.isListed ? "listed" : "unlisted",
+    });
+  } catch (error) {
+    console.log(error)
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+  }
+}
+
+const deleteProduct=async(req,res)=>{
+  try {
+  
+    const { id: productId, variantId } = req.params;
+
+    
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.PRODUCT_NOT_FOUND });
+    }
+
+    // Find the variant
+    const variant = product.variants.id(variantId);
+    if (!variant) {
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.VARIANT_NOTFOUD });
+    }
+
+    //
+    variant.isDeleted = true;
+
+    await product.save();
+
+    return res.json({
+      success: true,
+      message: `Variant ${variant.dialColor} - ${variant.strapColor}  deleted`,
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+  }
 }
 
 
+const getEditProduct = async (req, res) => {
+  try {
+    const  productId = req.params.id;
+   console.log("Requested Product ID:", productId);
+    const product = await Product.findById(productId)
+
+      .populate("brand")
+      .populate("categories")
+      ;
+    console.log("Product found:", product);
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+
+    
+    const brands = await Brand.find().lean();
+    const categories = await Category.find().lean();
+
+    res.render("admin/editproduct", {
+      product,
+    
+      brands,
+      categories
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+};
+
+
+
+
+ const editProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { product, brand, description, strapMaterial, discount, productOffer } = req.body;
+
+    const parsedCategories = req.body.categories ? JSON.parse(req.body.categories) : [];
+    let parsedVariants = [];
+
+    try {
+      parsedVariants = req.body.variants ? JSON.parse(req.body.variants) : [];
+    } catch (e) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "Invalid variants format" });
+    }
+
+    if (!parsedVariants.length) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.VARIENT_REQUIRED });
+    }
+
+    const productDoc = await Product.findById(productId);
+    if (!productDoc)
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.PRODUCT_NOT_FOUND });
+
+    // 🔹 Upload new images if provided
+    const uploadedImages = {};
+    const streamUpload = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "products" },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        stream.end(fileBuffer);
+      });
+    };
+
+    if (req.files && req.files.length) {
+      for (let file of req.files) {
+        const uploadResult = await streamUpload(file.buffer);
+        uploadedImages[file.originalname] = uploadResult.secure_url;
+      }
+    }
+
+    // 🔹 Merge variants (don’t lose existing ones)
+    productDoc.variants.forEach((oldVariant, i) => {
+      const newVariant = parsedVariants[i];
+      if (newVariant) {
+        oldVariant.dialColor = newVariant.dialColor;
+        oldVariant.strapColor = newVariant.strapColor;
+        oldVariant.price = newVariant.price;
+        oldVariant.stock = newVariant.stock;
+
+        // Preserve old images if no new ones
+        if (newVariant.images && newVariant.images.length > 0) {
+         oldVariant.images = newVariant.images.map(img => ({
+  originalUrl:
+    uploadedImages[img.originalFileName] ||
+    img.originalUrl ||
+    uploadedImages[img.croppedFileName] || 
+    null,
+  croppedUrl:
+    uploadedImages[img.croppedFileName] ||
+    img.croppedUrl ||
+    uploadedImages[img.originalFileName] || 
+    null
+}));
+        }
+      }
+    });
+
+    // 🔹 Update main product details
+    productDoc.product = product;
+    productDoc.brand = brand;
+    productDoc.description = description;
+    productDoc.strapMaterial = strapMaterial;
+    productDoc.discount = discount;
+    productDoc.productOffer = productOffer;
+    productDoc.categories = parsedCategories;
+
+    await productDoc.save();
+
+    return res.json({ success: true, message: "Product updated successfully", product: productDoc });
+  } catch (err) {
+    console.error("Edit Product Error:", err);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+    }  }
 
 
 
@@ -36,17 +398,12 @@ const createdAt=async(req,res)=>{
 
 
 
-
-
-
-
-
-
-
-
-
-module.exports={
-    addproduct
-}
-
-
+module.exports = {
+  addproduct,
+  createProduct,
+  getProduct,
+  listProduct,
+  deleteProduct,
+  getEditProduct,
+  editProduct
+};

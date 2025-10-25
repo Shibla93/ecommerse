@@ -22,25 +22,35 @@ const variantSchema = new Schema({
     },
      images: [
   {
-    url: { type: String, required: true },
-    public_id: { type: String, required: true }
-  }
-]
+      _id: false,
+     originalUrl: String,
+      croppedUrl: String 
+    
+  },
+],
+ isListed: { 
+        type: Boolean,
+         default: true
+         },
+    isDeleted: { type: Boolean, 
+        default: false 
+    },
 })
 
 
 
 const productSchema = new Schema(
   {
-    name: { type: String,
+    product: { type: String,
          required: true, 
-         trim: true, 
-         unique: true },
+         trim: true
+          },
     brand: { 
-        type: String, 
-        required: true,
-         trim: true 
-        },
+  type: mongoose.Schema.Types.ObjectId, 
+  ref: "Brand", 
+  required: true 
+},
+
     description: 
     { type: String,
          trim: true
@@ -48,7 +58,7 @@ const productSchema = new Schema(
    strapMaterial:{
     type: String,
     trim: true,
-    enum: ["leather", "rubber", "metal", "ceramics","silicon"], 
+    enum: ["leather", "rubber", "metal", "ceramics","silicon","steel"], 
     required: true
    },
     discount: { 
@@ -66,13 +76,7 @@ const productSchema = new Schema(
 
     variants: [variantSchema],
    
-    isListed: { 
-        type: Boolean,
-         default: true
-         },
-    isDeleted: { type: Boolean, 
-        default: false 
-    },
+   
     productOffer: { type: Number,
          default: 0 ,
          min:0

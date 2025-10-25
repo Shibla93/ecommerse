@@ -34,8 +34,13 @@ router.post("/brand",adminAuth,brandController.addBrand)
 router.post("/brand/block/:id", brandController.blockBrand);
 
 router.get("/addproduct",adminAuth,productController.addproduct)
-router.post("/products", upload.array('images', 4),productController.createProduct)
+router.post("/addproduct", adminAuth,upload.any(),productController.createProduct)
+router.get("/product",adminAuth,productController.getProduct)
+router.patch("/product/list/:id/:variantId",adminAuth,productController.listProduct)
+router.patch("/product/delete/:id/:variantId",adminAuth,productController.deleteProduct)
+router.get("/product/edit/:id",adminAuth ,productController.getEditProduct);
 
+router.post("/product/edit/:id",adminAuth,upload.any(),productController.editProduct);
 
 
 

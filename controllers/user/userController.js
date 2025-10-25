@@ -8,6 +8,13 @@ const StatusCodes = require("../../constants/StatusCodes");
 const bcrypt = require("bcrypt");
 
 
+const Brand = require("../../model/brandSchema");
+const Category = require("../../model/categorySchema");
+const Product = require("../../model/productSchema");
+const mongoose = require("mongoose");
+const cloudinary = require('../../helpers/cloudinary');
+
+
 const pageNotFound=async(req,res)=>{
     try{
         res.render("error")
@@ -54,19 +61,40 @@ async function sendVerificationEmail(email, otp) {
 
 const home=async(req,res)=>{
     try {
+      let userData = null;
       const userId=req.session.user;
       if(userId){
-        const userData=await User.findOne({_id:userId})
-        return res.render("home",{user:userData})
-      }else{
-        return res.render('home')
+        const userData=await User.findOne({_id:userId}).lean()
       }
-        
+        const products = await Product.find({ "variants.isDeleted": false, "variants.isListed": true })
+      .populate("brand", "name")
+      .populate("categories", "name")
+      .sort({ createdAt: -1 }) // newest first
+      .lean();
+
+    // For each product, take first variant & first image
+    products.forEach(p => {
+      const validVariants = p.variants.filter(v => !v.isDeleted && v.isListed);
+      if (validVariants.length > 0) {
+        const firstVariant = validVariants[0];
+        p.displayImage = firstVariant.images.length > 0 
+          ? (firstVariant.images[0].croppedUrl || firstVariant.images[0].originalUrl)
+          : null;
+        p.displayPrice = firstVariant.price;
+      } else {
+        p.displayImage = null;
+      }
+    })
+ res.render("home",{user:userData,
+  products
+})
+
+    
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
     }
-}
 
+  }
 const signup=async(req,res)=>{
     try {
         res.render("signup")
@@ -250,9 +278,63 @@ const logout=async (req,res)=>{
   }
 }
 
+const getform=async(req,res)=>{
+  res.render("form")
+}
 
 
+const postform=async(req,res)=>{
+ try {
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
 
+    // Step 1: Main product details
+    const product = {
+      name: req.body.name,
+      brand: req.body.brand,
+      description: req.body.description,
+      discount: req.body.discount,
+      productOffer: req.body.productOffer,
+      variants: []
+    };
+
+    // Step 2: Handle variants
+    const variants = req.body.variants; 
+    if (variants) {
+      if (Array.isArray(variants)) {
+        // multiple variants
+        variants.forEach((v, i) => {
+          product.variants.push({
+            dialColor: v.dialColor,
+            strapColor: v.strapColor,
+            price: v.price,
+            stock: v.stock,
+            images: req.files
+              .filter(f => f.fieldname === `variants[${i}][images]`)
+              .map(f => "/uploads/" + f.filename)
+          });
+        });
+      } else {
+        // only one variant
+        product.variants.push({
+          dialColor: variants.dialColor,
+          strapColor: variants.strapColor,
+          price: variants.price,
+          stock: variants.stock,
+          images: req.files
+            .filter(f => f.fieldname === `variants[0][images]`)
+            .map(f => "/uploads/" + f.filename)
+        });
+      }
+    }
+
+    console.log("FINAL PRODUCT:", product);
+    res.json({ success: true, product });
+  } catch (err) {
+    console.error("Error in controller:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 
 
 
@@ -267,6 +349,8 @@ module.exports={
     resendOtp,
     loadLogin,
     login,
-    logout
+    logout,
+    getform,
+    postform
     
 }

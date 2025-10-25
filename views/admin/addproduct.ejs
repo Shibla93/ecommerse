@@ -44,10 +44,10 @@
 <body>
   <div class="container">
     <h2>Add Product</h2>
-    <form id="productForm" action="/admin/add-product" method="POST" enctype="multipart/form-data" novalidate>
+    <form id="productForm" action="/admin/addproduct" method="POST" enctype="multipart/form-data" novalidate>
       
-      <label for="name">Product Name</label>
-      <input type="text" name="name" id="name" placeholder="Enter product name" />
+      <label for="product">Product Name</label>
+      <input type="text" name="product" id="name" placeholder="Enter product name" />
        <div id="errorName" class="error-message"></div>
       <label for="brand">Brand</label>
    
@@ -69,6 +69,8 @@
         <option value="rubber">Rubber</option>
         <option value="metal">Metal</option>
         <option value="ceramics">Ceramics</option>
+         <option value="silicon">Silicon</option>
+          <option value="steel">Steel</option>
       </select>
     <div id="errorStrap" class="error-message"></div>
 
@@ -89,22 +91,22 @@
         <div class="variant">
           <h4>Variant 1</h4>
           <label>Dial Color</label>
-          <input type="text" name="dialColor[]"  placeholder="Dial Color"  />
+          <input type="text" name="dialColor[]"  placeholder="Dial Color" required />
            <div class="error-message"></div>
            <label>Strap Color</label>
-          <input type="text" name="strapColor[]" placeholder="Strap Color" />
+          <input type="text" name="strapColor[]" placeholder="Strap Color" required/>
           <div class="error-message"></div>
 
           <label>Price</label>
-          <input type="number" name="price[]" placeholder="Price" min="0"  />
+          <input type="number" name="price[]" placeholder="Price" min="0" required />
            <div class="error-message"></div>
           <label>Stock</label>
-          <input type="number" name="stock[]" placeholder="Stock" min="0" />
+          <input type="number" name="stock[]" placeholder="Stock" min="0" required/>
           <div class="error-message"></div>
 
           <label>Images (Minimum 4)</label>
            
-          <input type="file" id="img1" name="img1" accept="image/*" />
+          <input type="file" id="img1"  name="img1" accept="image/*" />
            <div class="error-message"></div>
           <div class="preview-box"><img src="" id="pre1" alt=""></div>
           <button id="cropBtn1" style="display:none" >Crop & Upload</button>
@@ -140,7 +142,7 @@
             <input type="file" id="img4" name="img4" accept="image/*" />
             <div class="error-message"></div>
           <div class="preview-box"><img id="pre4" alt=""></div>
-            <button id="cropBtn4" style="display:none;">Crop & Upload</button>
+            <button type="button" id="cropBtn4" style="display:none;">Crop & Upload</button>
             <div class="final">
               <img src="" id="im4" alt="">
               <button type="button" class="edit-btn" style="display:none">Edit</button>
@@ -153,23 +155,30 @@
       
 
       <button type="button" class="add-variant-btn" onclick="addVariant()">+ Add Another Variant</button>
+  
       <br/>
       <button type="submit">Add Product</button>
     </form>
   </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<!-- Swal2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
   <script>
 
     
 let variantCount = 1;
+ let isAddingVariantsFinished = false;
 function addVariant() {
   variantCount++;
+   isAddingVariantsFinished = false;
   const container = document.getElementById("variantsContainer");
   const div = document.createElement("div");
   div.className = "variant";
 
   div.innerHTML = `
+   <button type="button" class="remove-variant-btn" style="background:#f44336;margin-bottom:10px;">Remove Variant</button>
     <h4>Variant ${variantCount}</h4>
     <label>Dial Color</label>
     <input type="text" name="dialColor[]" placeholder="Dial Color" required />
@@ -185,11 +194,13 @@ function addVariant() {
      <div class="error-message"></div>
     <label>Images (Minimum 3)</label>
 
+    
+
     ${[1,2,3,4].map(i => `
       <input type="file" class="img-input" id="img${variantCount}_${i}" accept="image/*" />
        <div class="error-message"></div>
       <div class="preview-box"><img id="pre${variantCount}_${i}" alt=""></div>
-      <button class="crop-btn" id="cropBtn${variantCount}_${i}" style="display:none">Crop & Upload</button>
+      <button  type="button" class="crop-btn" id="cropBtn${variantCount}_${i}" style="display:none">Crop & Upload</button>
       <div class="final"><img id="im${variantCount}_${i}" alt="">
           <button type="button" class="edit-btn" style="display:none">Edit</button>
   <button type="button" class="delete-btn" style="display:none">Delete</button></div>
@@ -197,6 +208,21 @@ function addVariant() {
   `;
 
   container.appendChild(div);
+   const removeBtn = div.querySelector(".remove-variant-btn");
+  removeBtn.addEventListener("click", () => {
+    div.remove();
+    updateVariantTitles();
+  });
+  function updateVariantTitles() {
+  const variants = document.querySelectorAll(".variant");
+  variantCount = 0;
+  variants.forEach((v, index) => {
+    variantCount = index + 1;
+    const h4 = v.querySelector("h4");
+    if (h4) h4.textContent = `Variant ${variantCount}`;
+  });
+}
+
 
   
   [1,2,3,4].forEach(i => {
@@ -238,26 +264,29 @@ function setupCropper(input, preview, final, cropBtn) {
 
     cropBtn.onclick = function () {
       const canvas = cropper.getCroppedCanvas({
-        width: 400,
-        height: 400,
+        // width: 400,
+        // height: 400,
+        imageSmoothingQuality: 'high'
       });
 
       
-    input.croppedBlob=null;
+    
     canvas.toBlob(function(blob){
-      input.croppedBlob=blob
-    },"image/jpeg")
+    input.croppedBlob = blob;   // now safe
+    final.src = URL.createObjectURL(blob);
 
-      final.src = canvas.toDataURL("image/jpeg");
-      preview.style.display = "none";
-      cropBtn.style.display = "none";
-        input.style.display="none"
-      cropper.destroy();
+    preview.style.display = "none";
+    cropBtn.style.display = "none";
+    input.style.display="none";
+    cropper.destroy();
 
-      editBtn.style.display = "inline-block";
-      deleteBtn.style.display = "inline-block";
+    editBtn.style.display = "inline-block";
+    deleteBtn.style.display = "inline-block";
 
-    };
+
+     input.originalFile = input.files[0];
+  }, "image/jpeg");
+};
   });
 
   editBtn?.addEventListener("click", function () {
@@ -280,6 +309,7 @@ function setupCropper(input, preview, final, cropBtn) {
     preview.style.display = "none";
     editBtn.style.display = "none";
     deleteBtn.style.display = "none";
+      input.style.display = "block";
 
   });
 
@@ -434,7 +464,7 @@ function validateVariants(){
     // Image validation
     let uploaded = 0;
     images.forEach(img => {
-      if(img.files.length > 0) uploaded++;
+      if(img.croppedBlob|| img.files.length > 0) uploaded++;
     });
 
     if(uploaded < 4){
@@ -450,9 +480,9 @@ function validateVariants(){
 }
 
 form.addEventListener("submit", function(e){
-    e.preventDefault(); // default submit block
+    e.preventDefault();
 
-    // Clear previous errors
+    
     document.querySelectorAll(".error-message").forEach(el => el.style.display = "none");
 
     // Validation
@@ -465,46 +495,121 @@ form.addEventListener("submit", function(e){
     if(isNameValid && isBrandValid && isCategoryValid && isStrapValid && isVariantsValid){
         
         const formData = new FormData();
+        const description = document.querySelector('textarea[name="description"]').value;
 
-        
-        formData.append("name", name.value);
+        formData.append("product", name.value);
         formData.append("brand", brand.value);
-        formData.append("description",deescription.value)
+        formData.append("description", description);
         formData.append("strapMaterial", strap.value);
-
-      
+        formData.append("discount", document.querySelector('input[name="discount"]').value);
+        formData.append("productOffer", document.querySelector('input[name="productOffer"]').value);
+        let selectedCats = [];
         document.querySelectorAll('input[name="categories[]"]:checked').forEach(cat => {
-            formData.append("categories[]", cat.value);
+      selectedCats.push(cat.value);
         });
+console.log("Selected categories:", selectedCats);
+formData.append("categories", JSON.stringify(selectedCats))
 
-      
-        const variants = document.querySelectorAll(".variant");
-        variants.forEach((variant, index) => {
-            formData.append(`dialColor[${index}]`, variant.querySelector('input[name="dialColor[]"]').value);
-            formData.append(`strapColor[${index}]`, variant.querySelector('input[name="strapColor[]"]').value);
-            formData.append(`price[${index}]`, variant.querySelector('input[name="price[]"]').value);
-            formData.append(`stock[${index}]`, variant.querySelector('input[name="stock[]"]').value);
 
-            
-            const images = variant.querySelectorAll('input[type="file"]');
-            images.forEach((imgInput, imgIndex) => {
-                if(imgInput.croppedBlob){ 
-                    formData.append(`variant${index+1}_img${imgIndex+1}`, imgInput.croppedBlob, `variant${index+1}_img${imgIndex+1}.jpg`);
-                }
-            });
-        });
+       
+// Variants
+let variantsArr = [];
+const variants = document.querySelectorAll(".variant");
 
-    
-        fetch("/admin/add-product", {
-            method: "POST",
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error(err));
-    }
+variants.forEach((variant, index) => {
+  let variantObj = {
+    dialColor: variant.querySelector('input[name="dialColor[]"]').value,
+    strapColor: variant.querySelector('input[name="strapColor[]"]').value,
+    price: Number(variant.querySelector('input[name="price[]"]').value),
+    stock: Number(variant.querySelector('input[name="stock[]"]').value),
+    images: []
+  };
+
+  const images = variant.querySelectorAll('input[type="file"]');
+  images.forEach((imgInput, imgIndex) => {
+  if (imgInput.originalFile) {
+    formData.append(
+      "images",
+      imgInput.originalFile,
+      `variant${index}_img${imgIndex + 1}_original.jpg`
+    );
+  }
+
+  if (imgInput.croppedBlob) {
+    formData.append(
+      "images",
+      imgInput.croppedBlob,
+      `variant${index}_img${imgIndex + 1}_cropped.jpg`
+    );
+  }
+
+  
+  variantObj.images.push({
+    originalFileName: `variant${index}_img${imgIndex + 1}_original.jpg`,
+    croppedFileName: `variant${index}_img${imgIndex + 1}_cropped.jpg`
+  });
+})
+
+ variantsArr.push(variantObj);
 });
 
+console.log("Variants sending:", variantsArr); 
+formData.append("variants", JSON.stringify(variantsArr));
+
+
+
+        // Send to backend
+        fetch("/admin/addproduct", {
+    method: "POST",
+    body: formData
+})
+.then(res => res.json())
+.then(data => {
+    if(data.success){ // backend ninnum {success: true} varunnu enn assume cheythu
+        Swal.fire({
+            icon: 'success',
+            title: 'Product Added!',
+            text: 'Your product has been successfully added.',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            form.reset(); // form reset cheyyuka
+            // Image previews reset cheyyuka
+            document.querySelectorAll('.preview-box img, .final img').forEach(img => {
+                img.src = '';
+            });
+            // Crop buttons and edit/delete buttons hide cheyyuka
+            document.querySelectorAll('.crop-btn, .edit-btn, .delete-btn').forEach(btn => btn.style.display = 'none');
+            // Show file inputs again
+            document.querySelectorAll('input[type="file"]').forEach(input => input.style.display = 'block');
+           
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: data.message || 'Something went wrong'
+        });
+    }
+})
+.catch(err => {
+    console.error(err);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Something went wrong'
+    });
+});
+
+    }
+});
+function finishAddingVariants() {
+    isAddingVariantsFinished = true;
+    Swal.fire({
+      icon: 'success',
+      title: 'Ready to Submit',
+      text: 'You can now submit the product form.'
+    });
+  }
 
 
 </script>

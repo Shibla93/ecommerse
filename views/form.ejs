@@ -1,0 +1,76 @@
+
+
+<form id="form" action="/create-product" method="POST" enctype="multipart/form-data">
+
+  <!-- Product Details -->
+  Name: <input type="text" id="name" required><br>
+  Brand: <input type="text" id="brand" required><br>
+  Description: <textarea id="des"></textarea><br>
+  
+  Discount: <input type="number" id="dis" min="0"><br>
+  Product Offer: <input type="number" id="offer" min="0"><br>
+
+  <!-- Variant 1 -->
+  <div class="variant">
+    <h4>Variant 1</h4>
+    Dial Color: <input type="text" class="dial" required><br>
+    Strap Color: <input type="text" class="strap" required><br>
+    Price: <input type="number" class="price" min="0" required><br>
+    Stock: <input type="number" class="stock" min="0"><br>
+    Images: <input type="file" class="images" multiple required><br>
+  </div>
+
+  <!-- Variant 2 -->
+  <div class="variant">
+    <h4>Variant 2</h4>
+    Dial Color: <input type="text" class="dial"><br>
+    Strap Color: <input type="text" class="strap"><br>
+    Price: <input type="number" class="price" min="0"><br>
+    Stock: <input type="number" class="stock" min="0"><br>
+    Images: <input type="file" class="images" multiple><br>
+  </div>
+
+  <button id="button" type="submit">Create Product</button>
+</form>
+
+<script>
+const button = document.getElementById("button");
+
+button.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+
+  // product main details
+  formData.append("name", document.getElementById("name").value);
+  formData.append("brand", document.getElementById("brand").value);
+  formData.append("description", document.getElementById("des").value);
+  formData.append("discount", document.getElementById("dis").value);
+  formData.append("productOffer", document.getElementById("offer").value);
+
+  // variants loop
+  const variants = document.querySelectorAll(".variant");
+
+  variants.forEach((variant, i) => {
+    formData.append(`variants[${i}][dialColor]`, variant.querySelector(".dial").value);
+    formData.append(`variants[${i}][strapColor]`, variant.querySelector(".strap").value);
+    formData.append(`variants[${i}][price]`, variant.querySelector(".price").value);
+    formData.append(`variants[${i}][stock]`, variant.querySelector(".stock").value);
+
+    // file input (multiple images)
+    const files = variant.querySelector(".images").files;
+    for (let j = 0; j < files.length; j++) {
+      formData.append(`variants[${i}][images]`, files[j]);
+    }
+  });
+
+  // send to backend
+  fetch("/form", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.text())
+  .then(data => console.log("Server Response:", data))
+  .catch(err => console.error("Error:", err));
+});
+</script>
