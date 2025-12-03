@@ -66,10 +66,10 @@ const blockBrand=async(req,res)=>{
         if(check.isBlocked){
             const update=await Brand.updateOne({_id:id},{$set:{isBlocked:false}})
             console.log(update)
-            return res.json({success:true,message:"block"})
+            return res.json({success:true,message:"unblock"})
          } else{
              const update=await Brand.updateOne({_id:id},{$set:{isBlocked:true}})
-         return res.json({success:true,message:"unblock"})
+         return res.json({success:true,message:"block"})
         }
     }catch(error){
          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });

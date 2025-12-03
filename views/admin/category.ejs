@@ -1,4 +1,4 @@
-<%- include("../../views/partials/admin/header") %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +14,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background:white;
+      background:rgba(0, 0, 0, 0);
       margin: 0;
       padding: 20px;
       color: #333;
@@ -23,7 +23,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+   
     }
     .header h2 {
       margin: 0;
@@ -150,7 +150,7 @@
   </style>
 </head>
 <body>
-
+<%- include("../../views/partials/admin/header") %>
   <!-- Header -->
   <div class="header">
     <h2>Category Management</h2>
@@ -162,9 +162,8 @@
 
   <!-- Search -->
   <form action="/admin/category" method="GET" class="search-container">
-    <input type="text" name="search" placeholder="Search categories..." value="<%= typeof search !== 'undefined' ? search : '' %>">
-    <button type="submit" class="search-btn">Search</button>
-    <button type="button" class="clear-btn" onclick="window.location.href='/admin/category'">Clear</button>
+    <input id="searchInput" type="text" name="search" placeholder="Search categories..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+
   </form>
 
   <!-- Table -->
@@ -299,6 +298,22 @@
 
 <%- include("../../views/partials/admin/footer") %>
 <script>
+   let debounceTimer;
+
+  document.getElementById("searchInput").addEventListener("keyup", function() {
+    clearTimeout(debounceTimer);
+
+    const searchTerm = this.value.trim();
+
+    
+    debounceTimer = setTimeout(() => {
+      if (searchTerm === '') {
+        window.location.href = '/admin/category';
+      } else {
+        window.location.href = `/admin/category?search=${encodeURIComponent(searchTerm)}`;
+      }
+    }, 500);
+  });
   const form = document.querySelector('#form');
   const nameInput = document.getElementById('name');
   const descInput = document.getElementById('description');
@@ -366,6 +381,23 @@
   });
 
 
+async function confirmAction(action) {
+  return Swal.fire({
+    title: "Are you sure?",
+    text: `Do you want to ${action} this category?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: `Yes, ${action}`
+  }).then(result => result.isConfirmed);
+}
+
+
+
+
+
+
 
 
 
@@ -373,6 +405,9 @@ document.querySelectorAll('.list-btn').forEach(btn => {
   
   btn.addEventListener('click',async function () {
     const id = btn.dataset.id;
+     const action = btn.classList.contains("btn-success") ? "Unlist" : "List";
+const ok = await confirmAction(action);
+    if (!ok) return;
     try{
 
    const res= await fetch(`/admin/category/list/${id}`, {
@@ -392,6 +427,7 @@ document.querySelectorAll('.list-btn').forEach(btn => {
             btn.classList.remove("btn-danger");
         btn.classList.add("btn-success")
         }
+        Swal.fire("Success", `Category ${msg.message} successfully`, "success");
     
    }else{
      Swal.fire("Error", msg.message, "error");
@@ -458,22 +494,26 @@ document.getElementById('editForm').addEventListener('submit', async (e) => {
 });
 
 
-function deleteCategory(id){
-  if(confirm(`you want to delete `)){
-    fetch(`/admin/category/delete/${id}`,{method:'PUT'})
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire('Success', data.message, 'success').then(() => {
-          location.reload();
-          });
-        } else {
-          Swal.fire('Error', data.message || 'Something went wrong', 'error');
-        }
-      })
-      .catch(err => console.error(err));
-  }
+function deleteCategory(id) {
+  Swal.fire({
+    title: "Delete?",
+    text: "Are you sure?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "No"
+  }).then((res) => {
+    if (res.isConfirmed) {
+      fetch(`/admin/category/delete/${id}`, { method: "PUT" })
+        .then(r => r.json())
+        .then(d => {
+          Swal.fire(d.success ? "Deleted!" : "Error", d.message, d.success ? "success" : "error")
+            .then(() => { if (d.success) location.reload(); });
+        });
+    }
+  });
 }
+
   
 
 </script>

@@ -37,10 +37,10 @@ const userSchema=new Schema({
         type:Boolean,
         default:false
     },
-//    profileImage: {
-//     type: String,
-//     default: "default-profile.png" 
-// },
+   profileImage: {
+    type: String,
+    default: "default-profile.png" 
+},
  cart: {
   type: [
     {
@@ -70,6 +70,7 @@ const userSchema=new Schema({
         type:Date,
         default:Date.now
     },
+  
     // referalCode:{
     //     type:String
     // },
@@ -95,7 +96,11 @@ const userSchema=new Schema({
     }]
 
 
-})
+},
+      { timestamps: true }
+)
+
+
 
 
 const User=mongoose.model("User",userSchema)

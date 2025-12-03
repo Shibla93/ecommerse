@@ -5,8 +5,9 @@ const userController=require("../controllers/user/userController")
 const upload = require('../helpers/multer'); 
 
 const passport = require("passport");
-const {userAuth,adminAuth}=require("../middlewares/auth")
+const {userAuth}=require("../middlewares/auth")
 const profileController=require("../controllers/user/profileController")
+const productController=require("../controllers/user/productController")
 
 
 router.get("/pageNotfound",userController.pageNotFound)
@@ -37,6 +38,7 @@ router.get("/auth/google/callback",
 router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
 router.get("/home",userAuth, userController.home);
+
 router.get("/logout",userController.logout)
 router.post("/logout",userController.logout)
 
@@ -58,6 +60,9 @@ router.get("/form",userController.getform)
 router.post("/form", upload.any(), userController.postform);
 
 
+router.get("/shop",userAuth,productController.loadShoppingPage)
+router.get("/product/:id",userAuth,productController.loadProductDetail)
+router.post("/product/:id/review",userAuth,productController.addReview)
 
 
 

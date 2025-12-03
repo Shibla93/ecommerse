@@ -24,7 +24,8 @@
   .error-message { color:red; font-size:0.8rem; display:none; }
   .image-container { margin:10px 0; }
   .crop-btn, .edit-btn, .delete-btn { margin:5px; }
-  .image-preview { display:flex; flex-wrap:wrap; gap:10px; }
+ 
+
 </style>
 </head>
 <body>
@@ -60,9 +61,10 @@
 
     <label for="discount">Discount (%)</label>
     <input type="number" name="discount" placeholder="0" min="0" value="<%= product ? product.discount : '' %>" />
-
+    <div id="errorDiscount" class="error-message">Discount is required</div>
     <label for="productOffer">Product Offer (%)</label>
     <input type="number" name="productOffer" placeholder="0" min="0" value="<%= product ? product.productOffer : '' %>" />
+    <div id="errorProductOffer" class="error-message">Product offer is required</div>
 
     <label>Categories</label>
     <% categories.forEach(cat => { %>
@@ -147,6 +149,29 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 let variantCount = <%= product && product.variants ? product.variants.length : 1 %>;
+function validateImageFile(input) {
+    const file = input.files[0];
+    if (!file) return true;
+    const allowedTypes = ["image/jpeg","image/png","image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+       Swal.fire({ icon: 'error', text: 'Only JPG, PNG, or WEBP images are allowed. PDFs are not allowed.' });
+
+        input.value = "";
+        return false;
+    }
+    return true;
+}
+document.addEventListener("change", function (event) {
+    if (event.target.classList.contains("img-input")) {
+        
+        
+        const ok = validateImageFile(event.target);
+        if (!ok) return; 
+
+        
+        event.target.dispatchEvent(new Event("valid-image"));
+    }
+});
 
 // Setup Cropper
 function setupCropper(input, preview, final, cropBtn) {
@@ -172,7 +197,7 @@ function setupCropper(input, preview, final, cropBtn) {
     };
   }
 
-  input.addEventListener("change", function(){
+  input.addEventListener("valid-image", function(){
     const file = input.files[0];
     if(!file) return;
     preview.src = URL.createObjectURL(file);
@@ -318,22 +343,48 @@ const er2 = document.getElementById("errorBrand");
 const categories = document.querySelectorAll('input[name="categories[]"]');
 const strap = document.getElementById("strapMaterial");
 const er3 = document.getElementById("errorStrap");
+const discountInput = document.querySelector('input[name="discount"]');
+const offerInput = document.querySelector('input[name="productOffer"]');
+const errorDiscount = document.getElementById('errorDiscount');
+const errorOffer = document.getElementById('errorProductOffer');
+ 
+
+
+function scrollToError() {
+  const firstError = document.querySelector(".error-message[style*='block']");
+  if (firstError) {
+    
+    setTimeout(() => {
+      firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+  }
+}
 
 function validateProductName() {
   const value = name.value.trim();
-  if (value === "") {
+if (value === "") {
     er1.textContent = "Product name is required";
     er1.style.display = "block";
     return false;
-  } else if (value.length < 2) {
-    er1.textContent = "Name must be at least 2 characters";
+  } else if (value.length < 3) {
+    er1.textContent = "Name must be at least 3 characters";
     er1.style.display = "block";
     return false;
-  } else if (!/^[A-Za-z0-9\s]+$/.test(value)) {
-    er1.textContent = "Only letters, numbers, and spaces are allowed";
+  }else if (!/[A-Za-z]/.test(value)) {
+        er1.textContent="Name must contain at least one letter";
+        er1.style.display = "block";
+        return false;
+    }
+  else if (!/^[A-Za-z0-9\s\-\&\.\,\*\!\@\#\$\%\^\_]+$/.test(value))
+ {
+    er1.textContent ="Only letters, numbers, spaces, and - & . , * ! @ # $ % ^ _ are allowed";
     er1.style.display = "block";
     return false;
-  } else {
+  }else  if (/^([A-Za-z])\1+$/.test(value)) {
+  er1.textContent = "Name cannot be made of a single repeated letter";
+  er1.style.display = "block";
+  return false;
+  }else {
     er1.style.display = "none";
     return true;
   }
@@ -380,6 +431,49 @@ function strapValidate() {
   }
 }
 
+
+
+function validateDiscount() {
+    const value = Number(discountInput.value);
+    if (discountInput.value === "") {
+        errorDiscount.style.display = "none"; // optional
+        return true;
+    } else if (isNaN(value) || value < 0 || value > 100) {
+        errorDiscount.textContent = "Discount must be between 0 and 100";
+        errorDiscount.style.display = "block";
+        return false;
+    } else {
+        errorDiscount.style.display = "none";
+        return true;
+    }
+}
+
+function validateOffer() {
+    const value = Number(offerInput.value);
+    if (offerInput.value === "") {
+        errorOffer.style.display = "none"; 
+        return true;
+    } else if (isNaN(value) || value < 0 || value > 100) {
+        errorOffer.textContent = "Product Offer must be between 0 and 100";
+        errorOffer.style.display = "block";
+        return false;
+    } else {
+        errorOffer.style.display = "none";
+        return true;
+    }
+}
+
+function isValidColorName(value) {
+  const colors = [
+    "black","white","blue","brown","green","silver","gold",
+    "rose gold","grey","red","cream","beige","navy","tan"
+  ];
+
+  const clean = value.trim().toLowerCase();
+  return colors.includes(clean);
+}
+
+
 function validateVariants() {
   let allValid = true;
   const variants = document.querySelectorAll(".variant");
@@ -393,17 +487,30 @@ function validateVariants() {
     let stock = variant.querySelector('input[name="stock[]"]');
     let images = variant.querySelectorAll('input[type="file"]');
 
-    if (dialColor.value.trim() === "") {
-      dialColor.nextElementSibling.textContent = "Please enter Dial color";
-      dialColor.nextElementSibling.style.display = "block";
-      allValid = false;
-    }
+    // if (dialColor.value.trim() === "") {
+    //   dialColor.nextElementSibling.textContent = "Please enter Dial color";
+    //   dialColor.nextElementSibling.style.display = "block";
+    //   allValid = false;
+    // }
 
-    if (strapColor.value.trim() === "") {
-      strapColor.nextElementSibling.textContent = "Please enter Strap color";
-      strapColor.nextElementSibling.style.display = "block";
-      allValid = false;
-    }
+    // if (strapColor.value.trim() === "") {
+    //   strapColor.nextElementSibling.textContent = "Please enter Strap color";
+    //   strapColor.nextElementSibling.style.display = "block";
+    //   allValid = false;
+    // }
+
+
+    if (!isValidColorName(dialColor.value)) {
+  dialColor.nextElementSibling.textContent = "Enter a valid dial color";
+  dialColor.nextElementSibling.style.display = "block";
+  allValid = false;
+}
+
+if (!isValidColorName(strapColor.value)) {
+  strapColor.nextElementSibling.textContent = "Enter a valid strap color";
+  strapColor.nextElementSibling.style.display = "block";
+  allValid = false;
+}
 
     if (price.value === "" || price.value <= 0) {
       price.nextElementSibling.textContent = "Price must be greater than 0";
@@ -411,11 +518,27 @@ function validateVariants() {
       allValid = false;
     }
 
-    if (stock.value === "" || stock.value < 0) {
-      stock.nextElementSibling.textContent = "Stock should not be negative";
-      stock.nextElementSibling.style.display = "block";
-      allValid = false;
-    }
+    if (stock.value.trim() === "") {
+  stock.nextElementSibling.textContent = "Please enter stock quantity";
+  stock.nextElementSibling.style.display = "block";
+  allValid = false;
+} else if (isNaN(stock.value)) {
+  stock.nextElementSibling.textContent = "Stock must be a number";
+  stock.nextElementSibling.style.display = "block";
+  allValid = false;
+} else if (Number(stock.value) < 0) {
+  stock.nextElementSibling.textContent = "Stock cannot be negative";
+  stock.nextElementSibling.style.display = "block";
+  allValid = false;
+} else if (!Number.isInteger(Number(stock.value))) {
+  stock.nextElementSibling.textContent = "Stock must be a whole number";
+  stock.nextElementSibling.style.display = "block";
+  allValid = false;
+} else if (Number(stock.value) > 10000) {
+  stock.nextElementSibling.textContent = "Stock limit is 10,000";
+  stock.nextElementSibling.style.display = "block";
+  allValid = false;
+}
 
     // ✅ Image validation FIX
 
@@ -432,7 +555,7 @@ function validateVariants() {
     if (validImages < 4) {
       const errors = variant.querySelectorAll(".error-message");
       const lastError = errors[errors.length - 1];
-      lastError.textContent = "Please upload at least 4 images";
+      lastError.textContent = "Please upload  4 images";
       lastError.style.display = "block";
       allValid = false;
     }
@@ -442,16 +565,19 @@ function validateVariants() {
 }
 form.addEventListener("submit", function (e) {
   e.preventDefault();
+  const formData = new FormData();
 
   const isNameValid = validateProductName();
   const isBrandValid = validateBrand();
   const isCategoryValid = validateCategory();
   const isStrapValid = strapValidate();
   const isVariantsValid = validateVariants();
+ let isDiscountValid = validateDiscount();
+    let isOfferValid = validateOffer();
 
-  if (isNameValid && isBrandValid && isCategoryValid && isStrapValid && isVariantsValid) {
+  if (isNameValid && isBrandValid && isCategoryValid && isStrapValid && isVariantsValid && isDiscountValid && isOfferValid) {
     
-    const formData = new FormData();
+  
 
 
     
@@ -529,6 +655,10 @@ console.log("Variants sending:", variantsArr);
 
 formData.append("variants", JSON.stringify(variantsArr));
 
+
+} else {
+        scrollToError();  // <- Scroll to first error
+    }
 fetch(`/admin/product/edit/${productId}`, {
   method: "POST",
   body: formData
@@ -559,7 +689,7 @@ fetch(`/admin/product/edit/${productId}`, {
     });
   });
   }
-  })
+  )
 
 
   </script>

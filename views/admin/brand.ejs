@@ -1,4 +1,4 @@
-<%- include("../../views/partials/admin/header") %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,6 +32,7 @@
     }
   </style>
 </head>
+<%- include("../../views/partials/admin/header") %>
 <body>
 
   <!-- Header -->
@@ -42,6 +43,7 @@
     </button>
   </div>
 
+   <input id="searchInput" type="text" name="search" placeholder="Search brands..." value="<%= typeof search !== 'undefined' ? search : '' %>">
   <!-- Brand Table -->
   <div class="table-container">
     <table class="table table-striped">
@@ -61,7 +63,7 @@
           <% brands.forEach((brand) => { %>
             <tr>
               <td><%= brand.name %></td>
-              <td>
+              <td data-id="<%= brand._id %>" class="status-text">
                 <%= brand.isBlocked ? "Blocked" : "Active" %>
               </td>
               <td> <% if (brand.isBlocked) { %>
@@ -119,54 +121,49 @@
 
 
 <script>
-  document.getElementById("brandForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  let debounceTimer;
 
-    const name = document.getElementById("name").value;
+  document.getElementById("searchInput").addEventListener("keyup", function() {
+    clearTimeout(debounceTimer);
+
+    const searchTerm = this.value.trim();
+
+    
+    debounceTimer = setTimeout(() => {
+      if (searchTerm === '') {
+        window.location.href = '/admin/brand';
+      } else {
+        window.location.href = `/admin/brand?search=${encodeURIComponent(searchTerm)}`;
+      }
+    }, 500);
+  });
+document.querySelectorAll(".block-btn, .unblock-btn").forEach(btn => {
+  btn.addEventListener("click", async function () {
+    const row = btn.closest("tr"); // row select first
+    const statusText = row.querySelector(".status-text"); // status text inside that row
+    const id = btn.dataset.id;
 
     try {
-      const response = await fetch("/admin/brand", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        Swal.fire("Success", result.message, "success").then(() => {
-          location.reload(); 
-        });
-      } else {
-        Swal.fire("Error", result.message, "error");
-      }
-
-    } catch (err) {
-      Swal.fire("Error", "Something went wrong!", "error");
-    }
-  });
-
-document.querySelectorAll(".block-btn, .unblock-btn").forEach(btn=>{
-  btn.addEventListener("click", async function(){
-    const id=btn.dataset.id;
-    try{
-   const res = await fetch(`/admin/brand/block/${id}`, {
+      const res = await fetch(`/admin/brand/block/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" }
-   })
+      });
 
-   const msg=await res.json();    
-    
-    if(msg.success){
-        if(msg.message==="block"){
-          btn.textContent="block"
-         
-            btn.classList.remove("btn-success");
-        btn.classList.add("btn-danger");
-        }else{
-          btn.textContent="unblock"
-            btn.classList.remove("btn-danger");
-        btn.classList.add("btn-success")
+      const msg = await res.json();
+
+      if (msg.success) {
+        if (msg.message === "block") {
+          statusText.textContent = "Blocked";      
+          btn.textContent = "Unblock";             
+          btn.classList.remove("btn-danger");
+          btn.classList.add("btn-success");
+          btn.dataset.blocked = "true";
+        } else {
+          statusText.textContent = "Active";
+          btn.textContent = "Block";
+          btn.classList.remove("btn-success");
+          btn.classList.add("btn-danger");
+          btn.dataset.blocked = "false";
         }
     
    }else{
@@ -178,6 +175,23 @@ document.querySelectorAll(".block-btn, .unblock-btn").forEach(btn=>{
     }
   })
 })
+document.getElementById("brandForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+
+  const res = await fetch("/admin/brand", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    Swal.fire("Success", data.message, "success").then(() => location.reload());
+  } else {
+    Swal.fire("Error", data.message, "error");
+  }
+});
 
 </script>
 

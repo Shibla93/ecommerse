@@ -21,7 +21,7 @@ router.post("/logout",adminController.logout)
 
 router.get("/customers",adminAuth,userController.getCustomer)
 router.post("/customers/block/:id",adminAuth,userController.blockCustomer)
-router.post("/customers/unblock/:id",adminAuth,userController.unblockCustomer)
+
 
 router.get("/category",adminAuth,categoryController.getCategory)
 router.post("/category",adminAuth,categoryController.addCategory)
@@ -31,7 +31,7 @@ router.put("/category/:id", adminAuth, categoryController.editCategory);
 
 router.get("/brand",adminAuth,brandController.getBrand)
 router.post("/brand",adminAuth,brandController.addBrand)
-router.post("/brand/block/:id", brandController.blockBrand);
+router.post("/brand/block/:id",adminAuth, brandController.blockBrand);
 
 router.get("/addproduct",adminAuth,productController.addproduct)
 router.post("/addproduct", adminAuth,upload.any(),productController.createProduct)

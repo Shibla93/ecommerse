@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zxx">
 <head>
@@ -8,115 +7,229 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="ie=edge">
    <title>Wriston</title>
-   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
-   rel="stylesheet">
-   <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-   <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-   <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-   <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
-   <link rel="stylesheet" href="css/nice-select.css" type="text/css">
-   <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
-   <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-   <link rel="stylesheet" href="css/style.css" type="text/css">
-   <link rel="stylesheet" href="css/maind134.css">
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="/css/bootstrap.min.css" />
+   <link rel="stylesheet" href="/css/style.css" />
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
    <style>
-       .header__nav__option .sign-in-link {
-   font-size: 16px;
-   color: #333;
-   margin-right: 15px;
-   text-decoration: none;
-   font-weight: 600;
-}
-.header__nav__option .sign-in-link:hover {
-   color: #ff7f50;
-}
-
-
-.dropdown {
-   position:relative;
-   display:inline-block;
-}
-.dropdown-content {
-   display: none;
-   position:absolute;
-   background-color: white;
-   min-width: 160px;
-   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-   z-index:1000;
-   right:0;
-}
-
-
-.dropdown-content a {
-   color: black;
-   padding: 12px 16px;
-   text-decoration: none;
-   display: block;
-   width: 100%;
-
-
-}
-.dropdown-content a:hover{
-   background-color: #f1f1f1;
-}
-.dropdown:hover .dropdown-content{
-   display: block;
-}
-.header {
-   position: relative;
-   z-index: 500;
-}
-
-
-
-
+      /* === BASIC HEADER === */
+      .header {
+         position: fixed;
+         top: 0;
+         width: 100%;
+         z-index: 999;
+         background: #fff;
+         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      body {
+         padding-top: 90px;
+         font-family: "Nunito Sans", sans-serif;
+      }
+      .header__logo img {
+         max-width: 140px;
+      }
+      .header__nav__option {
+         display: flex;
+         align-items: center;
+         justify-content: flex-end;
+         gap: 15px;
+      }
+      .sign-in-link {
+         font-size: 16px;
+         color: #333;
+         text-decoration: none;
+         font-weight: 600;
+      }
+      .sign-in-link:hover {
+         color: #ff7f50;
+      }
+      /* Avatar when no profile image */
+      .user-initial {
+         width: 32px;
+         height: 32px;
+         border-radius: 50%;
+         background: #00796b;
+         color: #fff;
+         font-weight: bold;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         text-transform: uppercase;
+         font-size: 16px;
+      }
+      /* Dropdown */
+      .dropdown { position: relative; display: inline-block; }
+      .dropdown-content {
+         display: none;
+         position: absolute;
+         background-color: white;
+         min-width: 160px;
+         box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+         z-index: 1000;
+         right: 0;
+      }
+      .dropdown-content a {
+         color: black;
+         padding: 10px 16px;
+         text-decoration: none;
+         display: block;
+      }
+      .dropdown-content a:hover {
+         background-color: #f1f1f1;
+      }
+      .dropdown:hover .dropdown-content {
+         display: block;
+      }
+      /* Menu */
+      .header__menu ul {
+         list-style: none;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         margin: 0;
+         padding: 0;
+      }
+      .header__menu ul li {
+         margin: 0 20px;
+      }
+      .header__menu ul li a {
+         text-decoration: none;
+         color: #333;
+         font-weight: 600;
+      }
+      .header__menu ul li a:hover {
+         color: #ff7f50;
+      }
+      /* Hamburger */
+      .canvas__open {
+         display: none;
+         font-size: 28px;
+         cursor: pointer;
+         color: #333;
+      }
+      /* Mobile menu */
+      .mobile-menu {
+         display: none;
+         position: absolute;
+         top: 100%;
+         left: 0;
+         width: 100%;
+         background: #fff;
+         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+         z-index: 1000;
+         animation: fadeInDown 0.3s ease;
+      }
+      @keyframes fadeInDown {
+         from { opacity: 0; transform: translateY(-10px); }
+         to { opacity: 1; transform: translateY(0); }
+      }
+      .mobile-menu ul { list-style: none; margin: 0; padding: 0; text-align: center; }
+      .mobile-menu li { border-bottom: 1px solid #eee; }
+      .mobile-menu li a {
+         color: #333;
+         text-decoration: none;
+         display: block;
+         padding: 14px;
+         font-size: 16px;
+         font-weight: 600;
+      }
+      .mobile-menu li a:hover { background-color: #f7f7f7; }
+      /* Responsive */
+      @media (max-width: 991px) {
+         .header__menu,
+         .header__nav__option { display: none; }
+         .canvas__open { display: block; position: absolute; top: 25px; right: 20px; }
+         body { padding-top: 80px; }
+      }
+      @media (max-width: 576px) { .sign-in-link { font-size: 14px; } }
    </style>
 </head>
+
 <body>
    <header class="header">
-       <div class="container">
-           <div class="row">
-               <div class="col-lg-3 col-md-3">
-                   <div class="header__logo">
-                       <a href="#"><img src="img/userlogo (8).png" alt=""></a>
-                   </div>
+      <div class="container">
+         <div class="row align-items-center justify-content-between">
+            <!-- LOGO -->
+            <div class="col-6 col-md-3">
+               <div class="header__logo">
+                  <a href="/"><img src="/img/userlogo (8).png" alt="Wriston" /></a>
                </div>
-               <div class="col-lg-6 col-md-6">
-                   <nav class="header__menu mobile-menu">
-                       <ul>
-                           <li class="active"><a href="/home">Home</a></li>
-                           <li><a href="/shop">Shop</a></li>
-                       </ul>
-                   </nav>
-               </div>
-               <div class="col-lg-3 col-md-3">
-                   <div class="header__nav__option">
-                       <%if(locals.user){%>
-                           <div class="dropdown">
-                               <a href="#" class="sign-in-link"><%=locals.user.name%></a>
-                               <div class="dropdown-content">
+            </div>
 
+            <!-- NAV MENU -->
+            <div class="col-lg-6 header__menu">
+               <ul>
+                  <li><a href="/home">Home</a></li>
+                  <li><a href="/shop">Shop</a></li>
+               </ul>
+            </div>
 
-                                   <a href="/userProfile">Profile</a>
-                                   <a href="/logout">Logout</a>
-
-
-                               </div>
-
-
+            <!-- RIGHT OPTIONS -->
+            <div class="col-6 col-md-3 header__nav__option">
+               <% if (locals.user) { %>
+                  <div class="dropdown">
+                     <a href="#" class="sign-in-link d-flex align-items-center">
+                        <% if (locals.user.profileImage && !locals.user.profileImage.includes('default-profile')) { %>
+                           <img src="<%= locals.user.profileImage %>" 
+                                alt="Profile"
+                                class="rounded-circle me-2"
+                                style="width:32px; height:32px; object-fit:cover;">
+                        <% } else { %>
+                           <div class="user-initial me-2">
+                              <%= locals.user.name ? locals.user.name.charAt(0).toUpperCase() : 'U' %>
                            </div>
-                       <%}else {%>
+                        <% } %>
+                       <!-- // <span><%= locals.user.name %></span> -->
+                     </a>
+                     <div class="dropdown-content">
+                        <a href="/userProfile">Profile</a>
+                        <a href="/logout">Logout</a>
+                     </div>
+                  </div>
+               <% } else { %>
+                  <a href="/signup" class="sign-in-link">Sign Up</a>
+                  <a href="/login" class="sign-in-link">Log In</a>
+               <% } %>
 
+               <a href="/wishlist"><img src="/img/icon/heart.png" alt="Wishlist" /></a>
+               <a href="/cart"><img src="/img/icon/cart.png" alt="Cart" /></a>
+            </div>
 
-                       <a href="/signup" class="sign-in-link">Sign Up</a>
-                       <a href="/login" class="sign-in-link">Log in</a>
-                       <%}%>
-                       <a href="/wishlist"><img src="img/icon/heart.png" alt=""></a>
-                       <a href="/cart"><img src="img/icon/cart.png" alt=""> <span></span></a>
-                   </div>
-               </div>
-           </div>
-           <div class="canvas__open"><i class="fa fa-bars"></i></div>
-       </div>
+            <!-- HAMBURGER ICON -->
+            <div class="canvas__open"><i class="fa fa-bars"></i></div>
+         </div>
+      </div>
+
+      <!-- MOBILE MENU -->
+      <div class="mobile-menu">
+         <ul>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/shop">Shop</a></li>
+            <% if (locals.user) { %>
+               <li><a href="/userProfile">Profile</a></li>
+               <li><a href="/logout">Logout</a></li>
+            <% } else { %>
+               <li><a href="/signup">Sign Up</a></li>
+               <li><a href="/login">Log In</a></li>
+            <% } %>
+            <li><a href="/wishlist">Wishlist</a></li>
+            <li><a href="/cart">Cart</a></li>
+         </ul>
+      </div>
    </header>
+
+   <script src="/js/jquery-3.6.0.min.js"></script>
+   <script src="/js/bootstrap.bundle.min.js"></script>
+   <script>
+      document.addEventListener("DOMContentLoaded", function() {
+         const burger = document.querySelector(".canvas__open");
+         const mobileMenu = document.querySelector(".mobile-menu");
+
+         burger.addEventListener("click", function() {
+            mobileMenu.style.display = mobileMenu.style.display === "block" ? "none" : "block";
+         });
+      });
+   </script>
+</body>
+</html>

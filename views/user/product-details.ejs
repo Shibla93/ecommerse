@@ -1,0 +1,271 @@
+<%- include("../../views/partials/user/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= product.product %> - Details</title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    /* Sticky footer */
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    main { flex: 1; padding: 20px; }
+
+    .product-container { display: flex; flex-wrap: wrap; gap: 40px; margin-top: 20px; }
+    .images { display: flex; gap: 20px; flex-wrap: wrap; }
+    .thumbnail-slider { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; }
+    .thumbnail-slider::-webkit-scrollbar { width: 6px; }
+    .thumbnail-slider::-webkit-scrollbar-thumb { background-color: #bbb; border-radius: 3px; }
+    .active-thumb { width: 70px; height: 70px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+    .active-thumb:hover, .active-thumb.selected { border-color: #007bff; opacity: 0.8; }
+
+    .main-image-container { position: relative; }
+    .main-img { width: 400px; height: 400px; object-fit: cover; border-radius: 10px; transition: transform 0.2s; cursor: zoom-in; }
+
+    .thumbnails { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .variant-thumb { width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+    .variant-thumb:hover, .variant-thumb.selected { border-color: #007bff; opacity: 0.8; }
+
+    .details { max-width: 400px; }
+    .in-stock { color: green; }
+    .out-of-stock { color: red; font-weight: bold; }
+    .btn { padding: 10px 15px; background: orange; color: white; border: none; border-radius: 5px; cursor: pointer; }
+
+    #reviewForm { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; max-width: 400px; }
+    #reviewForm input, #reviewForm textarea { padding: 8px; width: 100%; border-radius: 5px; border: 1px solid #ccc; }
+    #reviewForm button { width: 150px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+
+    #reviews { margin-top: 20px; }
+    .review { border-bottom: 1px solid #ddd; padding: 10px 0; }
+
+    .related-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+    .related-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; text-align: center; padding: 10px; transition: transform 0.3s; }
+    .related-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; }
+    .related-card p { font-size: 14px; margin-top: 5px; color: #222; }
+    .related-card:hover { transform: translateY(-4px); }
+    .zoom-container {
+  position: relative;
+  overflow: hidden;
+  width: 400px;
+  height: 400px;
+  border-radius: 10px;
+}
+
+.zoom-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  cursor: zoom-in;
+}
+
+  </style>
+</head>
+
+<body>
+<main class="flex-grow-1">
+
+  <!-- Breadcrumbs -->
+  <p><a href="/">Home</a> > <a href="/shop">Shop</a> > <%= product.product %></p>
+
+  <div class="product-container">
+    <!-- LEFT: Image Gallery -->
+    <div class="images">
+      <div class="thumbnail-slider">
+        <% activeVariant.images.forEach(img => { %>
+          <img src="<%= img.croppedUrl %>" class="active-thumb" data-url="<%= img.croppedUrl %>">
+        <% }) %>
+      </div>
+     <div class="main-image-container">
+  <div class="zoom-container">
+    <img id="mainImage" src="<%= activeVariant.images[0].croppedUrl %>" class="main-img" alt="Product Image">
+  </div>
+</div>
+</div>
+
+    <!-- RIGHT: Product Details -->
+    <div class="details">
+      <h2 id="title"><%= product.product %> <%= activeVariant.dialColor %> Dial with <%= activeVariant.strapColor %> Strap</h2>
+      <p><%= product.description %></p>
+      <h3>₹<%= activeVariant.price - (activeVariant.price * product.discount / 100) %></h3>
+      <% if(product.discount){ %>
+        <p><del>₹<%= activeVariant.price %></del> <span class="offer">(<%= product.discount %>%)</span></p>
+      <% } %>
+
+      <% if(activeVariant.stock > 0) { %>
+        <p class="in-stock">In Stock (<%= activeVariant.stock %>)</p>
+        <button class="btn">Add to Cart</button>
+      <% } else { %>
+        <p class="out-of-stock">Sold Out</p>
+        <button class="btn" onclick="notify()">Notify Me</button>
+      <% } %>
+
+      <div class="thumbnails">
+        <% listedVariants.forEach((v, i) => { %>
+          <% if(v.images && v.images.length > 0) { %>
+            <img src="<%= v.images[0].croppedUrl %>" class="variant-thumb" data-index="<%= i %>">
+          <% } %>
+        <% }) %>
+      </div>
+
+      <div class="variant-info">
+        <p>Price: <span id="variantPrice"><%= activeVariant.price %></span></p>
+        <p>Color: <span id="variantColor"><%= activeVariant.strapColor || 'N/A' %></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <form id="reviewForm" style="display: none;">
+    <input type="number" name="rating" min="1" max="5" placeholder="Rating (1-5)" required>
+    <textarea name="comment" placeholder="Write your review" required></textarea>
+    <button type="submit">Submit Review</button>
+  </form>
+
+  <h6>Reviews (<%= product.reviews?.length || 0 %>)</h6>
+  <div id="reviews">
+    <% (product.reviews || []).forEach(review => { %>
+      <div class="review">
+        <p><strong><%= review.name %></strong> - <%= review.rating %>/5</p>
+        <p><%= review.comment %></p>
+        <small><%= new Date(review.createdAt).toLocaleDateString() %></small>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Related Products -->
+  <h4>Related Products</h4>
+  <div class="related-products">
+    <% if (relatedProducts.length > 0) { %>
+      <% relatedProducts.forEach(rp => { %>
+        <div class="related-card">
+          <a href="/product/<%= rp._id %>?variant=<%= rp.variants[0]._id %>">
+            <img src="<%= rp.variants[0].images[0]?.croppedUrl || '/images/default-product.png' %>" alt="<%= rp.product %>">
+            <p><%= rp.product %></p>
+          </a>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p>No related products found.</p>
+    <% } %>
+  </div>
+
+</main>
+
+<%- include("../../views/partials/user/footer") %>
+
+<script>
+const mainImage = document.getElementById('mainImage');
+const variants = <%- JSON.stringify(listedVariants) %>;
+const priceEl = document.getElementById('variantPrice');
+const colorEl = document.getElementById('variantColor');
+const titleEl = document.getElementById('title');
+const productData = <%- JSON.stringify(product) %>;
+const activeVariantData = <%- JSON.stringify(activeVariant) %>;
+
+// Active Thumbnail Click
+document.querySelectorAll('.active-thumb').forEach(img => {
+  img.addEventListener('click', () => {
+    mainImage.src = img.dataset.url;
+    document.querySelectorAll('.active-thumb').forEach(t => t.classList.remove('selected'));
+    img.classList.add('selected');
+  });
+});
+
+// Variant Thumbnail Click
+document.querySelectorAll('.variant-thumb').forEach(thumb => {
+  thumb.addEventListener('click', () => {
+    const idx = thumb.dataset.index;
+    const variant = variants[idx];
+    mainImage.src = variant.images[0]?.croppedUrl || '/images/default-product.png';
+    priceEl.textContent = variant.price;
+    colorEl.textContent = variant.strapColor || 'N/A';
+    titleEl.textContent = `${productData.product} ${variant.dialColor} Dial with ${variant.strapColor} Strap`;
+     const slider = document.querySelector('.thumbnail-slider');
+    slider.innerHTML = ''
+
+        variant.images.forEach(img => {
+      const thumbImg = document.createElement('img');
+      thumbImg.src = img.croppedUrl;
+      thumbImg.className = 'active-thumb';
+      thumbImg.dataset.url = img.croppedUrl;
+
+      thumbImg.addEventListener('click', () => {
+        mainImage.src = img.croppedUrl;
+        document.querySelectorAll('.active-thumb').forEach(t => t.classList.remove('selected'));
+        thumbImg.classList.add('selected');
+      });
+
+      slider.appendChild(thumbImg);
+    });
+
+    document.querySelectorAll('.variant-thumb').forEach(t => t.classList.remove('selected'));
+    thumb.classList.add('selected');
+  });
+});
+
+
+// Better Zoom Effect
+const zoomContainer = document.querySelector('.zoom-container');
+const zoomImage = document.getElementById('mainImage');
+
+zoomContainer.addEventListener('mousemove', (e) => {
+  const rect = zoomContainer.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+
+  zoomImage.style.transformOrigin = `${x * 100}% ${y * 100}%`;
+  zoomImage.style.transform = "scale(2.2)";
+});
+
+zoomContainer.addEventListener('mouseleave', () => {
+  zoomImage.style.transformOrigin = "center center";
+  zoomImage.style.transform = "scale(1)";
+});
+
+// Notify
+function notify() {
+  Swal.fire("We'll notify you when this item is back in stock!");
+}
+
+// Submit Review
+const form = document.getElementById("reviewForm");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const rating = form.rating.value;
+  const comment = form.comment.value;
+  const productId = "<%= product._id %>";
+
+  const res = await fetch(`/product/${productId}/review`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rating, comment }),
+  });
+  const data = await res.json();
+  Swal.fire(data.message);
+
+  if(data.product) {
+    const reviewsDiv = document.getElementById("reviews");
+    reviewsDiv.innerHTML = "";
+    const reviewsCount = data.product.reviews.length;
+    document.querySelector("h6").textContent = `Reviews (${reviewsCount})`;
+
+    data.product.reviews.forEach(review => {
+      const stars = "⭐".repeat(review.rating); 
+      const div = document.createElement("div");
+      div.className = "review";
+      div.innerHTML = `<p><strong>${review.name}</strong> - ${stars}</p>
+                       <p>${review.comment}</p>
+                       <small>${new Date(review.createdAt).toLocaleDateString()}</small>`;
+      reviewsDiv.appendChild(div);
+    });
+    form.reset();
+  }
+});
+</script>
+
+</body>
+</html>

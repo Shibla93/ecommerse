@@ -140,9 +140,9 @@
 
     <!-- Search bar -->
     <form action="/admin/customers" method="GET" class="search-container">
-        <input type="text" name="search" placeholder="Search by name or email" value="<%= typeof search !== 'undefined' ? search : '' %>">
-        <button type="submit" class="search-btn">Search</button>
-        <button type="button" class="clear-btn" onclick="window.location.href='/admin/customers'">Clear</button>
+        <input type="text" id="searchInput" name="search" placeholder="Search by name or email" value="<%= typeof search !== 'undefined' ? search : '' %>">
+
+       
     </form>
 
     
@@ -190,6 +190,23 @@
 
 
 <script>
+
+     let debounceTimer;
+
+  document.getElementById("searchInput").addEventListener("keyup", function() {
+    clearTimeout(debounceTimer);
+
+    const searchTerm = this.value.trim();
+
+    
+    debounceTimer = setTimeout(() => {
+      if (searchTerm === '') {
+        window.location.href = '/admin/customers';
+      } else {
+        window.location.href = `/admin/customers?search=${encodeURIComponent(searchTerm)}`;
+      }
+    }, 500);
+  });
   
   document.addEventListener("DOMContentLoaded", () => {
 
@@ -221,11 +238,10 @@
         if (!ok) return;
 
        
-        const url = isBlocked ? `/admin/customers/unblock/${userId}` : `/admin/customers/block/${userId}`;
-
+       
         try {
           
-          const res = await fetch(url, { method: "POST" });
+          const res = await fetch(`/admin/customers/block/${userId}`, { method: "POST" });
           const data = await res.json();
 
           

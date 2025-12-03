@@ -37,7 +37,9 @@ const Messages = {
     PRODUCT_BRAND_STRAPE:"brand and strape matereil required",
     CATOGORY_SELECT:"Please select at least one category",
     VARIENT_REQUIRED:"at least one variant requried",
-    VARIANT_NOTFOUD:"no variant found"
+    VARIANT_NOTFOUD:"no variant found",
+   REVIEW_ADDED: "Review added successfully",
+   SOLD_OUT:"sold out"
 
 
    

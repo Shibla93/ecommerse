@@ -42,7 +42,7 @@
       <thead>
         <tr>
           <th>Product Name</th>
-          <th>Brand</th>
+          
           <th>Strap Material</th>
           <th>Categories</th>
           <th>Variants</th>
@@ -54,7 +54,7 @@
           <tr>
             <!-- Product info -->
             <td><%= product.product %></td>
-            <td><%= product.brand ? product.brand.name : 'N/A' %></td>
+            
             <td><%= product.strapMaterial || 'N/A' %></td>
             <td><%= product.categories && product.categories.length ? product.categories.map(c=>c.name).join(', ') : 'N/A' %></td>
             
@@ -125,9 +125,9 @@
 <script>
   // Search
   document.getElementById('searchInput').addEventListener('keyup', function() {
-    let term = this.value.toLowerCase();
+    let term = this.value.toLowerCase().trim();
     document.querySelectorAll('tbody tr').forEach(row=>{
-      row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+      row.style.display = row.textContent.toLowerCase().trim().includes(term) ? '' : 'none';
     });
   });
 

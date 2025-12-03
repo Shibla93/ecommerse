@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 
 const Brand = require("../../model/brandSchema");
 const Category = require("../../model/categorySchema");
+
 const Product = require("../../model/productSchema");
 const mongoose = require("mongoose");
 const cloudinary = require('../../helpers/cloudinary');
@@ -59,42 +60,60 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
-const home=async(req,res)=>{
-    try {
-      let userData = null;
-      const userId=req.session.user;
-      if(userId){
-        const userData=await User.findOne({_id:userId}).lean()
-      }
-        const products = await Product.find({ "variants.isDeleted": false, "variants.isListed": true })
-      .populate("brand", "name")
-      .populate("categories", "name")
-      .sort({ createdAt: -1 }) // newest first
-      .lean();
-
-    // For each product, take first variant & first image
-    products.forEach(p => {
-      const validVariants = p.variants.filter(v => !v.isDeleted && v.isListed);
-      if (validVariants.length > 0) {
-        const firstVariant = validVariants[0];
-        p.displayImage = firstVariant.images.length > 0 
-          ? (firstVariant.images[0].croppedUrl || firstVariant.images[0].originalUrl)
-          : null;
-        p.displayPrice = firstVariant.price;
-      } else {
-        p.displayImage = null;
-      }
-    })
- res.render("home",{user:userData,
-  products
-})
-
-    
-    } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
+// 
+const home = async (req, res) => {
+  try {
+    let userData = null;
+    const userId = req.session.user;
+    if (userId) {
+      userData = await User.findById(userId).lean();
     }
 
+    const categories = await Category.find({ isListed: true }).lean();
+    const brands = await Brand.find({ isBlocked: false }).lean();
+
+    // Get products with variants
+    let products = await Product.find({ "variants.isDeleted": false, "variants.isListed": true })
+      .populate("brand")
+      .populate("categories")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Filter out blocked brands & unlisted categories
+    products = products.filter(p => {
+      if (!p.brand || p.brand.isBlocked) return false;
+
+      if (!p.categories || p.categories.length === 0) return false;
+      const allCategoriesListed = p.categories.every(c => c.isListed);
+      if (!allCategoriesListed) return false;
+
+      // only keep first listed variant
+      const validVariants = p.variants.filter(v => !v.isDeleted && v.isListed);
+      if (validVariants.length === 0) return false;
+
+      p.variants = [validVariants[0]]; // keep only first variant
+      p.displayImage = validVariants[0].images.length > 0 
+        ? (validVariants[0].images[0].croppedUrl || validVariants[0].images[0].originalUrl)
+        : null;
+      p.displayPrice = validVariants[0].price;
+
+      return true;
+    });
+
+    const productLimit = products.slice(0, 4);
+
+    res.render("home", {
+      user: userData,
+      products: productLimit,
+      categories,
+      brands
+    });
+  } catch (error) {
+    console.error("Home controller error:", error);
+     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
   }
+};
+
 const signup=async(req,res)=>{
     try {
         res.render("signup")
@@ -339,6 +358,9 @@ const postform=async(req,res)=>{
 
 
 
+
+
+
 module.exports={
     home,
     pageNotFound,
@@ -351,6 +373,7 @@ module.exports={
     login,
     logout,
     getform,
-    postform
+    postform,
+    
     
 }

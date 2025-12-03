@@ -1,5 +1,4 @@
 
-<!-- <%- include("../../views/partials/user/header") %> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,7 +107,7 @@
         </div>
         <h6 id="timer">00:60s</h6>
         <div class="resend"><button type="button" id="resndotp" style="display:none">resend OTP</button></div>
-        <button class="submit-btn">verify</button>
+        <button class="submit-btn" style="display: z;">verify</button>
     </div>
     </main>
    </form>
@@ -125,7 +124,7 @@
 <% } %>
 
 
-    const inputs=document.querySelectorAll(".otp-input")
+    let inputs=document.querySelectorAll(".otp-input")
     window.addEventListener("load", () => {
     inputs[0].focus();
   });
@@ -215,6 +214,9 @@ otpForm.addEventListener("submit", (e) => {
   hiddenOtp.value = otpValue;  
 });
 </script>
+
 </body>
 </html>
+
+
 
