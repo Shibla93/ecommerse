@@ -1,42 +1,175 @@
-<footer class="footer text-white mt-auto py-4">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-3 col-md-6 mb-4">
-        <a href="/home"><img src="/img/adminlogo (2).png" alt="" class="mb-2"></a>
-        <p>Customer-centered business model.</p>
-        <img src="/img/payment.png" alt="">
+<footer class="wriston-footer">
+  <div class="container py-5">
+    <div class="row gy-5">
+      <!-- Logo & Description -->
+      <div class="col-lg-4 col-md-6">
+        <a href="/home" class="d-inline-block mb-4">
+          <img src="/img/adminlogo (2).png" alt="WRISTON" class="footer-logo">
+        </a>
+        <p class="footer-desc text-light opacity-75 mb-4">
+          Timeless elegance meets modern craftsmanship. Discover luxury watches designed for those who value precision and style.
+        </p>
+        <img src="/img/payment.png" alt="Payment Methods" class="payment-icons">
       </div>
-      <div class="col-lg-2 col-md-3 mb-4">
-        <h6>Shopping</h6>
-        <ul class="list-unstyled">
-          <li><a href="#" class="text-white">Mens collections</a></li>
-          <li><a href="#" class="text-white">Womens collection</a></li>
+
+      <!-- Shopping Links -->
+      <div class="col-lg-2 col-md-3 col-6">
+        <h6 class="footer-title">Shopping</h6>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">Men's Collection</a></li>
+          <li><a href="#">Women's Collection</a></li>
+          <li><a href="/shop">All Watches</a></li>
         </ul>
       </div>
-      <div class="col-lg-2 col-md-3 mb-4">
-        <h6>About us</h6>
-        <ul class="list-unstyled">
-          <li><a href="#" class="text-white">Contact Us</a></li>
-          <li><a href="#" class="text-white">Payment Methods</a></li>
-          <li><a href="#" class="text-white">Delivery</a></li>
-          <li><a href="#" class="text-white">Return & Exchanges</a></li>
+
+      <!-- Company Links -->
+      <div class="col-lg-2 col-md-3 col-6">
+        <h6 class="footer-title">Company</h6>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Stores</a></li>
+          <li><a href="#">Careers</a></li>
         </ul>
       </div>
-      <div class="col-lg-3 offset-lg-1 col-md-6 mb-4">
-        <h6>Newsletter</h6>
-        <form class="d-flex">
-          <input type="text" class="form-control me-2" placeholder="Your email">
-          <button type="submit" class="btn btn-primary">Subscribe</button>
+
+      <!-- Support Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="footer-title">Support</h6>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">Shipping Info</a></li>
+          <li><a href="#">Returns & Exchanges</a></li>
+          <li><a href="#">Warranty</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="footer-title">Newsletter</h6>
+        <p class="text-light opacity-75 small mb-3">Subscribe for exclusive offers</p>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Your email" class="form-control mb-2" required>
+          <button type="submit" class="btn-gold w-100">Subscribe</button>
         </form>
       </div>
     </div>
-    <div class="row mt-3">
-      <div class="col text-center">
-        <p class="mb-0">© <span id="year"></span> All rights reserved | Wriston</p>
+
+    <hr class="footer-divider my-5">
+
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start">
+        <p class="copyright mb-0">
+          © <span id="year"></span> WRISTON. All rights reserved.
+        </p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <p class="small text-light opacity-50 mb-0">
+          Crafted with precision
+        </p>
       </div>
     </div>
   </div>
 </footer>
+
+<style>
+  .wriston-footer {
+    background: #000000;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .footer-logo {
+    height: 70px;
+    width: auto;
+  }
+
+  .footer-desc {
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 300px;
+  }
+
+  .payment-icons {
+    height: 30px;
+    opacity: 0.8;
+  }
+
+  .footer-title {
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    color: #d4af37; /* Gold */
+  }
+
+  .footer-links li {
+    margin-bottom: 12px;
+  }
+
+  .footer-links a {
+    color: #cccccc;
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover {
+    color: #d4af37; /* Gold on hover */
+  }
+
+  .newsletter-form .form-control {
+    background: transparent;
+    border: 2px solid #444;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+
+  .newsletter-form .form-control::placeholder {
+    color: #888;
+  }
+
+  .newsletter-form .form-control:focus {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    background: transparent;
+    color: white;
+  }
+
+  .btn-gold {
+    background: #d4af37;
+    color: #000;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+  }
+
+  .btn-gold:hover {
+    background: #e6c04a;
+    transform: translateY(-2px);
+  }
+
+  .footer-divider {
+    border-color: #333;
+  }
+
+  .copyright {
+    font-size: 14px;
+    color: #aaa;
+  }
+
+  @media (max-width: 768px) {
+    .footer-title {
+      margin-top: 30px;
+    }
+  }
+</style>
 
 <script>
   document.getElementById("year").innerText = new Date().getFullYear();

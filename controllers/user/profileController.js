@@ -57,7 +57,7 @@ const postEmail = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) 
-      return res.render("forgot_pass", { error: Messages.USER_NOT_FOUND });
+      return res.render("user/forgot_pass", { error: Messages.USER_NOT_FOUND });
 
     const otp = generateOtp();
     req.session.forgotOtp = otp;
@@ -65,7 +65,7 @@ const postEmail = async (req, res) => {
     req.session.resetEmail = email;
 
     const sent = await sendVerificationEmail(email, otp);
-    if (!sent) return res.render("forgot_pass", { error: "Failed to send OTP" });
+    if (!sent) return res.render("user/forgot_pass", { error: "Failed to send OTP" });
 
     console.log("Generated OTP:", otp);
     res.render("forgotverify_otp");
@@ -146,11 +146,240 @@ const newPass = async (req, res) => {
   }
 };
 
+
+const userProfile=async(req,res)=>{
+    try{
+const userId=req.session.user;
+const userData=await User.findById(userId);
+
+res.render('profile',{
+  user:userData,
+    activePage: "profile"
+});
+    }catch(error){
+        console.error("Error for retreive profile data ",error);
+        res.redirect("/pageNotFound")
+    }
+}
+const updateProfile = async (req, res) => {
+  try {
+    if (!req.session.user) return res.redirect("/login");
+
+    const userId = req.session.user._id;
+    const { phone } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) 
+      return res.redirect("/login");
+
+    let imageUrl = user.profileImage;
+    let publicId = user.cloudinaryPublicId;
+
+  
+    if (req.file) {
+      
+      if (user.cloudinaryPublicId) {
+        await cloudinary.uploader.destroy(user.cloudinaryPublicId);
+      }
+
+    
+      const uploadResult = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+        { folder: "profile_images" }
+      );
+
+      imageUrl = uploadResult.secure_url;
+      publicId = uploadResult.public_id;
+    }
+
+
+    user.phone = phone;
+    if (req.file) {
+  user.profileImage = imageUrl;
+  user.cloudinaryPublicId = publicId;
+  user.hasCustomImage = true;
+}
+    
+
+    await user.save();
+
+    
+    req.session.user = user;
+
+    res.redirect("/userprofile?success=true");
+
+  } catch (err) {
+    console.error("Profile update error:", err);
+    res.redirect("/userprofile?error=true");
+  }
+};
+
+
+
+ const changeEmail = async(req, res) => {
+    try{
+      const userId=req.session.user;
+      const userData=await User.findById(userId);
+
+     res.render("user/change-email",{
+         user:userData
+     });
+ }catch(error){
+    res.redirect("/pageNotFound")
+ }
+}
+
+
+const changeEmailValid=async(req,res)=>{
+try {
+    const {email}=req.body;
+    
+
+    const userExist=await User.findOne({email});
+    if(userExist){
+        const otp=generateOtp();
+        const emailSent=await sendVerificationEmail(email,otp);
+        if(emailSent){
+            req.session.userOtp=otp;
+            req.session.userData=req.body;
+            req.session.email=email;
+            res.render("change-email-otp");
+            console.log("email sent:",email);
+            console.log("otp:",otp);
+            
+            
+
+        }else{
+            res.json("email-error")
+        }
+    }else{
+        res.render("change-email",{
+            message:Messages.USER_NOT_FOUND
+        })
+    }
+} catch (error) {
+    res.redirect("/pageNotFound")
+}
+}
+
+
+// Handle OTP verification
+const verifyEmailOtp = async (req, res) => {
+    try {
+         const enteredOtp = req.body.otp;
+
+
+        if (enteredOtp === req.session.userOtp) {
+            const userData = req.session.userData;
+           res.render("new-email",{
+
+           })
+        
+            
+        } else {
+            res.render("change-email-otp", { message: Messages.INVALID_OTP , userData:req.session.userData});
+
+        }
+    } catch (error) {
+        res.redirect("/pageNotFound")
+    }
+};
+
+const updateEmail=async(req,res)=>{
+    try{
+    const newEmail=req.body.newEmail;
+    const userId = req.session.user;
+    await User.findByIdAndUpdate(userId,{email:newEmail});
+    res.redirect("/userProfile")
+}catch(error){
+res.redirect("/pageNotFound")
+}
+}
+
+// const updateProfile = async (req, res) => {
+//     try {
+//         const userId = req.session.user;
+//         const { phone } = req.body;
+
+//         await User.findByIdAndUpdate(userId, { phone });
+
+//         res.json({ success: true, message: Messages.PROFILE_UPDATED });
+//     } catch (error) {
+//         console.error("Error updating profile:", error);
+//        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+//     }
+// };
+const changePassword=async(req,res)=>{
+    try{
+res.render("change password")
+    }catch(error){
+        res.redirect("/pageNotFound")
+    }
+}
+
+ const changePasswordValid = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const userExist = await User.findOne({ email });
+
+        if (userExist) {
+            const otp = generateOtp();
+            const emailSent = await sendVerificationEmail(email, otp);
+
+            if (emailSent) {
+                req.session.userOtp = otp;
+                req.session.userData = req.body;
+                req.session.email = email;
+
+                res.render("change-password-otp");
+                console.log("OTP:", otp);
+            } else {
+                res.json({
+                    success: false,
+                    message: Messages.FAILED_OTP,
+                });
+            }
+        } else {
+            res.render("change password", {
+                message: Messages.USER_NOT_FOUND,
+            });
+        }
+    } catch (error) {
+        console.log("Error in change password validation", error);
+        res.redirect("/pageNotFound");
+    }
+};
+
+const verifyChangePassOtp=async(req,res)=>{
+    try {
+        const enteredOtp=req.body.otp;
+        if(enteredOtp===req.session.userOtp){
+            res.json({success:true,redirectUrl:"/reset-password"})
+        }else{
+            res.json({success:false,message:Messages.OTP_INVALID})
+        }
+    } catch (error) {
+       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+    }
+}
+
+
+
+
 module.exports = {
   getForgotPass,
   postEmail,
   getForgotVerify,
   postForgotOtp,
   resendForgotOtp,
-  newPass
+  newPass,
+  updateProfile,
+      changeEmail,
+      changeEmailValid,
+      verifyEmailOtp,
+      updateEmail,
+      updateProfile,
+      changePassword,
+      changePasswordValid,
+      verifyChangePassOtp,
 };

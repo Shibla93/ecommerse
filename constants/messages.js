@@ -36,7 +36,7 @@ const Messages = {
    PRODUCT_NAME_VALID:"Product name is required and must be at least 2 characters",
     PRODUCT_BRAND_STRAPE:"brand and strape matereil required",
     CATOGORY_SELECT:"Please select at least one category",
-    VARIENT_REQUIRED:"at least one variant requried",
+    
     VARIANT_NOTFOUD:"no variant found",
    REVIEW_ADDED: "Review added successfully",
    SOLD_OUT:"sold out"

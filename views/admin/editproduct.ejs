@@ -4,28 +4,222 @@
 <meta charset="UTF-8">
 <title><%= product ? 'Edit Product' : 'Add Product' %></title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  body { font-family: Arial, sans-serif; background: #f9f9f9; margin:0; padding:0; }
-  .container { width:90%; max-width:900px; margin:30px auto; background:#fff; padding:20px 30px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-  h2 { text-align:center; color:#333; margin-bottom:20px;}
-  form label { font-weight:bold; display:block; margin-top:15px;}
-  form input, form select, form textarea { width:100%; padding:8px 10px; margin-top:5px; border:1px solid #ccc; border-radius:4px; font-size:14px; }
-  form textarea { resize:vertical; }
-  .variants-container { margin-top:20px; }
-  .variant { border:1px solid #ddd; padding:15px; border-radius:5px; margin-bottom:15px; background:#fafafa; position:relative; }
-  .variant h4 { margin-top:0; color:#555; }
-  .remove-variant-btn { position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; cursor:pointer; padding:5px 10px; }
-  .remove-variant-btn:hover { background:#d32f2f; }
-  button { background:#4CAF50; color:white; padding:10px 15px; border:none; border-radius:4px; cursor:pointer; font-size:14px; margin-top:10px; }
-  button:hover { background:#45a049; }
-  .add-variant-btn { background:#2196F3; }
-  .add-variant-btn:hover { background:#0b7dda; }
-  .preview-box img, .final img { max-width:200px; max-height:200px; border:1px solid #ddd; border-radius:5px; margin-top:10px; }
-  .error-message { color:red; font-size:0.8rem; display:none; }
-  .image-container { margin:10px 0; }
-  .crop-btn, .edit-btn, .delete-btn { margin:5px; }
- 
-
+  /* Applied Titan watch store luxury aesthetic with dark theme and gold accents */
+  body { 
+    font-family: 'Inter', sans-serif; 
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); 
+    margin: 0; 
+    padding: 0;
+    color: #e5e5e5;
+    min-height: 100vh;
+  }
+  
+  .container { 
+    width: 90%; 
+    max-width: 900px; 
+    margin: 30px auto; 
+    background: rgba(26, 26, 26, 0.95); 
+    padding: 40px 50px; 
+    border-radius: 12px; 
+    box-shadow: 0 8px 32px rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+  }
+  
+  h2 { 
+    text-align: center; 
+    color: #d4af37; 
+    margin-bottom: 30px;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  
+  form label { 
+    font-weight: 600; 
+    display: block; 
+    margin-top: 20px;
+    color: #d4af37;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+  }
+  
+  form input, form select, form textarea { 
+    width: 100%; 
+    padding: 12px 16px; 
+    margin-top: 8px; 
+    border: 1px solid rgba(212, 175, 55, 0.3); 
+    border-radius: 6px; 
+    font-size: 14px;
+    background: rgba(15, 15, 15, 0.8);
+    color: #e5e5e5;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  form input:focus, form select:focus, form textarea:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+  }
+  
+  form textarea { 
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .variants-container { 
+    margin-top: 30px; 
+  }
+  
+  .variant { 
+    border: 1px solid rgba(212, 175, 55, 0.3); 
+    padding: 25px; 
+    border-radius: 8px; 
+    margin-bottom: 25px; 
+    background: rgba(15, 15, 15, 0.6); 
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .variant:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.1);
+  }
+  
+  .variant h4 { 
+    margin-top: 0; 
+    color: #d4af37;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .remove-variant-btn { 
+    position: absolute; 
+    top: 15px; 
+    right: 15px; 
+    background: #dc2626; 
+    color: white; 
+    border: none; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .remove-variant-btn:hover { 
+    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+  
+  button { 
+    background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%); 
+    color: #1a1a1a; 
+    padding: 12px 24px; 
+    border: none; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 15px; 
+    margin-top: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+  }
+  
+  button:hover { 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+  }
+  
+  .add-variant-btn { 
+    background: linear-gradient(135deg, #8b7355 0%, #6b5d4f 100%);
+    color: #d4af37;
+  }
+  
+  .add-variant-btn:hover { 
+    box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
+  }
+  
+  .preview-box img, .final img { 
+    max-width: 200px; 
+    max-height: 200px; 
+    border: 2px solid rgba(212, 175, 55, 0.3); 
+    border-radius: 8px; 
+    margin-top: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .preview-box img:hover, .final img:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
+  }
+  
+  .error-message { 
+    color: #ef4444; 
+    font-size: 0.85rem; 
+    display: none;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  
+  .image-container { 
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(10, 10, 10, 0.5);
+    border-radius: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.1);
+  }
+  
+  .crop-btn, .edit-btn, .delete-btn { 
+    margin: 8px 5px;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .edit-btn {
+    background: linear-gradient(135deg, #6b5d4f 0%, #8b7355 100%);
+    color: #d4af37;
+  }
+  
+  .delete-btn {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+  }
+  
+  input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+    accent-color: #d4af37;
+    cursor: pointer;
+  }
+  
+  .image-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+  }
+  
+  input[type="file"] {
+    background: rgba(10, 10, 10, 0.8);
+    border: 2px dashed rgba(212, 175, 55, 0.3);
+    cursor: pointer;
+    padding: 20px;
+  }
+  
+  input[type="file"]:hover {
+    border-color: #d4af37;
+  }
+  
+  select option {
+    background: #1a1a1a;
+    color: #e5e5e5;
+  }
 </style>
 </head>
 <body>
@@ -100,7 +294,7 @@
         <div class="image-preview">
           <% for(let i=0;i<4;i++){ %>
             <div class="image-container">
-              <input type="file" class="img-input" accept="image/*" />
+              <input type="file" class="img-input"  style="display:none" accept="image/*" />
               <div class="error-message">Image is required</div>
               <div class="preview-box">
                 <% if(variant.images[i]){ %>
@@ -109,7 +303,7 @@
                        data-cropped-url="<%= variant.images[i].croppedUrl %>"
                        data-original-filename="<%= variant.images[i].originalFileName %>"
                        data-cropped-filename="<%= variant.images[i].croppedFileName %>"
-                       style="display:none;
+                       style="display:none;"
                        alt="">
                 <% } else { %>
                   <img alt="">
@@ -139,11 +333,15 @@
     <% }) %>
   <% } %>
 </div>
-
-</div>
 <button type="button" class="add-variant-btn" onclick="addVariant()">+ Add Another Variant</button>
 <br/>
 <button type="submit"><%= product ? 'Update Product' : 'Add Product' %></button>
+</form>
+</div>
+
+</body>
+</html>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

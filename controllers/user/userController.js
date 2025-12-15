@@ -72,14 +72,14 @@ const home = async (req, res) => {
     const categories = await Category.find({ isListed: true }).lean();
     const brands = await Brand.find({ isBlocked: false }).lean();
 
-    // Get products with variants
+  
     let products = await Product.find({ "variants.isDeleted": false, "variants.isListed": true })
       .populate("brand")
       .populate("categories")
       .sort({ createdAt: -1 })
       .lean();
 
-    // Filter out blocked brands & unlisted categories
+    
     products = products.filter(p => {
       if (!p.brand || p.brand.isBlocked) return false;
 
@@ -87,11 +87,11 @@ const home = async (req, res) => {
       const allCategoriesListed = p.categories.every(c => c.isListed);
       if (!allCategoriesListed) return false;
 
-      // only keep first listed variant
+      
       const validVariants = p.variants.filter(v => !v.isDeleted && v.isListed);
       if (validVariants.length === 0) return false;
 
-      p.variants = [validVariants[0]]; // keep only first variant
+      p.variants = [validVariants[0]]; 
       p.displayImage = validVariants[0].images.length > 0 
         ? (validVariants[0].images[0].croppedUrl || validVariants[0].images[0].originalUrl)
         : null;
@@ -237,7 +237,10 @@ res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
 
 const loadLogin=async(req,res)=>{
     try {
-        res.render("login")
+      if (req.isAuthenticated()) {
+    return res.redirect("/home");
+  }
+  res.render("login");
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
     }
@@ -334,7 +337,7 @@ const postform=async(req,res)=>{
           });
         });
       } else {
-        // only one variant
+      
         product.variants.push({
           dialColor: variants.dialColor,
           strapColor: variants.strapColor,

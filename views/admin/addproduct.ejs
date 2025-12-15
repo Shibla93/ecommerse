@@ -1,43 +1,264 @@
+
+<%- include("../../views/partials/admin/header") %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Add Product</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
-    .container { width: 90%; max-width: 900px; margin: 30px auto; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-    h2 { text-align: center; color: #333; margin-bottom: 20px;}
-    form label { font-weight: bold; display: block; margin-top: 15px; }
-    form input, form select, form textarea { width: 100%; padding: 8px 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-    form textarea { resize: vertical; }
-    .variants-container { margin-top: 20px; }
-    .variant { border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 15px; background: #fafafa; }
-    .variant h4 { margin-top: 0; color: #555; }
-    button { background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 10px; }
-    button:hover { background: #45a049; }
-    .add-variant-btn { background: #2196F3; }
-    .add-variant-btn:hover { background: #0b7dda; }
-     .preview-box img  {
+    /* Titan-inspired luxury watch store aesthetic with dark theme */
+    body { 
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+      margin: 0; 
+      padding: 40px 0; 
+      min-height: 100vh;
+      color: #e5e5e5;
+    }
+    
+    .container { 
+      width: 90%; 
+      max-width: 900px; 
+      margin: 30px auto; 
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      padding: 50px 60px; 
+      border-radius: 2px; 
+      box-shadow: 0 30px 90px rgba(0,0,0,0.9), 0 0 1px rgba(212, 175, 55, 0.3);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+    }
+    
+    /* Elegant serif heading with gold accent */
+    h2 { 
+      text-align: center; 
+      color: #ffffff; 
+      margin-bottom: 50px;
+      font-size: 42px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      font-family: 'Playfair Display', serif;
+      text-transform: uppercase;
+      position: relative;
+      padding-bottom: 20px;
+    }
+    
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    }
+    
+    /* Premium form styling with light text on dark */
+    form label { 
+      font-weight: 500; 
+      display: block; 
+      margin-top: 25px;
+      color: #d4af37;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    
+    form input, form select, form textarea { 
+      width: 100%; 
+      padding: 14px 18px; 
+      margin-top: 10px; 
+      border: 1px solid rgba(212, 175, 55, 0.2); 
+      border-radius: 0; 
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: rgba(0, 0, 0, 0.3);
+      color: #e5e5e5;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    form input::placeholder, form select, form textarea::placeholder {
+      color: #666;
+    }
+    
+    form input:focus, form select:focus, form textarea:focus {
+      outline: none;
+      border-color: #d4af37;
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+    }
+    
+    form textarea { 
+      resize: vertical; 
+      min-height: 100px;
+    }
+    
+    .variants-container { 
+      margin-top: 40px; 
+    }
+    
+    /* Sophisticated variant cards with subtle gold accents */
+    .variant { 
+      border: 1px solid rgba(212, 175, 55, 0.25); 
+      padding: 30px; 
+      border-radius: 0; 
+      margin-bottom: 30px; 
+      background: rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+    
+    .variant::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #d4af37, #c9a961);
+    }
+    
+    /* Elegant variant heading */
+    .variant h4 { 
+      margin-top: 0; 
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 300;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    
+    /* Premium gold gradient buttons */
+    button { 
+      background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
+      color: #0a0a0a; 
+      padding: 16px 32px; 
+      border: none; 
+      border-radius: 0; 
+      cursor: pointer; 
+      font-size: 12px; 
+      margin-top: 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    button:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(212, 175, 55, 0.5);
+      background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+    }
+    
+    /* Distinct styling for add variant button */
+    .add-variant-btn { 
+      background: transparent;
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      box-shadow: none;
+    }
+    
+    .add-variant-btn:hover { 
+      background: rgba(212, 175, 55, 0.1);
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2);
+    }
+    
+    /* Elegant image preview styling */
+    .preview-box img {
       max-width: 400px;
       max-height: 400px;
-      margin-top: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      margin-top: 15px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
-    .final img  {
+    
+    .final img {
       max-width: 400px;
       max-height: 400px;
-      margin-top: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      margin-top: 15px;
+      border: 2px solid #d4af37;
+      border-radius: 0;
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
     }
+    
     .error-message {
-  color: red;
-  font-size: 0.8rem;
-  display: none;
-}
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      display: none;
+      margin-top: 8px;
+      font-weight: 400;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 10px;
+      cursor: pointer;
+      transform: scale(1.3);
+      accent-color: #d4af37;
+    }
+
+    input[type="file"] {
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      border: 1px dashed rgba(212, 175, 55, 0.3);
+    }
+
+    input[type="file"]::file-selector-button {
+      background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
+      color: #0a0a0a;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 0;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-right: 15px;
+    }
+
+    /* Sophisticated edit and delete buttons */
+    .edit-btn {
+      background: transparent;
+      border: 1px solid #8b7355;
+      color: #8b7355;
+      box-shadow: none;
+      padding: 10px 22px;
+      font-size: 11px;
+    }
+
+    .edit-btn:hover {
+      background: rgba(139, 115, 85, 0.1);
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: 1px solid #ff6b6b;
+      color: #ff6b6b;
+      box-shadow: none;
+      padding: 10px 22px;
+      font-size: 11px;
+      margin-left: 10px;
+    }
+
+    .delete-btn:hover {
+      background: rgba(255, 107, 107, 0.1);
+    }
+
+    /* Premium select dropdown styling */
+    select option {
+      background: #1a1a1a;
+      color: #e5e5e5;
+    }
 
   </style>
 </head>
@@ -111,10 +332,10 @@
            
           <input type="file" id="img1"  name="img1" accept="image/*" />
            <div class="error-message"></div>
-          <div class="preview-box"><img src="" id="pre1" alt=""></div>
+          <div class="preview-box"><img src="/placeholder.svg" id="pre1" alt=""></div>
           <button id="cropBtn1" style="display:none" >Crop & Upload</button>
             <div class="final">
-              <img src="" id="im1" alt="">
+              <img src="/placeholder.svg" id="im1" alt="">
               <button type="button" class="edit-btn" style="display:none">Edit</button>
   <button type="button" class="delete-btn" style="display:none">Delete</button>
             </div>
@@ -126,7 +347,7 @@
           <div class="preview-box"><img id="pre2" alt=""></div>
           <button id="cropBtn2" style="display:none;">Crop & Upload</button>
             <div class="final">
-              <img src="" id="im2" alt="">
+              <img src="/placeholder.svg" id="im2" alt="">
               <button type="button" class="edit-btn" style="display:none">Edit</button>
   <button type="button" class="delete-btn" style="display:none">Delete</button>
             </div>
@@ -136,7 +357,7 @@
           <div class="preview-box"><img id="pre3" alt=""></div>
           <button id="cropBtn3" style="display:none;">Crop & Upload</button>
             <div class="final">
-              <img src="" id="im3" alt="">
+              <img src="/placeholder.svg" id="im3" alt="">
               <button type="button" class="edit-btn" style="display:none">Edit</button>
   <button type="button" class="delete-btn" style="display:none">Delete</button>
             </div>
@@ -147,7 +368,7 @@
           <div class="preview-box"><img id="pre4" alt=""></div>
             <button type="button" id="cropBtn4" style="display:none;">Crop & Upload</button>
             <div class="final">
-              <img src="" id="im4" alt="">
+              <img src="/placeholder.svg" id="im4" alt="">
               <button type="button" class="edit-btn" style="display:none">Edit</button>
   <button type="button" class="delete-btn" style="display:none">Delete</button>
             </div>
@@ -163,6 +384,10 @@
       <button type="submit">Add Product</button>
     </form>
   </div>
+
+</body>
+</html>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <!-- Swal2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -213,7 +438,7 @@ function addVariant() {
     <label>Stock</label>
     <input type="number" name="stock[]" placeholder="Stock" min="0" />
      <div class="error-message"></div>
-    <label>Images (Minimum 3)</label>
+    <label>Images (upload 4 images)</label>
 
     
 
@@ -674,13 +899,7 @@ variants.forEach((variant, index) => {
 
 console.log("Variants sending:", variantsArr); 
 formData.append("variants", JSON.stringify(variantsArr));
-
- } else {
-        scrollToError();  // <- Scroll to first error
-    }
-
-        // Send to backend
-        fetch("/admin/addproduct", {
+ fetch("/admin/addproduct", {
     method: "POST",
     body: formData
 })
@@ -718,11 +937,17 @@ formData.append("variants", JSON.stringify(variantsArr));
         icon: 'error',
         title: 'Error!',
         text: 'Something went wrong'
-    });
-});
+    })
+})
 
+    
+}else {
+        scrollToError(); 
+        return // <- Scroll to first error
     }
-);
+
+        // Send to backend
+})     
 function finishAddingVariants() {
     isAddingVariantsFinished = true;
     Swal.fire({

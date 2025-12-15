@@ -1,267 +1,332 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link
-    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
-    rel="stylesheet"
-  />
-  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
-  <link rel="stylesheet" href="css/style.css" type="text/css" />
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-    rel="stylesheet"
-  />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login • WRISTON</title>
 
-    <style>
-        /* body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            
-            margin: 0;
-            background-color: #f4f4f4;
-        } */
-         body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column; /* stack header, main, footer */
-  min-height: 100vh;
-  margin: 0;
-  height: 100vh;
-  background-color: #f4f4f4;
-}
-main {
-  flex: 1; 
-  display: flex;
-  justify-content: center; 
-  align-items: center;     
-  padding: 20px; 
-  min-height: 100vh;          
-}
-footer {
-  flex-shrink: 0; 
-}
-
-.toggle-password {
-  position: absolute;
-  right: 10px;
-  top: 38px;
-  cursor: pointer;
-  color: #888;
-}
-
-.toggle-password:hover {
-  color: #000;
-}
-
-        .form-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-        .form-container h2 {
-            margin-top: 0;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .form-group button {
-            width: 100%;
-            padding: 10px;
-            background-color: #000;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .form-group button:hover {
-            background-color: #333;
-        }
-        .google-btn {
-            background-color: #f7f7f7;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        /* .google-btn:hover {
-            background-color: #357abd;
-        } */
-        .google-btn img {
-            width: 20px;
-            height: 20px;
-        }
-        .form-links {
-            text-align: center;
-            font-size: 14px;
-        }
-        .form-links a {
-            color: #4285f4;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        .form-links a:hover {
-            text-decoration: underline;
-        }
-
-         .error {
-      color: red;
-      font-size: 12px;
-      margin-top: 5px;
-      display: none;
-    }
-    </style>
-</head>
-
-<body>
-  <main>
-    <div class="form-container">
-        <form id="loginform" novalidate method="POST" action="/login"
->
-        <div class="login-form active">
-            <h2>Login</h2>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="Enter email" >
-                <div class="error" id="error1"></div>
-            </div>
-            <!-- <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" placeholder="Enter password" >
-                <div class="error" id="error2"></div>-->
-<% if (typeof error !== 'undefined' && error.length > 0) { %>
-  <div class="alert alert-danger" style="text-align:center;"><%= error %></div>      
-<% } %> 
-<div class="form-group position-relative">
-  <label for="password">Password</label>
-  <input type="password" name="password" id="password" placeholder="Enter password">
-  <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   
 
-  <div class="error" id="error2"></div>
-</div>
 
+  <style>
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gold: #d4af37;
+      --border: #e5e5e5;
+      --error: #c0392b;
+    }
 
-            <div class="form-group">
-                <button type="submit">Login</button>
-            </div>
-            <div class="form-links">
-                <a href="/forgotpass" id="forgot-password">Forgot Password?</a>
-                <a href="/signup" id="sign-up">Sign Up</a>
-            </div>
-           
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
-             <div class="form-group">
-        <a href="/auth/google" class="google-btn">
-          <img src="img/googlesignup(3).png" alt="Google Logo" width="20" height="20" />
-          
-        </a>
-      </div>
-            
-        </div>
-        </form>
+    .wriston-card {
+      background: white;
+      max-width: 480px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+
+    .wriston-header {
+      background: 
+                  url('https://thumbs.dreamstime.com/b/close-up-elegant-men-s-chronograph-watch-black-dial-gold-accents-against-dark-background-showcasing-precision-415747264.jpg') center/cover no-repeat;
+      color: white;
+      text-align: center;
+      padding: 50px 30px;
+    }
+
+    .wriston-logo-img {
+      height: 70px;
+      width: auto;
+      margin-bottom: 20px;
+    }
+
+    .wriston-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .wriston-header p {
+      font-size: 15px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .form-body {
+      padding: 50px 40px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #333;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 18px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 6px;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+
+    input.error {
+      border-color: var(--error);
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #999;
+      font-size: 20px;
+    }
+
+    .toggle-password:hover { color: var(--gold); }
+
+    .error-message {
+      color: var(--error);
+      font-size: 13px;
+      margin-top: 4px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .btn-wriston {
+      width: 100%;
+      padding: 18px;
+      background: var(--black);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .btn-wriston:hover {
+      background: #1a1a1a;
+      transform: translateY(-2px);
+    }
+
+    .divider {
+      text-align: center;
+      margin: 35px 0;
+      color: #888;
+      font-size: 14px;
+      position: relative;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      height: 1px;
+      background: #eee;
+    }
+
+    .divider span {
+      background: white;
+      padding: 0 20px;
+    }
+
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 16px;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      color: #333;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .google-btn:hover {
+      border-color: var(--gold);
+      background: #fdfdf9;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .footer-text a {
+      color: var(--black);
+      font-weight: 600;
+      text-decoration: none;
+      margin: 0 12px;
+    }
+
+    .footer-text a:hover {
+      color: var(--gold);
+    }
+
+    @media (max-width: 480px) {
+      .wriston-header { padding: 40px 20px; }
+      .wriston-header h1 { font-size: 32px; }
+      .form-body { padding: 40px 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wriston-card">
+    <div class="wriston-header">
+      <img src="/img/adminlogo (2).png" alt="WRISTON Logo" class="wriston-logo-img">
+     
     </div>
-    </main>
-    <footer>
-    <%- include("../../views/partials/user/footer") %>
-  </footer>
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <div class="form-body">
+     
 
+      <form id="loginform" method="POST" action="/login" novalidate>
+        <div>
+          <label>Email Address</label>
+          <input type="email" name="email" id="email" placeholder="you@example.com" required />
+          <div id="error1" class="error-message"></div>
+        </div>
+
+        <div>
+          <label>Password</label>
+          <div class="input-group">
+            <input type="password" name="password" id="password" placeholder="Enter your password" required />
+            <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+          </div>
+          <div id="error2" class="error-message"></div>
+        </div>
+
+        <button type="submit" class="btn-wriston">Sign In</button>
+      </form>
+
+      <div class="divider"><span>or</span></div>
+
+      <a href="/auth/google" class="google-btn">
+        <img src="https://www.google.com/favicon.ico" width="18" alt="Google">
+        Continue with Google
+      </a>
+
+      <div class="footer-text">
+        <a href="/forgotpass">Forgot Password?</a>
+        <a href="/signup">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SweetAlert for success messages -->
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<% if (typeof error !== 'undefined' && error) { %>
     <script>
-      const togglePassword = document.getElementById("togglePassword");
-const passwordField = document.getElementById("password");
-
-togglePassword.addEventListener("click", function () {
-  const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
-  passwordField.setAttribute("type", type);
-
-  // toggle the eye / eye-slash icon
-  this.classList.toggle("bi-eye-slash");
-});
-
-       const form=document.getElementById("loginform")
-       const emailId=document.getElementById("email")
-       const passId=document.getElementById("password")
-        const er1 = document.getElementById("error1");
-    const er2= document.getElementById("error2");
-
-    function emailValidate(){
-
-    const emailval = emailId.value.trim();
-    const emailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ ;
-    if (emailval === "") {
-      er1.style.display = "block";
-      er1.innerHTML = "Email is required";
-      return false;
-    } else if (!emailpattern.test(emailval)) {
-      er1.style.display = "block";
-      er1.innerHTML = "Invalid email format";
-      return false;
-    } else {
-      er1.style.display = "none";
-      return true;
-    }
-  }
-
-
-  function passwordValidate() {
-    const passval = passId.value.trim();
-     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-    if (passval === "") {
-      er2.style.display = "block";
-      er2.innerHTML = "Password is required";
-      return false;
-    } else if (!passwordRegex.test(passval)) {
-    er2.style.display = "block";
-    er2.innerHTML =
-      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
-    return false;
-    } else {
-      er2.style.display = "none";
-      return true;
-    }
-  }
-form.addEventListener('submit', function(e) {
-  let valid = true;
-
-  if (!passwordValidate()) valid = false;
-  if (!emailValidate()) valid = false;
-
-    if (!valid) {
-    e.preventDefault(); 
-  }
-});
-emailId.addEventListener("input", emailValidate);
-passId.addEventListener("input", passwordValidate);
-const successMsg = "<%= typeof success !== 'undefined' ? success : '' %>";
-  if (successMsg) {
-    Swal.fire("Success", successMsg, "success");
-  }
-
+      swal("Error!", "<%= error %>", "error");
     </script>
+<% } %>
+  <% if (typeof success !== 'undefined' && success) { %>
+    <script>
+      swal("Success!", "<%= success %>", "success");
+    </script>
+  <% } %>
+  <script>
+    // Toggle Password Visibility
+    document.getElementById("togglePassword").addEventListener("click", function () {
+      const passField = document.getElementById("password");
+      const type = passField.type === "password" ? "text" : "password";
+      passField.type = type;
+      this.classList.toggle("bi-eye-slash", type === "password");
+    });
+
+    // Validation
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+    const err1 = document.getElementById("error1");
+    const err2 = document.getElementById("error2");
+
+    const emailValidate = () => {
+      const val = emailEl.value.trim();
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!val) {
+        err1.textContent = "Email is required";
+        err1.style.display = "block";
+        return false;
+      } else if (!regex.test(val)) {
+        err1.textContent = "Please enter a valid email";
+        err1.style.display = "block";
+        return false;
+      } else {
+        err1.style.display = "none";
+        return true;
+      }
+    };
+
+    const passwordValidate = () => {
+      const val = passEl.value;
+      if (!val) {
+        err2.textContent = "Password is required";
+        err2.style.display = "block";
+        return false;
+      } else {
+        err2.style.display = "none";
+        return true;
+      }
+    };
+
+    // Real-time validation
+    emailEl.addEventListener("input", emailValidate);
+    passEl.addEventListener("input", passwordValidate);
+
+    // Form submit
+    document.getElementById("loginform").addEventListener("submit", function(e) {
+      const valid = emailValidate() && passwordValidate();
+      if (!valid) e.preventDefault();
+    });
+  </script>
 </body>
 </html>

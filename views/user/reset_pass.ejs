@@ -1,128 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wriston Reset Password</title>
-     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
-   rel="stylesheet">
-   <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-   <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-   <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-   <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
-   <link rel="stylesheet" href="css/nice-select.css" type="text/css">
-   <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
-   <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-   <link rel="stylesheet" href="css/style.css" type="text/css">
-   <link rel="stylesheet" href="css/maind134.css">
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-   
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
-        }
-        .container {
-            text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-        .logo {
-            margin-bottom: 20px;
-        }
-        .logo img {
-            width: 100px;
-        }
-        h2 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #000;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #333;
-        }
-        input[type="password"]::placeholder {
-            font-size: 14px;
-            color: #999;
-            font-weight: 400;
-        }
-        button {
-            background-color: #000;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            text-transform: uppercase;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #333;
-        }
-        .error-message{
-        color:red;
-        font-size:0.75rem;
-        display: none;
-      }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reset Password • WRISTON</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gold: #d4af37;
+      --border: #e5e5e5;
+      --error: #c0392b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .wriston-card {
+      background: white;
+      max-width: 480px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+
+    .wriston-header {
+      background: 
+                  url('https://img.freepik.com/premium-photo/two-luxury-watches-dark-reflective-surface-with-bokeh-background_14117-707786.jpg') center/cover no-repeat;
+      color: white;
+      text-align: center;
+      padding: 50px 30px;
+    }
+
+    .wriston-logo-img {
+      height: 70px;
+      width: auto;
+      margin-bottom: 20px;
+    }
+
+    .wriston-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .wriston-header p {
+      font-size: 15px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    .form-body {
+      padding: 50px 40px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #333;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 18px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+
+    input.error {
+      border-color: var(--error);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #999;
+      font-size: 20px;
+    }
+
+    .toggle-password:hover {
+      color: var(--gold);
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 13px;
+      margin-top: 6px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .btn-wriston {
+      width: 100%;
+      padding: 18px;
+      background: var(--black);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-wriston:hover {
+      background: #1a1a1a;
+      transform: translateY(-2px);
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .footer-text a {
+      color: var(--black);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .footer-text a:hover {
+      color: var(--gold);
+    }
+
+    @media (max-width: 480px) {
+      .wriston-header { padding: 40px 20px; }
+      .wriston-header h1 { font-size: 32px; }
+      .form-body { padding: 40px 30px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <img src="img/userlogo (8).png"alt="Wriston Logo">
-        </div>
-        <h2>Reset Password</h2>
-        <form id="form1" method=post action="/reset-Newpass">
-        <div class="form-group">
-            <input type="password" id="p1" name="p1" placeholder="New Password">
-             <div id="error1" class="error-message" ></div>
-            <input type="password" id="p2" name="p2" placeholder="Confirm Password">
-             <div id="error2" class="error-message" ></div>
-               <% if (typeof error !== 'undefined' && error) { %>
-<div class="alert alert-danger"><%= error %></div>
-<% } %>
 
-
-
-            <button>Submit</button>
-        </div>
-        </form>
+  <div class="wriston-card">
+    <div class="wriston-header">
+    
+      <h1>Reset Password</h1>
+      <p>Create a strong new password</p>
     </div>
 
-</body>
-</html>
+    <div class="form-body">
+      <!-- Server-side error/success -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <script>
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '<%= error %>',
+            confirmButtonColor: '#d4af37'
+          });
+        </script>
+      <% } %>
+
+      <% if (typeof success !== 'undefined' && success) { %>
+        <script>
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '<%= success %>',
+            confirmButtonColor: '#d4af37'
+          });
+        </script>
+      <% } %>
+
+      <form id="resetForm" method="POST" action="/reset-Newpass" novalidate>
+        <div>
+          <label>New Password</label>
+          <div class="input-group">
+            <input type="password" id="p1" name="p1" placeholder="Enter new password" required />
+            <i class="bi bi-eye toggle-password" id="toggleP1"></i>
+          </div>
+          <div id="error1" class="error-message"></div>
+        </div>
+
+        <div>
+          <label>Confirm Password</label>
+          <div class="input-group">
+            <input type="password" id="p2" name="p2" placeholder="Re-enter new password" required />
+            <i class="bi bi-eye toggle-password" id="toggleP2"></i>
+          </div>
+          <div id="error2" class="error-message"></div>
+        </div>
+
+        <button type="submit" class="btn-wriston">Update Password</button>
+      </form>
+
+      <div class="footer-text">
+        <a href="/login">← Back to Login</a>
+      </div>
+    </div>
+  </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
-    const form=document.getElementById("form1")
+    const form=document.getElementById("resetForm")
     let newpass=document.getElementById("p1")
     let cpass=document.getElementById("p2")
     let er1=document.getElementById("error1")
     let er2=document.getElementById("error2")
 
 
+const toggleP1 = document.getElementById("toggleP1");
+const toggleP2 = document.getElementById("toggleP2");
+
+toggleP1.addEventListener("click", () => {
+  if (newpass.type === "password") {
+    newpass.type = "text";
+    toggleP1.classList.replace("bi-eye", "bi-eye-slash");
+  } else {
+    newpass.type = "password";
+    toggleP1.classList.replace("bi-eye-slash", "bi-eye");
+  }
+});
+
+toggleP2.addEventListener("click", () => {
+  if (cpass.type === "password") {
+    cpass.type = "text";
+    toggleP2.classList.replace("bi-eye", "bi-eye-slash");
+  } else {
+    cpass.type = "password";
+    toggleP2.classList.replace("bi-eye-slash", "bi-eye");
+  }
+});
 
 function passwordValidate() {
     const passval = newpass.value.trim();
@@ -159,6 +306,7 @@ function passwordValidate() {
     return true;
   }
  }
+ 
 
 
  form.addEventListener('submit', function(e) {

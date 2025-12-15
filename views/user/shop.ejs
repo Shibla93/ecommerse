@@ -1,351 +1,415 @@
 <%- include("../../views/partials/user/header") %>
 
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 <style>
-  /* ---------- Layout ---------- */
-  body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #fafafa;
+  :root {
+    --black: #000000;
+    --gold: #d4af37;
+    --white: #ffffff;
+    --light-gray: #f8f8f8;
+    --border: #e5e5e5;
+    --text: #333;
+    --text-light: #999;
   }
 
+  body { font-family: 'Montserrat', sans-serif; background: var(--white); }
+
+  /* Main Layout */
   .main-container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
+    max-width: 1400px;
+    margin: 80px auto;
+    padding: 0 30px;
     display: flex;
-    gap: 25px;
+    gap: 50px;
   }
 
-  /* ---------- Sidebar ---------- */
+  /* Sidebar */
   .sidebar {
-    width: 260px;
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 20px;
-    border: 1px solid #eee;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    width: 280px;
+    background: var(--black);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
     height: fit-content;
+    color: var(--text-light);
   }
 
-  .filter-section {
-    margin-bottom: 25px;
-  }
-
+  .filter-section { margin-bottom: 40px; }
   .filter-title {
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 16px;
-    color: #222;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
+    font-weight: 700;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #444;
   }
 
-  .filter-item {
-    margin: 8px 0;
-  }
-
+  .filter-item { margin: 12px 0; }
   .filter-item a {
+    color: var(--text-light);
     text-decoration: none;
-    color: #333;
-    font-size: 14px;
+    font-size: 15px;
     transition: color 0.3s;
   }
+  .filter-item a:hover, .filter-item.active a { color: var(--gold); }
 
-  .filter-item a:hover {
-    color: #007bff;
-  }
-
-  /* ---------- Price Filter ---------- */
-  .price-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
+  .price-options { display: flex; flex-direction: column; gap: 12px; }
   .price-button {
-    padding: 10px;
-    border-radius: 30px;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    cursor: pointer;
-    transition: all 0.3s;
+    background: transparent;
+    border: 2px solid #444;
+    color: var(--text-light);
+    padding: 12px;
+    border-radius: 50px;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.4s;
   }
-
   .price-button:hover {
-    background-color: #007bff;
-    color: white;
-    transform: scale(1.05);
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
   }
 
-  /* ---------- Right Section ---------- */
-  .right-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+  /* Right Content */
+  .right-content { flex: 1; }
 
   .shop-topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
+    flex-wrap: wrap;
+    gap: 20px;
   }
 
   .search-form {
     display: flex;
-    background-color: #f1f1f1;
-    border-radius: 25px;
+    background: var(--light-gray);
+    border-radius: 50px;
     overflow: hidden;
-    max-width: 280px;
+    width: 350px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   }
 
   .search-input {
-    border: none;
-    padding: 8px 10px;
     flex: 1;
-    outline: none;
-    background-color: transparent;
+    padding: 14px 20px;
+    border: none;
+    background: transparent;
+    font-size: 15px;
   }
 
   .search-button {
-    background-color: #111;
-    color: white;
+    background: var(--gold);
+    color: var(--black);
     border: none;
-    padding: 8px 15px;
+    padding: 14px 25px;
     cursor: pointer;
-    transition: background 0.3s;
+    font-weight: 700;
   }
 
-  .search-button:hover {
-    background-color: #333;
+  .search-button:hover { background: var(--white); }
+
+  #sortSelect {
+    padding: 12px 20px;
+    border: 2px solid #ddd;
+    border-radius: 50px;
+    background: var(--white);
+    font-size: 15px;
+    cursor: pointer;
   }
 
-  /* ---------- Product Grid ---------- */
+  /* Product Grid - Exactly 3 per row on desktop */
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    gap: 40px;
   }
 
   .product-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    background: var(--white);
+    border-radius: 16px;
     overflow: hidden;
-    text-align: center;
-    position: relative;
-    transition: transform 0.3s;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: all 0.4s;
+    height: 520px; /* Fixed height */
+    display: flex;
+    flex-direction: column;
   }
 
   .product-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-15px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
   }
 
-  .product-card img {
+  .product-img {
+    position: relative;
+    height: 320px;
+    overflow: hidden;
+  }
+
+  .product-img img {
     width: 100%;
-    height: 250px;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.5s;
   }
 
-  .product-card h4 {
-    margin: 10px 0 5px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #222;
-  }
-
-  .product-card p {
-    font-size: 14px;
-    color: #666;
-    margin: 2px 0;
-  }
-
-  .price {
-    font-weight: 600;
-    color: #000;
-  }
+  .product-card:hover img { transform: scale(1.1); }
 
   .wishlist-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: white;
-    color: #fafafa;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.9);
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    padding: 6px;
-    cursor: pointer;
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #999;
+    transition: all 0.3s;
   }
 
-.wishlist-btn.active {
-  color: #ff4d4d; 
-}
+  .wishlist-btn:hover, .wishlist-btn.active { color: #e74c3c; background: white; }
+
+  .product-content-wrap {
+    padding: 30px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .product-content-wrap h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .product-content-wrap p {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-bottom: 15px;
+  }
+
+  .price {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 15px 0;
+  }
+
   .add-to-cart-btn {
-    background-color: #111;
-    color: white;
+    background: var(--gold);
+    color: var(--black);
     border: none;
-    width: 90%;
-    margin: 10px auto 15px;
-    padding: 10px;
-    border-radius: 6px;
+    padding: 14px;
+    border-radius: 50px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s;
+    margin-top: auto;
   }
 
   .add-to-cart-btn:hover {
-    background-color: #333;
+    background: var(--white);
+    transform: translateY(-3px);
   }
-.pagination {
-  display: flex;          /* use flexbox */
-  justify-content: center; /* center horizontally */
-  gap: 8px;               /* space between links */
-  margin-top: 30px;
-  flex-wrap: wrap;        /* wrap to next line if too many pages */
-}
 
-.pagination a {
-  display: inline-block;
-  padding: 8px 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  color: #333;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.pagination a.active {
-  background-color: #000;
-  color: white;
-  border-color: #000;
-}
-
-.pagination a:hover {
-  background-color: #007bff;
-  color: white;
-}
-
-  @media (max-width: 768px) {
-    .main-container {
-      flex-direction: column;
-    }
-    .sidebar {
-      width: 100%;
-      order: 2;
-    }
-    .right-content {
-      order: 1;
-    }
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 60px;
+    flex-wrap: wrap;
   }
-  .filter-item.active a {
-  color: #ff7f50; /* highlight color */
-  font-weight: 600;
+
+  .pagination a {
+    padding: 12px 20px;
+    border: 2px solid #ddd;
+    border-radius: 50px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+  .price-button.active {
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
 }
 
+
+  .pagination a:hover {
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+  }
+
+  .pagination a.active {
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+  }
+
+  /* Responsive - 2 on tablet, 1 on mobile */
+  @media (max-width: 1200px) {
+    .product-grid { grid-template-columns: repeat(3, 1fr); } /* Still 3 */
+  }
+
+  @media (max-width: 992px) {
+    .main-container { flex-direction: column; gap: 40px; }
+    .sidebar { width: 100%; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); } /* 2 on tablet */
+  }
+
+  @media (max-width: 576px) {
+    .product-grid { grid-template-columns: 1fr; } /* 1 on mobile */
+    .search-form { width: 100%; }
+    .shop-topbar { flex-direction: column; align-items: stretch; }
+    #sortSelect { width: 100%; margin-top: 15px; }
+  }
 </style>
 
 <div class="main-container">
-  <!-- 🔹 Sidebar -->
+  <!-- Sidebar (unchanged logic) -->
   <aside class="sidebar">
-   <div class="filter-section">
-  <div class="filter-title">Categories</div>
-  <ul>
-    <li class="filter-item <%= !selectedCategory ? 'active' : '' %>">
-      <a href="/shop?<%= selectedBrand ? 'brand=' + selectedBrand + '&' : '' %><%= priceRange ? 'price=' + priceRange + '&' : '' %>">All</a>
-    </li>
-    <% categories.forEach(cat => { %>
-      <li class="filter-item <%= selectedCategory == cat._id ? 'active' : '' %>">
-        <a href="/shop?category=<%= cat._id %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceRange ? '&price=' + priceRange : '' %>"><%= cat.name %></a>
-      </li>
-    <% }) %>
-  </ul>
-</div>
-
+    <div class="filter-section">
+      <div class="filter-title">Categories</div>
+      <ul class="list-unstyled">
+        <li class="filter-item <%= !selectedCategory ? 'active' : '' %>">
+          <a href="/shop?<%= selectedBrand ? 'brand=' + selectedBrand + '&' : '' %><%= priceRange ? 'price=' + priceRange + '&' : '' %>">All</a>
+        </li>
+        <% categories.forEach(cat => { %>
+          <li class="filter-item <%= selectedCategory == cat._id ? 'active' : '' %>">
+            <a href="/shop?category=<%= cat._id %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceRange ? '&price=' + priceRange : '' %>"><%= cat.name %></a>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
 
     <div class="filter-section">
-  <div class="filter-title">Brands</div>
-  <ul>
-    <% brands.forEach(b => { %>
-      <li class="filter-item <%= selectedBrand == b._id ? 'active' : '' %>">
-        <a href="/shop?brand=<%= b._id %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= priceRange ? '&price=' + priceRange : '' %>"><%= b.name %></a>
-      </li>
-    <% }) %>
-  </ul>
-</div>
-
+      <div class="filter-title">Brands</div>
+      <ul class="list-unstyled">
+        <% brands.forEach(b => { %>
+          <li class="filter-item <%= selectedBrand == b._id ? 'active' : '' %>">
+            <a href="/shop?brand=<%= b._id %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= priceRange ? '&price=' + priceRange : '' %>"><%= b.name %></a>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
 
     <div class="filter-section">
-  <div class="filter-title">Price Range</div>
-  <div class="price-options">
-    <a href="/shop?price=0-1500<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"><button class="price-button">Under ₹1500</button></a>
+      <div class="filter-title">Price Range</div>
+      <div class="price-options">
 
-    <a href="/shop?price=1500-3000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"><button class="price-button">₹1500 - ₹3000</button></a>
+  <a href="/shop?price=0-1500<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+    <button class="price-button <%= priceRange === '0-1500' ? 'active' : '' %>">
+      Under ₹1500
+    </button>
+  </a>
 
-    <a href="/shop?price=3000-6000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"><button class="price-button">₹3000 - ₹6000</button></a>
+  <a href="/shop?price=1500-3000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+    <button class="price-button <%= priceRange === '1500-3000' ? 'active' : '' %>">
+      ₹1500 - ₹3000
+    </button>
+  </a>
 
-    <a href="/shop?price=6000-10000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"><button class="price-button">₹6000 - ₹10000</button></a>
+  <a href="/shop?price=3000-6000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+    <button class="price-button <%= priceRange === '3000-6000' ? 'active' : '' %>">
+      ₹3000 - ₹6000
+    </button>
+  </a>
 
-    <a href="/shop?price=0-7000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"><button class="price-button">Under ₹7000</button></a>
-  </div>
+  <a href="/shop?price=6000-10000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+    <button class="price-button <%= priceRange === '6000-10000' ? 'active' : '' %>">
+      ₹6000 - ₹10000
+    </button>
+  </a>
+   <a href="/shop?price=10000-100000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+    <button class="price-button <%= priceRange === '6000-10000' ? 'active' : '' %>">
+      Above ₹10000
+    </button>
+  </a>
+
 </div>
 
+    </div>
   </aside>
 
-  <!-- 🔹 Main Section -->
+  <!-- Main Content -->
   <section class="right-content">
     <div class="shop-topbar">
       <form method="GET" action="/shop" class="search-form">
-        <input type="text"id="searchInput" name="search" value="<%= search || '' %>" class="search-input" placeholder="Search products...">
+        <input type="text" id="searchInput" name="search" value="<%= search || '' %>" class="search-input" placeholder="Search products...">
         <button class="search-button">Search</button>
       </form>
 
       <form id="sortForm" method="get" action="/shop">
         <input type="hidden" name="category" value="<%= selectedCategory || '' %>">
-  <input type="hidden" name="brand" value="<%= selectedBrand || '' %>">
-  <input type="hidden" name="price" value="<%= priceRange || '' %>">
-  <input type="hidden" name="search" value="<%= search || '' %>">
-  <select name="sort" id="sortSelect" onchange="document.getElementById('sortForm').submit()">
-    <option value="">Sort By</option>
-    <option value="nameAsc" <%= sort === 'nameAsc' ? 'selected' : '' %>>Name: A → Z</option>
-    <option value="nameDesc" <%= sort === 'nameDesc' ? 'selected' : '' %>>Name: Z → A</option>
-    <option value="priceLowHigh" <%= sort === 'priceLowHigh' ? 'selected' : '' %>>Price: Low → High</option>
-    <option value="priceHighLow" <%= sort === 'priceHighLow' ? 'selected' : '' %>>Price: High → Low</option>
-    <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
-    <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
-  </select>
-</form>
+        <input type="hidden" name="brand" value="<%= selectedBrand || '' %>">
+        <input type="hidden" name="price" value="<%= priceRange || '' %>">
+        <input type="hidden" name="search" value="<%= search || '' %>">
+        <select name="sort" id="sortSelect" onchange="document.getElementById('sortForm').submit()">
+          <option value="">Sort By</option>
+          <option value="nameAsc" <%= sort === 'nameAsc' ? 'selected' : '' %>>Name: A → Z</option>
+          <option value="nameDesc" <%= sort === 'nameDesc' ? 'selected' : '' %>>Name: Z → A</option>
+          <option value="priceLowHigh" <%= sort === 'priceLowHigh' ? 'selected' : '' %>>Price: Low → High</option>
+          <option value="priceHighLow" <%= sort === 'priceHighLow' ? 'selected' : '' %>>Price: High → Low</option>
+          <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+          <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+        </select>
+      </form>
     </div>
 
     <div class="product-grid">
       <% if (products.length === 0) { %>
-        <p style="text-align:center;width:100%;color:#777;">No products found.</p>
+        <p style="grid-column: 1 / -1; text-align:center; color:#777; font-size:1.2rem;">No products found.</p>
       <% } else { %>
         <% products.forEach(p => { %>
           <div class="product-card">
-            <a href="#" class="wishlist-btn"><i class="fa fa-heart"></i></a>
-             <!-- <span class="wishlist-btn" onclick="toggleWishlist('<%= p.variantId %>')">♥</span> -->
-            <a href="/product/<%= p.productId %>?variant=<%= p.variantId %>">
-              <img src="<%= p.image %>" alt="<%= p.product %>">
+            <div class="product-img">
+              <a href="#" class="wishlist-btn"><i class="fa fa-heart"></i></a>
+              <a href="/product/<%= p.productId %>?variant=<%= p.variantId %>">
+                <img src="<%= p.image %>" alt="<%= p.product %> watch">
+
+              </a>
+            </div>
+            <div class="product-content-wrap">
               <h4><%= p.product %> <%= p.dialColor %> Dial with <%= p.strapColor %> Strap</h4>
-              <p class="price">₹<%= p.price.toLocaleString('en-IN') %></p>
-            </a>
-            <button class="add-to-cart-btn" onclick="addToCart('<%= p.variantId %>')">Add to Cart</button>
+              <div class="price">₹<%= p.price.toLocaleString('en-IN') %></div>
+              <button class="add-to-cart-btn" onclick="addToCart('<%= p.variantId %>')">Add to Cart</button>
+            </div>
           </div>
         <% }) %>
       <% } %>
     </div>
 
     <!-- Pagination -->
-<div class="pagination">
-  <% for (let i = 1; i <= totalPages; i++) { %>
-
-    <a 
-      href="?page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceRange ? '&price=' + priceRange : '' %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>"
-      class="<%= currentPage === i ? 'active' : '' %>"
-    >
-      <%= i %>
-    </a>
-
-  <% } %>
+     <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceRange ? '&price=' + priceRange : '' %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>"
+           class="<%= currentPage === i ? 'active' : '' %>">
+          <%= i %>
+        </a>
+      <% } %>
+    </div>
+  </section>
 </div>
+<% } %>
 
     
    <!-- <div class="pagination">
@@ -367,20 +431,34 @@ class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+  const searchInput = document.getElementById("searchInput");
   let debounceTimer;
 
-  document.getElementById("searchInput").addEventListener("keyup", function() {
+  searchInput.addEventListener("input", function () {
+    const searchTerm = this.value.trim();
+    const params = new URLSearchParams(window.location.search);
+
     clearTimeout(debounceTimer);
 
-    const searchTerm = this.value.trim();
-
-    
     debounceTimer = setTimeout(() => {
-      if (searchTerm === '') {
-        window.location.href = '/shop';
+      if (searchTerm === "") {
+        params.delete("search");
       } else {
-        window.location.href = `/shop?search=${encodeURIComponent(searchTerm)}`;
+        params.set("search", searchTerm);
       }
-    }, 100);
+
+      params.delete("page");
+
+      const newUrl = `/shop?${params.toString()}`;
+
+      // 🔥 history manage cheyyunnu
+      window.history.pushState({}, "", newUrl);
+      window.location.reload();
+    }, 400);
+  });
+
+  
+  window.addEventListener("popstate", () => {
+    window.location.reload();
   });
 </script>

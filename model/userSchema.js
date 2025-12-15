@@ -38,9 +38,17 @@ const userSchema=new Schema({
         default:false
     },
    profileImage: {
-    type: String,
-    default: "default-profile.png" 
-},
+      type: String,
+      default: ""
+    },
+    cloudinaryPublicId: {
+      type: String,
+      default: null
+    },
+    hasCustomImage: {
+      type: Boolean,
+      default: false
+    },
  cart: {
   type: [
     {

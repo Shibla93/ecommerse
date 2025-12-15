@@ -153,7 +153,7 @@ const getProduct = async (req, res) => {
      const brands = await Brand.find();
       const search = (req.query.search || "").trim();
     const page = parseInt(req.query.page) || 1;
-    const limit = 3;
+    const limit = 5;
     const skip = (page - 1) * limit;
 
     // 🔹 Build search match stage
@@ -363,10 +363,7 @@ const getEditProduct = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "At least one category must be selected" });
     }
 
-    if (!parsedVariants.length) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "At least one variant is required" });
-    }
-
+    
     // 🔹 Discount & Product Offer Validation
     const discountVal = Number(discount);
     if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
@@ -425,7 +422,7 @@ if (stock > 10000) {
     if (!productDoc)
       return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.PRODUCT_NOT_FOUND });
 
-    // 🔹 Upload new images if provided
+    
     const uploadedImages = {};
     const streamUpload = (fileBuffer) => {
       return new Promise((resolve, reject) => {
@@ -447,7 +444,7 @@ if (stock > 10000) {
       }
     }
 
-    // 🔹 Merge variants (don’t lose existing ones)
+    
     productDoc.variants.forEach((oldVariant, i) => {
       const newVariant = parsedVariants[i];
       if (newVariant) {
@@ -456,7 +453,7 @@ if (stock > 10000) {
         oldVariant.price = newVariant.price;
         oldVariant.stock = newVariant.stock;
 
-        // Preserve old images if no new ones
+    
         if (newVariant.images && newVariant.images.length > 0) {
          oldVariant.images = newVariant.images.map(img => ({
   originalUrl:
