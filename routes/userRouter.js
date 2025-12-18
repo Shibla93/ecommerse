@@ -9,6 +9,7 @@ const {userAuth}=require("../middlewares/auth")
 const profileController=require("../controllers/user/profileController")
 const productController=require("../controllers/user/productController")
 
+const cloudinary = require('../helpers/cloudinary')
 
 router.get("/pageNotfound",userController.pageNotFound)
 
@@ -56,17 +57,18 @@ router.post("/forgotpass", profileController.postEmail);
 router.get("/forgotverify", profileController.getForgotVerify); 
 router.post("/forgotverify", profileController.postForgotOtp);
 router.post("/resendForgotOtp", profileController.resendForgotOtp);
+router.get("/reset-Newpass", profileController.getResetPassword);
 router.post("/reset-Newpass", profileController.newPass)
 router.get("/userProfile",userAuth,profileController.userProfile);
-router.post("/userprofile",userAuth,upload.single('profileImage'),profileController.updateProfile)
+router.post("/userProfile",userAuth,upload.single('profileImage'),profileController.updateProfile)
 router.get("/change-email",userAuth,profileController.changeEmail)
 router.post("/change-email",userAuth,profileController.changeEmailValid)
 router.post("/verify-email-otp",userAuth,profileController.verifyEmailOtp);
+router.post("/resend-change-email-otp", userAuth,profileController.resendChangeEmailOtp);
+router.get("/new-email", userAuth, profileController.getNewEmailPage);
 router.post("/update-email",userAuth,profileController.updateEmail)
-router.post("/update-profile",userAuth,profileController.updateProfile)
-router.get('/change-password',userAuth, profileController.changePassword);
-router.post("/change-password",userAuth,profileController.changePasswordValid);
-router.post("/verify-changepassword-otp",userAuth,profileController.verifyChangePassOtp)
+//router.post("/update-profile",userAuth,profileController.updateProfile)
+router.post('/change-password',userAuth, profileController.changePassword);
 
 
 router.get("/form",userController.getform)

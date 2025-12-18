@@ -16,8 +16,7 @@ const userSchema=new Schema({
     phone:{
         type:String,
         required:false,
-        unique:true,
-        sparse:true,
+        
         default:null
     },
     googleId:{
@@ -39,12 +38,9 @@ const userSchema=new Schema({
     },
    profileImage: {
       type: String,
-      default: ""
-    },
-    cloudinaryPublicId: {
-      type: String,
       default: null
     },
+   
     hasCustomImage: {
       type: Boolean,
       default: false

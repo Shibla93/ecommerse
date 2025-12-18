@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify OTP • WRISTON</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --black: #000;
+      --gold: #d4af37;
+      --border: #e5e5e5;
+      --light-bg: #f9f9f9;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      padding: 20px;
+    }
+
+    .wriston-card {
+      max-width: 500px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+
+    .wriston-header {
+      background: linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,.75)),
+      url('https://img.freepik.com/premium-photo/two-luxury-watches-dark-reflective-surface-with-bokeh-background_14117-707786.jpg') center/cover;
+      color: #fff;
+      padding: 50px 30px;
+      text-align: center;
+    }
+
+    .form-body {
+      padding: 50px 40px;
+      text-align: center;
+    }
+
+    .otp-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 30px 0;
+    }
+
+    .otp-input {
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      text-align: center;
+      border-radius: 12px;
+      border: 2px solid #ddd;
+      background: var(--light-bg);
+    }
+
+    .otp-input:focus {
+      border-color: var(--gold);
+      outline: none;
+    }
+
+    .timer {
+      margin: 20px 0;
+      font-weight: 500;
+    }
+
+    .resend-btn {
+      display: none;
+      background: none;
+      border: none;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-wriston {
+      width: 100%;
+      padding: 18px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wriston-card">
+  <div class="wriston-header">
+    <h1>Verify OTP</h1>
+    <p>Enter the 6-digit code sent to your email</p>
+  </div>
+
+  <div class="form-body">
+
+    <div class="otp-container">
+      <input type="text" maxlength="1" class="otp-input">
+      <input type="text" maxlength="1" class="otp-input">
+      <input type="text" maxlength="1" class="otp-input">
+      <input type="text" maxlength="1" class="otp-input">
+      <input type="text" maxlength="1" class="otp-input">
+      <input type="text" maxlength="1" class="otp-input">
+    </div>
+
+    <div class="timer">
+      Time remaining: <span id="timer">01:00</span>
+    </div>
+
+    <button id="resndotp" class="resend-btn">Resend OTP</button>
+
+    <button id="verifyBtn" class="btn-wriston">Verify</button>
+
+  </div>
+</div>
+
+<script>
+const inputs = document.querySelectorAll(".otp-input");
+const verifyBtn = document.getElementById("verifyBtn");
+const resendBtn = document.getElementById("resndotp");
+const timerEl = document.getElementById("timer");
+
+let timer;
+let timeLeft = 60;
+let otpExpired = false;
+
+/* ================= TIMER ================= */
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 60;
+  otpExpired = false;
+  resendBtn.style.display = "none";
+  timerEl.textContent = "01:00";
+
+  timer = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = `00:${timeLeft < 10 ? "0" : ""}${timeLeft}`;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      otpExpired = true;
+      resendBtn.style.display = "inline";
+      Swal.fire("Expired!", "OTP expired. Please resend.", "error");
+    }
+  }, 1000);
+}
+
+/* start once */
+startTimer();
+
+/* OTP UX */
+inputs.forEach((input, i) => {
+  input.addEventListener("input", () => {
+    if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Backspace" && !input.value && i > 0) {
+      inputs[i - 1].focus();
+    }
+  });
+});
+
+/* VERIFY OTP */
+verifyBtn.addEventListener("click", async () => {
+  let otp = "";
+  inputs.forEach(i => otp += i.value);
+
+  if (otp.length < 6) {
+    Swal.fire("Error", "Please enter full OTP", "error");
+    return; // ❌ no timer reset
+  }
+
+  if (otpExpired) {
+    Swal.fire("Error", "OTP expired. Resend OTP", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/verify-email-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      Swal.fire("Invalid OTP", data.message || "Wrong OTP", "error");
+      return; // ❌ timer reset ഇല്ല
+    }
+
+    Swal.fire("Success", "OTP Verified", "success")
+      .then(() => window.location.href = data.redirect);
+
+  } catch {
+    Swal.fire("Error", "Server error", "error");
+  }
+});
+
+/* RESEND OTP */
+resendBtn.addEventListener("click", async () => {
+  const res = await fetch("/resend-change-email-otp", { method: "POST" });
+
+  const data = await res.json();
+
+  if (data.success) {
+    Swal.fire("Sent!", "OTP resent successfully", "success");
+    inputs.forEach(i => i.value = "");
+    inputs[0].focus();
+    startTimer(); // ✅ ONLY HERE reset
+  } else {
+    Swal.fire("Error", "Failed to resend OTP", "error");
+  }
+});
+</script>
+
+</body>
+</html>
