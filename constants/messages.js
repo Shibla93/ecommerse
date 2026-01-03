@@ -42,8 +42,19 @@ const Messages = {
     
     VARIANT_NOTFOUD:"no variant found",
    REVIEW_ADDED: "Review added successfully",
-   SOLD_OUT:"sold out"
-
+   SOLD_OUT:"sold out",
+   ADDRESS_NOT_FOUND:"Address not found",
+   ADDRESS_SAVED:"Address saved succesfully",
+   ADDRESS_UPDATED:"Address updated succesfully",
+   ADDRESS_DELETED:"Address deleted successfully",
+   CART_EMPTY:"cart id empty",
+   STOCK_REACHED:"stock limit reached",
+  ADDED_TO_CART:"product added to cart succesfully",
+  OUT_OF_STOCK:"PRODUCT IS OUT OF STOCK",
+  VARIANT_UNAVAILABLE:"product variant not vailable",
+MAX_LIMIT_REACHED:"maximum 5 product can purachase at one time",
+   ITEM_REMOVED:"product removed from the cart" ,
+   ORDER_NOTFOUND:"order not found"    
 
    
 };

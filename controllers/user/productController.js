@@ -6,7 +6,7 @@ const Messages = require('../../constants/messages');
 const StatusCodes = require("../../constants/StatusCodes");
 const bcrypt = require("bcrypt");
 
-
+const Cart = require('../../model/cartSchema');
 const Brand = require("../../model/brandSchema");
 const Category = require("../../model/categorySchema");
 const Product = require("../../model/productSchema");
@@ -196,12 +196,14 @@ const loadProductDetail = async (req, res) => {
       .lean();
 
     // render
+     
     res.render("product-details", {
      user: userData,
       product,
       activeVariant,
       listedVariants,
-      relatedProducts
+      relatedProducts,
+      
       
     });
   } catch (error) {

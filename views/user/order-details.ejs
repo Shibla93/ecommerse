@@ -1,0 +1,322 @@
+<%- include("../partials/user/sidebar") %>
+
+<div class="app-wrapper">
+  <%- include("../partials/user/header") %>
+
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== SIDEBAR & MAIN LAYOUT ===== */
+    .app-wrapper {
+      margin-left: 300px; /* Matches your sidebar width */
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.4s ease;
+    }
+
+    @media (max-width: 991px) {
+      .app-wrapper {
+        margin-left: 0;
+      }
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      flex: 1;
+      padding: 120px 0 100px; /* Clears fixed header + space for footer */
+    }
+
+    .order-details-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      text-align: center;
+      margin-bottom: 2.5rem;
+      border-bottom: 2px solid var(--color-gold);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
+
+    .info-card {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--color-gold);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: var(--color-dark);
+    }
+
+    .info-value {
+      color: var(--color-muted);
+    }
+  .order-table img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-processing { background: #f59e0b; color: white; }
+    .status-shipped    { background: #3b82f6; color: white; }
+    .status-delivered  { background: #10b981; color: white; }
+    .status-cancelled  { background: #ef4444; color: white; }
+    .status-returned   { background: #8b5cf6; color: white; }
+
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .order-table th,
+    .order-table td {
+      padding: 1.2rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .order-table th {
+      background: var(--color-dark);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+
+    .order-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .total-row {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--color-gold);
+      border-top: 2px solid var(--color-gold);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    .action-btn {
+      padding: 0.8rem 1.8rem;
+      margin-right: 1rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-cancel { background: #ef4444; color: white; }
+    .btn-return  { background: #8b5cf6; color: white; }
+    .btn-invoice { background: #f59e0b; color: white; }
+
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    @media (max-width: 992px) {
+      .order-details-container {
+        margin: 100px auto 80px;
+      }
+    }
+  </style>
+
+  <main class="main">
+    <div class="order-details-container">
+      <h2 class="page-title">Order Details</h2>
+
+      <!-- Order Info -->
+      <div class="info-card">
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-label">Order ID:</span>
+            <span class="info-value"><%= order.orderNumber %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Order Date:</span>
+            <span class="info-value"><%= order.createdAt.toDateString() %></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Status:</span>
+            <span class="status-badge status-<%= order.orderStatus %>"><%= order.orderStatus %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping Address -->
+      <div class="info-card">
+        <h5 class="card-title">Shipping Address</h5>
+        <p class="info-value">
+          <strong><%= order.shippingAddress.name %></strong><br>
+          <%= order.shippingAddress.house %>, <%= order.shippingAddress.city %>,<br>
+          <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %><br>
+          Phone: <%= order.shippingAddress.phone %>
+        </p>
+      </div>
+
+      <!-- Products -->
+      <div class="info-card">
+        <h5 class="card-title">Products</h5>
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Image</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% order.orderedItems.forEach(item => { %>
+              <tr>
+                <td><%= item.productId.product %></td>
+
+                 <td>
+                        
+  <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()) %>
+  <img src="<%= variant.images[0].originalUrl %>" alt="<%= item.productId.product %>">
+
+
+                      </td>
+                <td><%= item.quantity %></td>
+                <td>₹<%= item.purchasedPrice %></td>
+                <td>₹<%= item.purchasedPrice * item.quantity %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Price Summary -->
+      <div class="info-card">
+        <h5 class="card-title">Price Summary</h5>
+        <div class="info-row">
+          <span>Subtotal</span>
+          <span>₹<%= order.subTotal %></span>
+        </div>
+        <div class="info-row">
+          <span>Tax</span>
+          <span>₹<%= order.tax %></span>
+        </div>
+        <div class="info-row">
+          <span>Shipping</span>
+          <span>₹<%= order.shippingCharge %></span>
+        </div>
+        <div class="total-row">
+          <span>Total</span>
+          <span>₹<%= order.totalAmount %></span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex gap-3 flex-wrap">
+     <% if (order.orderStatus !== "cancelled" && order.orderStatus !== "returned") { %>
+    <button class="action-btn btn-cancel"
+      onclick="cancelOrder('<%= order.orderNumber %>')">
+      Cancel Order
+    </button>
+  <% } %>
+
+        <% if (order.orderStatus === "delivered") { %>
+          <button class="action-btn btn-return">Return Order</button>
+        <% } %>
+        <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">Download Invoice</a>
+      </div>
+    </div>
+  </main>
+
+  <%- include("../partials/user/footer") %>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function cancelOrder(orderId) {
+  Swal.fire({
+    title: "Cancel Order?",
+    input: "textarea",
+    inputPlaceholder: "Reason (optional)",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Cancel",
+  }).then(result => {
+    if (result.isConfirmed) {
+      fetch(`/order/cancel/${orderId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ reason: result.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire("Cancelled!", data.message, "success")
+            .then(() => location.reload());
+        } else {
+          Swal.fire("Error", data.message, "error");
+        }
+      });
+    }
+  });
+}
+</script>

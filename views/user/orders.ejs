@@ -1,0 +1,322 @@
+<%- include("../partials/user/sidebar") %>
+
+<div class="app-wrapper">
+  <%- include("../partials/user/header") %>
+
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== SIDEBAR & MAIN LAYOUT ===== */
+    .app-wrapper {
+      margin-left: 230px; /* Matches your sidebar width */
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.4s ease;
+    }
+
+    @media (max-width: 991px) {
+      .app-wrapper {
+        margin-left: 0;
+      }
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      flex: 1;
+      padding: 120px 0 100px; /* Clears fixed header + space for footer */
+    }
+
+    .orders-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      text-align: center;
+      margin-bottom: 2.5rem;
+      border-bottom: 2px solid var(--color-gold);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
+
+    .search-bar {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .search-bar form {
+      position: relative;
+      width: 300px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    .search-bar input::placeholder {
+      color: var(--color-muted);
+    }
+
+    .search-bar .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-muted);
+      font-size: 1.1rem;
+    }
+
+    .orders-table-wrapper {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .orders-table th,
+    .orders-table td {
+      padding: 1.2rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .orders-table th {
+      background: var(--color-dark);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+
+    .orders-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status {
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .processing { background: #f59e0b; color: white; }
+    .shipped    { background: #3b82f6; color: white; }
+    .delivered  { background: #10b981; color: white; }
+    .cancelled  { background: #ef4444; color: white; }
+    .returned   { background: #8b5cf6; color: white; }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      margin-right: 0.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-view    { background: #3b82f6; color: white; }
+    .btn-cancel  { background: #ef4444; color: white; }
+    .btn-return  { background: #8b5cf6; color: white; }
+    .btn-invoice { background: #f59e0b; color: white; }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .no-orders {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .no-orders h4 {
+      font-size: 1.8rem;
+      color: var(--color-dark);
+      margin-bottom: 1rem;
+    }
+
+    /* Footer (pushed to bottom) */
+    footer {
+      width: 100%;
+      margin-top: auto;
+    }
+
+    @media (max-width: 992px) {
+      .orders-container {
+        margin: 100px auto 80px;
+      }
+    }
+  </style>
+
+  <main class="main">
+    <div class="orders-container">
+      <h2 class="page-title">My Orders</h2>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <form action="/orders" method="get">
+          <div class="position-relative">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" name="query" placeholder="Search by Order Number..." value="<%= query || '' %>">
+          </div>
+        </form>
+      </div>
+
+      <% if (orders.length > 0) { %>
+        <div class="orders-table-wrapper">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach(order => { %>
+                <tr>
+                  <td><%= order.orderNumber %></td>
+                  <td><%= order.createdAt.toDateString() %></td>
+                  <td>
+                    <span class="status <%= order.orderStatus %>"><%= order.orderStatus %></span>
+                  </td>
+                  <td>₹<%= order.totalAmount %></td>
+                  <td>
+                   <a href="/orders/<%= order._id %>" class="action-btn btn-view">View</a>
+
+                    <% if(order.orderStatus !== 'delivered' && order.orderStatus !== 'cancelled' && order.orderStatus !== 'returned'){ %>
+                      <button class="action-btn btn-cancel"
+                  onclick="cancelOrder( '<%= order.orderNumber %>')">
+            Cancel 
+          </button>
+                    <% } %>
+                    <% if(order.orderStatus === 'delivered'){ %>
+                      <button onclick="returnOrder('<%= order._id %>')">Return</button>
+
+                    <% } %>
+                    <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">Invoice</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="no-orders">
+          <h4>No orders found</h4>
+          <p>Start shopping to place your first order!</p>
+          <a href="/shop" class="btn btn-outline-dark mt-3">Shop Now</a>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <%- include("../partials/user/footer") %>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Your existing JS functions remain unchanged
+  function cancelOrder(orderId) {
+  Swal.fire({
+    title: 'Cancel Order',
+    input: 'text',
+    inputPlaceholder: 'Reason (optional)',
+    showCancelButton: true,
+    confirmButtonText: 'Cancel Order',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/order/cancel/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: result.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          Swal.fire('Cancelled!', '', 'success').then(()=> location.reload());
+        } else {
+          Swal.fire('Error', data.message, 'error');
+        }
+      });
+    }
+  });
+}
+
+  function returnOrder(orderNumber) {
+    Swal.fire({
+      title: 'Return Order',
+      input: 'text',
+      inputLabel: 'Reason (required)',
+      inputPlaceholder: 'Enter reason for return',
+      inputValidator: (value) => !value && 'Reason is required!',
+      showCancelButton: true,
+      confirmButtonText: 'Return Order',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('/order/return', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderNumber, reason: result.value })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            Swal.fire('Returned!', '', 'success').then(()=> location.reload());
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        });
+      }
+    });
+  }
+</script>

@@ -45,23 +45,23 @@ const userSchema=new Schema({
       type: Boolean,
       default: false
     },
- cart: {
-  type: [
-    {
-      productId: {
-        type: Schema.Types.ObjectId,
-        ref: "Product",
-        required: true
-      },
-      quantity: {
-        type: Number,
-        required: true,
-        default: 1
-      }
-    }
-  ],
-  default: []
-},
+//  cart: {
+//   type: [
+//     {
+//       productId: {
+//         type: Schema.Types.ObjectId,
+//         ref: "Product",
+//         required: true
+//       },
+//       quantity: {
+//         type: Number,
+//         required: true,
+//         default: 1
+//       }
+//     }
+//   ],
+//   default: []
+// },
 
  
   emailVerificationToken: String,

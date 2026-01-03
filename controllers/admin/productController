@@ -155,8 +155,13 @@ const getProduct = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
+    const baseMatch = {};
 
-    // 🔹 Build search match stage
+if (search) {
+  baseMatch.product = { $regex: search, $options: "i" };
+}
+
+
     const matchStage = {
       "variants.isDeleted": false
     };
@@ -164,15 +169,16 @@ const getProduct = async (req, res) => {
       matchStage.product = { $regex: search, $options: "i" };
     }
 
-    // 🔹 Count total products with non-deleted variants
+    
     const totalProductsArr = await Product.aggregate([
       { $unwind: "$variants" },
       { $match: matchStage },
       { $group: { _id: "$_id" } } // unique products
     ]);
 
-    const totalProducts = totalProductsArr.length;
-    const totalPages = Math.ceil(totalProducts / limit);
+   const totalProducts = await Product.countDocuments(baseMatch);
+const totalPages = Math.ceil(totalProducts / limit);
+
 
   
 
@@ -239,7 +245,7 @@ const listProduct=async(req,res)=>{
     const variant=product.variants.id(variantId);
     
         if (!variant) {
-            return res.status(404).json({ success: false, message:Messages.VARIANT_NOTFOUD });
+            return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.VARIANT_NOT_FOUND });
         }
 
 
@@ -471,7 +477,7 @@ if (stock > 10000) {
       }
     });
 
-    // 🔹 Update main product details
+  
     productDoc.product = product;
     productDoc.brand = brand;
     productDoc.description = description;

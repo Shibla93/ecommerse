@@ -328,7 +328,7 @@ const resendChangeEmailOtp = async (req, res) => {
 }
 
 
-// Handle OTP verification
+
 const verifyEmailOtp = async (req, res) => {
   try {
     const enteredOtp = req.body.otp;
@@ -356,8 +356,11 @@ const verifyEmailOtp = async (req, res) => {
 const getNewEmailPage = async (req, res) => {
   try {
     res.render("user/new-email");
-  } catch (error) {
-    res.status(500).send("Server Error");
+  } catch (error) {  
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: Messages.INTERNAL_SERVER_ERROR
+    });
   }
 };
 
@@ -408,7 +411,7 @@ const changePassword=async(req,res)=>{
       });
     }
 
-    // Validate new password
+
     if (newPassword.length < 8) {
       return res.render("user/profile", {
         user,

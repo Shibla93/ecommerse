@@ -1,18 +1,19 @@
 const express=require("express");
 const router=express.Router();
 const adminController=require("../controllers/admin/adminController")
-const {userAuth,adminAuth}=require("../middlewares/auth")
+const {adminAuth}=require("../middlewares/auth")
 const userController=require("../controllers/admin/userController")
 const categoryController=require("../controllers/admin/categoryController")
 const brandController=require("../controllers/admin/brandController")
 const productController=require("../controllers/admin/productController")
+const orderController=require("../controllers/admin/orderController")
 
 const upload = require('../helpers/multer'); 
 const cloudinary = require('../helpers/cloudinary')
-
+const {preventAdminLogin} = require('../middlewares/preventAdminLogin');
 
 router.get("/pageError",adminController.pageError)
-router.get("/login",adminController.loadLogin)
+router.get("/login",preventAdminLogin,adminController.loadLogin)
 router.post("/login",adminController.login)
 router.get("/dashboard",adminAuth,adminController.loadDashboard)
 router.get("/logout",adminController.logout);
@@ -39,8 +40,11 @@ router.get("/product",adminAuth,productController.getProduct)
 router.patch("/product/list/:id/:variantId",adminAuth,productController.listProduct)
 router.patch("/product/delete/:id/:variantId",adminAuth,productController.deleteProduct)
 router.get("/product/edit/:id",adminAuth ,productController.getEditProduct);
-
 router.post("/product/edit/:id",adminAuth,upload.any(),productController.editProduct);
+
+router.get('/order', adminAuth, orderController.listOrders);
+router.post("/order/status/:orderId",adminAuth,orderController.updateOrderStatus);
+router.get('/order/:orderId', adminAuth, orderController.viewOrder);
 
 
 

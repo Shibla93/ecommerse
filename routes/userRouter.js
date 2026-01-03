@@ -8,7 +8,11 @@ const passport = require("passport");
 const {userAuth}=require("../middlewares/auth")
 const profileController=require("../controllers/user/profileController")
 const productController=require("../controllers/user/productController")
-
+const addressController=require("../controllers/user/addressController")
+const cartController=require("../controllers/user/cartController")
+const checkoutController=require("../controllers/user/checkoutController")
+const orderController=require("../controllers/user/orderController")  
+const wishlistController=require("../controllers/user/wishlistController")
 const cloudinary = require('../helpers/cloudinary')
 
 router.get("/pageNotfound",userController.pageNotFound)
@@ -21,7 +25,7 @@ router.get("/verifyOtp",userController.verifyOtp)
 router.post("/verifyOtp",userController.postOtp)
 router.post("/resendotp",userController.resendOtp)
 
-const preventLogin = require('../middlewares/preventLogin');
+const {preventLogin} = require('../middlewares/preventLogin');
 
 router.get('/login', preventLogin, userController.loadLogin);
 
@@ -41,16 +45,9 @@ router.get("/auth/google/callback",
 
 // router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
-
 router.get("/home",userAuth, userController.home);
-
 router.get("/logout",userController.logout)
 router.post("/logout",userController.logout)
-
-
-
-
-
 
 router.get("/forgotpass", profileController.getForgotPass);
 router.post("/forgotpass", profileController.postEmail);
@@ -67,17 +64,44 @@ router.post("/verify-email-otp",userAuth,profileController.verifyEmailOtp);
 router.post("/resend-change-email-otp", userAuth,profileController.resendChangeEmailOtp);
 router.get("/new-email", userAuth, profileController.getNewEmailPage);
 router.post("/update-email",userAuth,profileController.updateEmail)
-//router.post("/update-profile",userAuth,profileController.updateProfile)
 router.post('/change-password',userAuth, profileController.changePassword);
+
+router.get("/address",userAuth,addressController.getAddress)
+ router.get("/addAddress",userAuth,addressController.addAddress)
+ router.post("/addAddress",userAuth,addressController.postAddAddress);
+ router.get("/editAddress/:id",userAuth,addressController.editAddress)
+ router.patch("/editAddress/:id",userAuth,addressController.postEditAddress)
+router.delete("/deleteAddress/:id",userAuth,addressController.deleteAddress)
+
+router.get("/shop",userAuth,productController.loadShoppingPage)
+router.get("/product/:id",userAuth,productController.loadProductDetail)
+router.post("/product/:id/review",userAuth,productController.addReview)
+
+router.get("/wishlist", userAuth, wishlistController.getWishlist);
+ router.post("/wishlist/add", userAuth, wishlistController.addToWishlist);
+ router.post("/wishlist/remove", userAuth, wishlistController.removeFromWishlist);
+
+router.get("/cart", userAuth, cartController.getCartPage)
+ router.post("/addToCart",userAuth, cartController.addToCart)
+ router.post("/changeQuantity", userAuth,cartController.changeQuantity)
+router.post("/cart/remove", userAuth, cartController.removeProduct)
+router.get("/checkout", userAuth, checkoutController.getCheckoutPage);
+router.post("/checkout/placeOrder", userAuth,checkoutController.placeOrder);
+router.get("/order/success/:orderId", userAuth, checkoutController.orderSuccessPage);
+
+router.get("/orders",userAuth,orderController.getOrder)
+router.get("/orders/:orderId",userAuth,orderController.getOrderDetails)
+router.post("/order/cancel/:orderNumber",userAuth,orderController.cancelOrder);
+router.post("/order/return/:orderNumber", userAuth, orderController.returnOrder);
+router.get('/order/invoice/:orderNumber', userAuth, orderController.generateInvoice);
+
+
 
 
 router.get("/form",userController.getform)
 router.post("/form", upload.any(), userController.postform);
 
 
-router.get("/shop",userAuth,productController.loadShoppingPage)
-router.get("/product/:id",userAuth,productController.loadProductDetail)
-router.post("/product/:id/review",userAuth,productController.addReview)
 
 
 

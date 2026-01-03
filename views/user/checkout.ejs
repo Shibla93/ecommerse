@@ -1,0 +1,370 @@
+<%- include("../partials/user/sidebar") %>
+
+<div class="app-wrapper">
+  <%- include("../partials/user/header") %>
+
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== SIDEBAR & MAIN LAYOUT ===== */
+    .app-wrapper {
+      margin-left: 300px; /* Matches your sidebar width */
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.4s ease;
+    }
+
+    @media (max-width: 991px) {
+      .app-wrapper {
+        margin-left: 0;
+      }
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      flex: 1;
+      padding: 120px 0 100px; /* Clears fixed header + space for footer */
+    }
+
+    .checkout-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      margin: 2rem 0 1rem;
+      border-bottom: 2px solid var(--color-gold);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
+
+    /* Address Section */
+    .address-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .address-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-5px);
+    }
+
+    .address-card.selected {
+      border: 2px solid var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    .address-radio {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .address-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .address-radio:checked + .address-content label {
+      color: var(--color-gold);
+      font-weight: 600;
+    }
+
+    .address-details {
+      line-height: 1.7;
+      color: var(--color-dark);
+    }
+
+    .address-details strong {
+      font-weight: 600;
+    }
+
+    .address-actions a {
+      color: var(--color-gold);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .address-actions a:hover {
+      text-decoration: underline;
+    }
+
+    /* Order Summary */
+    .order-summary {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .order-table th,
+    .order-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .order-table th {
+      background: var(--color-dark);
+      color: white;
+      font-weight: 600;
+    }
+
+    .order-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Summary Totals */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .total-row {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--color-gold);
+      border-top: 2px solid var(--color-gold);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+
+    /* Place Order Button */
+    #placeOrderBtn {
+      background: var(--color-gold);
+      color: white;
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.75rem;
+      width: 100%;
+      margin-top: 2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-md);
+    }
+
+    #placeOrderBtn:hover {
+      background: var(--color-gold-hover);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Footer (pushed to bottom) */
+    footer {
+      width: 100%;
+      margin-top: auto;
+    }
+
+    @media (max-width: 992px) {
+      .main {
+        padding: 100px 0 80px;
+      }
+    }
+  </style>
+
+  <main class="main">
+    <div class="checkout-container">
+      <h2 class="page-title">Checkout</h2>
+
+      <!-- Addresses -->
+      <h4 class="section-title">Select Delivery Address</h4>
+      <% if (addresses.length > 0) { %>
+        <div class="address-list">
+          <% addresses.forEach(addr => { %>
+            <div class="address-card <%= addr.isDefault ? 'selected' : '' %>">
+  <label for="addr-<%= addr._id %>" style="cursor:pointer;">
+    
+    <input 
+      type="radio"
+      name="addressId"
+      value="<%= addr._id %>"
+      id="addr-<%= addr._id %>"
+      class="address-radio"
+      <%= addr.isDefault ? 'checked' : '' %>
+    >
+
+    <div class="address-content">
+      <div class="address-details">
+        <strong><%= addr.name %></strong><br>
+        <%= addr.house %>, <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %><br>
+        Phone: <%= addr.phone %>
+      </div>
+
+      <div class="address-actions mt-2">
+        <a href="/editAddress/<%= addr._id %>" class="text-muted">
+          ✏️ Edit
+        </a>
+      </div>
+    </div>
+
+  </label>
+</div>
+
+          <% }) %>
+        </div>
+        <p class="mt-3"><a href="/addAddress" class="text-gold">+ Add New Address</a></p>
+      <% } else { %>
+        <div class="empty-state">
+          <h4>No addresses found</h4>
+          <p>Please add a delivery address to proceed.</p>
+          <a href="/addAddress" class="btn btn-outline-dark mt-3">Add Address</a>
+        </div>
+      <% } %>
+
+      <!-- Order Summary -->
+      <h4 class="section-title">Order Summary</h4>
+      <div class="order-summary">
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Image</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% cart.items.forEach(item => { %>
+              <tr>
+                <td><%= item.productId.product %></td>
+                <td>
+                  <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()) %>
+                  <img src="<%= variant.images[0].originalUrl %>" alt="<%= item.productId.product %>"
+                       style="width:50px;height:50px;object-fit:cover;border-radius:5px;">
+                </td>
+                <td><%= item.quantity %></td>
+                <td>₹<%= item.price %></td>
+                <td>₹<%= item.price * item.quantity %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+        <!-- Summary Totals -->
+        <div class="mt-4">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>₹<%= subtotal %></span>
+          </div>
+          <div class="summary-row">
+            <span>Taxes</span>
+            <span>₹<%= taxes %></span>
+          </div>
+          <div class="summary-row">
+            <span>Discount</span>
+            <span>₹<%= discount %></span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span class="text-success">₹<%= shipping %></span>
+          </div>
+          <div class="total-row">
+            <span>Total</span>
+            <span>₹<%= total %></span>
+          </div>
+        </div>
+
+        <!-- Place Order Button -->
+        <button id="placeOrderBtn">Place Order (Cash on Delivery)</button>
+      </div>
+    </div>
+  </main>
+
+  <%- include("../partials/user/footer") %>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+   document.querySelectorAll(".address-card").forEach(card => {
+  card.addEventListener("click", () => {
+    const radio = card.querySelector(".address-radio");
+    radio.checked = true;
+
+    document.querySelectorAll(".address-card")
+      .forEach(c => c.classList.remove("selected"));
+
+    card.classList.add("selected");
+  });
+});
+
+  document.getElementById("placeOrderBtn").addEventListener("click", () => {
+    const selectedAddress = document.querySelector('input[name="addressId"]:checked');
+    if (!selectedAddress) {
+      Swal.fire("Select an address");
+      return;
+    }
+
+    fetch("/checkout/placeOrder", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ addressId: selectedAddress.value })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = "/order/success/" + data.orderId;
+      } else {
+        Swal.fire("Error", data.message, "error");
+      }
+    });
+  });
+</script>
+

@@ -270,7 +270,12 @@
     
  
 function startTimer() {
-  let timeLeft = 60;
+  let timeLeft = localStorage.getItem("otpTimeLeft");
+
+  if (!timeLeft || timeLeft <= 0) {
+    timeLeft = 60;
+  }
+
   otpExpired = false;
 
   const t1 = document.getElementById("timer");
@@ -281,34 +286,30 @@ function startTimer() {
 
   timer = setInterval(() => {
     timeLeft--;
+    localStorage.setItem("otpTimeLeft", timeLeft);
 
-    // timer text
     t1.textContent = "00:" + String(timeLeft).padStart(2, "0");
 
-    // color change
     if (timeLeft <= 10) {
       t1.style.color = "red";
     } else {
       t1.style.color = "green";
     }
 
-    // expiry
     if (timeLeft <= 0) {
       clearInterval(timer);
-      timeLeft = 0;
-
-      if (!otpExpired) {
-        otpExpired = true;
-        Swal.fire("Expired!", "Your OTP has expired.", "error");
-      }
-
+      localStorage.removeItem("otpTimeLeft");
+      otpExpired = true;
       resendBtn.style.display = "inline-block";
+      Swal.fire("Expired!", "Your OTP has expired.", "error");
     }
 
   }, 1000);
 }
 
-    startTimer();
+startTimer();
+
+    
    
     document.getElementById("resndotp").addEventListener("click", async (e) => {
     const btn = e.target;
@@ -320,6 +321,7 @@ function startTimer() {
 
         if (data.success) {
           Swal.fire("Sent!", "OTP resent successfully.", "success");
+             localStorage.setItem("otpTimeLeft", 60);
           startTimer();
         } else {
           Swal.fire("Error!", "Failed to resend OTP.", "error");

@@ -390,7 +390,11 @@
 
       <% if(activeVariant.stock > 0) { %>
         <p class="in-stock">In Stock (<%= activeVariant.stock %> available)</p>
-        <button class="btn">Add to Cart</button>
+       <button class="btn"
+  onclick="addToCart('<%= product._id %>', '<%= activeVariant._id %>')">
+  Add to Cart
+</button>
+
       <% } else { %>
         <p class="out-of-stock">Sold Out</p>
         <button class="btn" onclick="notify()">Notify Me</button>
@@ -542,6 +546,41 @@ form.addEventListener("submit", async (e) => {
     form.reset();
   }
 });
+
+async function addToCart(productId, variantId) {
+  try {
+    const res = await fetch('/addToCart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        productId,
+        variantId,
+        quantity: 1
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Cart',
+        showConfirmButton: false,
+        timer: 1200
+      }).then(() => {
+        window.location.href = "/cart";
+      });
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+
+  } catch (err) {
+    Swal.fire('Error', 'Something went wrong', 'error');
+  }
+}
 </script>
 
 </body>

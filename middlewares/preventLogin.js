@@ -6,4 +6,4 @@ const preventLogin = (req, res, next) => {
   next();
 };
 
-module.exports = preventLogin;
+module.exports = {preventLogin};

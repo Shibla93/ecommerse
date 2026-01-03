@@ -197,7 +197,13 @@
 <body>
   <div class="container">
     <h1>Product Management</h1>
-    <input type="text" id="searchInput" placeholder="Search products..." class="form-control" />
+<input 
+  type="text" 
+  id="searchInput" 
+  placeholder="Search products..."
+  value="<%= search %>"
+/>
+
 
     <table class="table table-striped table-hover mt-3">
       <thead>
@@ -281,12 +287,12 @@
   const productsData = JSON.parse(document.getElementById('productVariantsData').textContent);
 
   // Search
-  document.getElementById('searchInput').addEventListener('keyup', function() {
-    let term = this.value.toLowerCase().trim();
-    document.querySelectorAll('tbody tr').forEach(row=>{
-      row.style.display = row.textContent.toLowerCase().trim().includes(term) ? '' : 'none';
-    });
-  });
+  document.getElementById("searchInput").addEventListener("keyup", function (e) {
+  if (e.key === "Enter") {
+    const value = this.value.trim();
+    window.location.href = `/admin/product?search=${encodeURIComponent(value)}`;
+  }
+});
 
   document.querySelectorAll('.view-variants-btn').forEach(btn => {
     btn.addEventListener('click', function() {

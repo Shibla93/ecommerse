@@ -268,7 +268,7 @@
                 <img src="<%= locals.user.profileImage %>" alt="Profile" class="user-avatar">
               <% } else { %>
                 <div class="user-initial">
-                  <%= locals.user.name ? locals.user.name.charAt(0).toUpperCase() : 'U' %>
+                  <%= locals.user.name ? locals.user.name.charAt(0).toUpperCase():'U'%>
                 </div>
               <% } %>
             </div>
@@ -295,6 +295,7 @@
       <a href="/shop">Shop</a>
       <a href="/wishlist">Wishlist</a>
       <a href="/cart">Cart</a>
+      
       <% if (locals.user) { %>
         <a href="/userProfile">My Profile</a>
         <a href="/logout">Logout</a>
