@@ -195,7 +195,7 @@ const userData=await User.findById(userId).lean();
 
 res.render('profile',{
   user:userData,
-    activePage: "profile"
+    activePage: "profile",
 });
     }catch(error){
         console.error("Error for retreive profile data ",error);

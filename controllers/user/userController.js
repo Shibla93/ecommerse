@@ -63,6 +63,7 @@ async function sendVerificationEmail(email, otp) {
 // 
 const home = async (req, res) => {
   try {
+   
     let userData = null;
     const userId = req.session.user;
     if (userId) {
@@ -106,7 +107,8 @@ const home = async (req, res) => {
       user: userData,
       products: productLimit,
       categories,
-      brands
+      brands,
+    
     });
   } catch (error) {
     console.error("Home controller error:", error);

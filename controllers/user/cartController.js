@@ -1,5 +1,6 @@
 const User = require("../../model/userSchema");
 const Product = require("../../model/productSchema");
+const Wishlist=require("../../model/wishlistSchema");
 const mongodb = require("mongodb");
 const Cart = require('../../model/cartSchema');
 const Messages = require("../../constants/messages");
@@ -27,6 +28,7 @@ const user = await User.findById(userId);
     res.render('cart', {
         user,
       cart,
+    
       grandTotal
     });
 
@@ -50,10 +52,8 @@ const user = await User.findById(userId);
     }
 
     
-    const blockedCategory = product.categories.find(cat => !cat.isListed);
-    if (blockedCategory) {
-      return res.json({ success: false, message: Messages.CATEGORY_UNLISTED});
-    }
+   
+    
 
   
     const variant = product.variants.id(variantId);
@@ -120,12 +120,24 @@ if (!variant.isListed || variant.isDeleted) {
     }
 
     await cart.save();
+    const wishlist = await Wishlist.findOne({ userId });
 
- 
+ if (wishlist) {
+  wishlist.items = wishlist.items.filter(item =>
+    !(
+      item.productId.toString() === productId &&
+      item.variantId.toString() === variantId
+    )
+  );
+
+  await wishlist.save();
+}
+
 
     return res.json({
       success: true,
-      message: Messages.ADDED_TO_CART
+      message: Messages.ADDED_TO_CART,
+       cartCount: cart.items.reduce((t, i) => t + i.quantity, 0)
     });
 
     }

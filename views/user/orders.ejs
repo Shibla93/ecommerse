@@ -3,197 +3,174 @@
 <div class="app-wrapper">
   <%- include("../partials/user/header") %>
 
-  <style>
-    :root {
-      --color-gold: #d4af37;
-      --color-gold-hover: #c19a2e;
-      --color-dark: #1a1a1a;
-      --color-muted: #6b7280;
-      --color-border: #e5e7eb;
-      --color-card-bg: #ffffff;
-      --color-light-bg: #f9fafb;
-      --radius-lg: 1rem;
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-    }
+ <style>
+:root {
+  --gold: #d4af37;
+  --gold-hover: #c19a2e;
+  --dark: #1a1a1a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card: #ffffff;
+  --bg: #f9fafb;
+}
 
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: var(--color-light-bg);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--bg);
+  height:150vh;
+}
 
-    /* ===== SIDEBAR & MAIN LAYOUT ===== */
-    .app-wrapper {
-      margin-left: 230px; /* Matches your sidebar width */
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      transition: margin-left 0.4s ease;
-    }
+/* ===== LAYOUT ===== */
+.app-wrapper {
+  margin-left: 250px;
+  transition: all 0.3s ease;
+}
 
-    @media (max-width: 991px) {
-      .app-wrapper {
-        margin-left: 0;
-      }
-    }
+@media (max-width: 991px) {
+  .app-wrapper {
+    margin-left: 0;
+  }
+}
 
-    /* ===== MAIN CONTENT ===== */
-    .main {
-      flex: 1;
-      padding: 120px 0 100px; /* Clears fixed header + space for footer */
-    }
+.main {
+  padding: 110px 15px 60px;
+}
 
-    .orders-container {
-      max-width: 1300px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
+.orders-container {
+  max-width: 1200px;
+  margin: auto;
+}
 
-    .page-title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--color-dark);
-      text-align: center;
-      margin-bottom: 2.5rem;
-      border-bottom: 2px solid var(--color-gold);
-      display: inline-block;
-      padding-bottom: 0.5rem;
-    }
+/* ===== PAGE TITLE ===== */
+.page-title {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--gold);
+  display: inline-block;
+}
 
-    .search-bar {
-      margin-bottom: 2rem;
-      display: flex;
-      justify-content: flex-end;
-    }
+/* ===== SEARCH ===== */
+.search-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
 
-    .search-bar form {
-      position: relative;
-      width: 300px;
-    }
+.search-bar form {
+  width: 100%;
+  max-width: 320px;
+}
 
-    .search-bar input {
-      width: 100%;
-      padding: 0.8rem 1rem 0.8rem 2.5rem;
-      border: 1px solid var(--color-border);
-      border-radius: 0.75rem;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
+.search-bar input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
 
-    .search-bar input:focus {
-      outline: none;
-      border-color: var(--color-gold);
-      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-    }
+@media (max-width: 576px) {
+  .search-bar {
+    justify-content: center;
+  }
+}
 
-    .search-bar input::placeholder {
-      color: var(--color-muted);
-    }
+/* ===== TABLE ===== */
+.orders-table-wrapper {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  overflow-x: auto;
+}
 
-    .search-bar .search-icon {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--color-muted);
-      font-size: 1.1rem;
-    }
+.orders-table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+}
 
-    .orders-table-wrapper {
-      background: var(--color-card-bg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-    }
+.orders-table th {
+  background: var(--dark);
+  color: white;
+  padding: 1rem;
+  font-size: 0.85rem;
+}
 
-    .orders-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+.orders-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
 
-    .orders-table th,
-    .orders-table td {
-      padding: 1.2rem 1.5rem;
-      text-align: left;
-      border-bottom: 1px solid var(--color-border);
-    }
+/* ===== STATUS ===== */
+.status {
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: white;
+}
 
-    .orders-table th {
-      background: var(--color-dark);
-      color: white;
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      letter-spacing: 0.5px;
-    }
+.processing { background: #f59e0b; }
+.shipped { background: #3b82f6; }
+.delivered { background: #10b981; }
+.cancelled { background: #ef4444; }
+.returned { background: #8b5cf6; }
 
-    .orders-table tr:last-child td {
-      border-bottom: none;
-    }
+/* ===== ACTION BUTTONS ===== */
+.action-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: white;
+  display: inline-block;
+  margin-bottom: 5px;
+}
 
-    .status {
-      padding: 0.4rem 1rem;
-      border-radius: 2rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: capitalize;
-    }
+.btn-view { background: #3b82f6; }
+.btn-cancel { background: #ef4444; }
+.btn-return { background: #8b5cf6; }
+.btn-invoice { background: #f59e0b; }
 
-    .processing { background: #f59e0b; color: white; }
-    .shipped    { background: #3b82f6; color: white; }
-    .delivered  { background: #10b981; color: white; }
-    .cancelled  { background: #ef4444; color: white; }
-    .returned   { background: #8b5cf6; color: white; }
+/* Stack buttons on mobile */
+@media (max-width: 576px) {
+  .action-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+}
 
-    .action-btn {
-      padding: 0.5rem 1rem;
-      margin-right: 0.5rem;
-      border: none;
-      border-radius: 0.5rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 25px 0;
+  gap: 6px;
+}
 
-    .btn-view    { background: #3b82f6; color: white; }
-    .btn-cancel  { background: #ef4444; color: white; }
-    .btn-return  { background: #8b5cf6; color: white; }
-    .btn-invoice { background: #f59e0b; color: white; }
+.pagination a {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--dark);
+}
 
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
+.pagination a.active {
+  background: var(--dark);
+  color: white;
+}
 
-    .no-orders {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: var(--color-card-bg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-    }
+/* ===== EMPTY STATE ===== */
+.no-orders {
+  text-align: center;
+  background: var(--card);
+  padding: 3rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+</style>
 
-    .no-orders h4 {
-      font-size: 1.8rem;
-      color: var(--color-dark);
-      margin-bottom: 1rem;
-    }
-
-    /* Footer (pushed to bottom) */
-    footer {
-      width: 100%;
-      margin-top: auto;
-    }
-
-    @media (max-width: 992px) {
-      .orders-container {
-        margin: 100px auto 80px;
-      }
-    }
-  </style>
 
   <main class="main">
     <div class="orders-container">
@@ -204,7 +181,8 @@
         <form action="/orders" method="get">
           <div class="position-relative">
             <i class="bi bi-search search-icon"></i>
-            <input type="text" name="query" placeholder="Search by Order Number..." value="<%= query || '' %>">
+            <input type="text" name="search\
+            " placeholder="Search by Order Number..." value="<%= search|| '' %>">
           </div>
         </form>
       </div>
@@ -260,9 +238,15 @@
     </div>
   </main>
 
-  <%- include("../partials/user/footer") %>
-</div>
 
+</div>
+<div class="pagination">
+  <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="?page=<%= i %>&search=<%= search %>&status=<%= statusFilter %>&sortBy=<%= sortBy %>&sortOrder=<%= sortOrder %>" 
+       class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+  <% } %>
+</div>
+  <%- include("../partials/user/footer") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   // Your existing JS functions remain unchanged

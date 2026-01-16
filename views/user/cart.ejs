@@ -236,6 +236,65 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
   }
+/* ===== MOBILE RESPONSIVE CART ===== */
+@media (max-width: 768px) {
+
+  .cart-table table,
+  .cart-table thead,
+  .cart-table tbody,
+  .cart-table th,
+  .cart-table td,
+  .cart-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .cart-table thead {
+    display: none; /* hide table header */
+  }
+
+  .cart-table tr {
+    background: #fff;
+    margin-bottom: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    padding: 1rem;
+  }
+
+  .cart-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 0;
+    border: none;
+    text-align: right;
+    font-size: 0.95rem;
+  }
+
+  .cart-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-muted);
+    text-align: left;
+  }
+
+  .cart-table img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .quantity-control {
+    justify-content: flex-end;
+  }
+
+  .remove-btn {
+    font-size: 1.4rem;
+  }
+
+  .cart-totals {
+    margin-top: 2rem;
+  }
+}
 
   @media (max-width: 992px) {
     .row {
@@ -280,17 +339,18 @@
                 <tbody>
                   <% cart.items.forEach(item => { %>
                     <tr>
-                      <td>
+                 <td data-label="Image">
+
                         
   <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()) %>
   <img src="<%= variant.images[0].originalUrl %>" alt="<%= item.productId.product %>">
 
 
                       </td>
-                      <td class="product-name">
+                      <td data-label="product-name">
                         <%= item.productId.product %>
                       </td>
-                      <td class="price">
+                      <td data-label="price">
   ₹<%= variant.price * item.quantity %>
   <br>
   <small class="small-price">
@@ -298,7 +358,8 @@
   </small>
 </td>
 
-                      <td>
+                      
+<td data-label="Quantity">
                         <div class="quantity-control">
                           <button class="decrement-button"
                             onclick="changeQuantity('<%= item._id %>', -1)">-</button>
@@ -307,7 +368,7 @@
                             onclick="changeQuantity('<%= item._id %>', 1)">+</button>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Remove">
                         <a href="javascript:void(0);" class="remove-btn" onclick="removeCartItem('<%= item._id %>')">
   🗑
 </a>

@@ -12,6 +12,7 @@ const getAddress = async (req, res) => {
 
         res.render("user/address-list", {
             user,
+          
             userAddress: userAddress?.address || [],
             activePage: "address"
         });

@@ -179,6 +179,82 @@
         margin: 100px auto 80px;
       }
     }
+    /* ================= MOBILE & TABLET FIXES ================= */
+
+/* Sidebar fix */
+@media (max-width: 991px) {
+  .app-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .main {
+    padding: 90px 10px 40px;
+  }
+}
+
+/* Page title */
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.8rem;
+  }
+}
+
+/* Info rows stack */
+@media (max-width: 576px) {
+  .info-row {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 1rem;
+  }
+}
+
+/* Cards padding */
+@media (max-width: 576px) {
+  .info-card {
+    padding: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* Table responsive */
+.order-table {
+  min-width: 650px;
+}
+
+.info-card {
+  overflow-x: auto;
+}
+
+/* Product images resize */
+@media (max-width: 576px) {
+  .order-table img {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Action buttons */
+@media (max-width: 576px) {
+  .action-btn {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+}
+
+/* Price summary */
+@media (max-width: 576px) {
+  .total-row {
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
   </style>
 
   <main class="main">
@@ -286,8 +362,9 @@
     </div>
   </main>
 
-  <%- include("../partials/user/footer") %>
+  
 </div>
+<%- include("../partials/user/footer") %>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>

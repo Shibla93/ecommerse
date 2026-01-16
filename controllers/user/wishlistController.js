@@ -54,7 +54,7 @@ const addToWishlist = async (req, res) => {
     }
 
     await wishlist.save();
-    res.json({ success: true, message: "Added to wishlist" });
+    res.json({ success: true, message: "Added to wishlist" , wishlistCount: wishlist.items.length});
 
   } catch (err) {
     console.log(err);

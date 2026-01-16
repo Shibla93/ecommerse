@@ -38,6 +38,7 @@ return res.redirect("/login");
 
       user,
        addresses: userAddress ? userAddress.address : [],
+       
       cart,
       subtotal,
       taxes,

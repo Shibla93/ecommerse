@@ -21,7 +21,8 @@
 
   /* ===== Sidebar Wrapper Fix ===== */
   .app-wrapper {
-    margin-left: 100px; /* sidebar width */
+    margin-left: 100px;
+    /* sidebar width */
     min-height: 100vh;
     transition: margin-left 0.4s ease;
   }
@@ -163,109 +164,200 @@
       grid-template-columns: 1fr;
     }
   }
+
+  footer {
+    width: 100%;
+    margin-top: auto;
+  }
+  /* ================= RESPONSIVE FIXES ================= */
+
+/* Small laptops & tablets */
+@media (max-width: 992px) {
+  .container {
+    margin: 30px auto;
+    padding: 0 16px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 576px) {
+
+  /* Page header */
+  .page-title {
+    font-size: 1.6rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  /* Cards grid */
+  .addresses-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Address card */
+  .address-card {
+    padding: 1.2rem;
+  }
+
+  .address-details {
+    font-size: 0.95rem;
+    word-wrap: break-word;
+  }
+
+  /* Default badge wrap fix */
+  .address-type span {
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  /* Buttons stack */
+  .address-actions {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .address-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Add button full width */
+  .btn-add {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  /* Empty state */
+  .no-address {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .address-details {
+    font-size: 0.9rem;
+  }
+}
+
 </style>
 
 
 <%- include("../../views/partials/user/sidebar") %>
 
-<div class="app-wrapper">
+  <div class="app-wrapper">
 
-  <%- include("../../views/partials/user/header") %>
+    <%- include("../../views/partials/user/header") %>
 
-  <div class="main-content">
-    <div class="container">
-      <div class="content">
+      <div class="main-content">
+        <div class="container">
+          <div class="content">
 
-        <div class="page-header">
-          <h1 class="page-title">Shipping Addresses</h1>
-          <p class="page-subtitle">Manage your delivery addresses</p>
-        </div>
+            <div class="page-header">
+              <h1 class="page-title">Shipping Addresses</h1>
+              <p class="page-subtitle">Manage your delivery addresses</p>
+            </div>
 
-        <% if (userAddress.length === 0) { %>
-          <div class="no-address">
-            <h3>No addresses saved yet</h3>
-            <p>Add a new address to speed up checkout and ensure smooth delivery.</p>
-            <br>
-            <a href="/addAddress">
-              <button class="btn-add">+ Add New Address</button>
-            </a>
-          </div>
-        <% } else { %>
-
-          <div class="addresses-grid">
-            <% userAddress.forEach((addr, index) => { %>
-              <div class="address-card">
-                <div class="address-type">
-                  <%= addr.addressType %>
-                  <% if (index === 0) { %>
-                    <span style="font-size:0.8rem;background:var(--color-gold);color:#fff;padding:0.3rem 0.8rem;border-radius:20px;margin-left:0.5rem;">
-                      Default
-                    </span>
-                  <% } %>
-                </div>
-
-                <div class="address-details">
-                  <strong><%= addr.name %></strong><br>
-                  <%= addr.houseName || addr.street %> <%= addr.city %><br>
-                  <%= addr.state %> - <%= addr.pincode %><br>
-                  Phone: <%= addr.phone %>
-                </div>
-
-                <div class="address-actions">
-                  <a href="/editAddress/<%= addr._id %>" class="btn btn-edit">Edit</a>
-                  <a href="javascript:void(0);" class="btn btn-delete" onclick="confirmDelete('<%= addr._id %>')">Delete</a>
-
-                </div>
+            <% if (userAddress.length===0) { %>
+              <div class="no-address">
+                <h3>No addresses saved yet</h3>
+                <p>Add a new address to speed up checkout and ensure smooth delivery.</p>
+                <br>
+                <a href="/addAddress">
+                  <button class="btn-add">+ Add New Address</button>
+                </a>
               </div>
-            <% }) %>
-          </div>
+              <% } else { %>
 
-          <div style="text-align:center">
-            <a href="/addAddress">
-              <button class="btn-add">+ Add New Address</button>
-            </a>
-          </div>
+                <div class="addresses-grid">
+                  <% userAddress.forEach((addr, index)=> { %>
+                    <div class="address-card">
+                      <div class="address-type">
+                        <%= addr.addressType %>
+                          <% if (index===0) { %>
+                            <span
+                              style="font-size:0.8rem;background:var(--color-gold);color:#fff;padding:0.3rem 0.8rem;border-radius:20px;margin-left:0.5rem;">
+                              Default
+                            </span>
+                            <% } %>
+                      </div>
 
-        <% } %>
+                      <div class="address-details">
+                        <strong>
+                          <%= addr.name %>
+                        </strong><br>
+                        <%= addr.houseName || addr.street %>
+                          <%= addr.city %><br>
+                            <%= addr.state %> - <%= addr.pincode %><br>
+                                Phone: <%= addr.phone %>
+                      </div>
+
+                      <div class="address-actions">
+                        <a href="/editAddress/<%= addr._id %>" class="btn btn-edit">Edit</a>
+                        <a href="javascript:void(0);" class="btn btn-delete"
+                          onclick="confirmDelete('<%= addr._id %>')">Delete</a>
+
+                      </div>
+                    </div>
+                    <% }) %>
+                </div>
+
+                <div style="text-align:center">
+                  <a href="/addAddress">
+                    <button class="btn-add">+ Add New Address</button>
+                  </a>
+                </div>
+
+                <% } %>
+
+          </div>
+        </div>
 
       </div>
     </div>
-  </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-function confirmDelete(addressId) {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: "This address will be permanently deleted.",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-    cancelButtonText: 'Cancel'
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch(`/deleteAddress/${addressId}`, {
-          method: 'DELETE'
-        });
+      <%- include("../../views/partials/user/footer") %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+          function confirmDelete(addressId) {
+            Swal.fire({
+              title: 'Are you sure?',
+              text: "This address will be permanently deleted.",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, delete it!',
+              cancelButtonText: 'Cancel'
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                try {
+                  const response = await fetch(`/deleteAddress/${addressId}`, {
+                    method: 'DELETE'
+                  });
 
-        const data = await response.json();
+                  const data = await response.json();
 
-        if (data.success) {
-          Swal.fire('Deleted!', data.message, 'success').then(() => {
-          
-            window.location.href = '/address';
-          });
-        } else {
-          Swal.fire('Error!', data.message, 'error');
-        }
-      } catch (err) {
-        Swal.fire('Error!', 'Something went wrong.', 'error');
-      }
-    }
-  });
-}
-</script>
+                  if (data.success) {
+                    Swal.fire('Deleted!', data.message, 'success').then(() => {
 
-  <%- include("../../views/partials/user/footer") %>
-
-</div>
+                      window.location.href = '/address';
+                    });
+                  } else {
+                    Swal.fire('Error!', data.message, 'error');
+                  }
+                } catch (err) {
+                  Swal.fire('Error!', 'Something went wrong.', 'error');
+                }
+              }
+            });
+          }
+        </script>

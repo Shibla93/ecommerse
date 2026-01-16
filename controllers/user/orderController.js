@@ -15,17 +15,47 @@ console.log("USER", userId);
     if (!userId) return res.json({ success: false, message: Messages.USER_NOT_FOUND });
    const user = await User.findById(userId);
 
-    const query = req.query.query || "";
+
+   
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+    let filter = {};
+    const search= req.query.search || "";
+    const statusFilter = req.query.status || '';
+    const sortBy = req.query.sortBy || 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+    if(search) {
+      filter['orderNumber'] = { $regex: search, $options: 'i' };
+    }
+  
+    if (statusFilter) {
+  filter['orderStatus'] = statusFilter;
+}
+
 
     const orders = await Order.find({
       userId,
-      ...(query && { orderNumber: { $regex: query, $options: "i" } })
-    }).sort({ createdAt: -1 });
+      ...(search && { orderNumber: { $regex: search, $options: "i" } })
+    })
+    .sort({ [sortBy]: sortOrder })
+         .skip(skip)
+      .limit(limit);
+
+    
+        const totalOrders = await Order.countDocuments(filter);
+        const totalPages = Math.ceil(totalOrders / limit);
+    
 
     res.render("user/orders", {
       user,      
       orders,
-      query,
+       currentPage: page,
+      totalPages,
+      search,
+       statusFilter,
+       sortBy,
+      sortOrder,
       activePage: "orders"     
     });
 

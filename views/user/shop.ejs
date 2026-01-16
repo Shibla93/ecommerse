@@ -200,6 +200,12 @@
     color: var(--text);
     margin-bottom: 10px;
   }
+  footer {
+  display: block !important;
+  position: relative;
+  z-index: 999;
+}
+
 
   .product-content-wrap p {
     font-size: 1rem;
@@ -292,6 +298,12 @@
 <div class="main-container">
   <!-- Sidebar (unchanged logic) -->
   <aside class="sidebar">
+    <div class="filter-section">
+    <button class="price-button"
+      onclick="window.location.href='/shop'">
+       Clear Filters
+    </button>
+  </div>
     <div class="filter-section">
       <div class="filter-title">Categories</div>
       <ul class="list-unstyled">
@@ -402,7 +414,8 @@
             <div class="product-content-wrap">
               <h4><%= p.product %> <%= p.dialColor %> Dial with <%= p.strapColor %> Strap</h4>
               <div class="price">₹<%= p.price.toLocaleString('en-IN') %></div>
-              <button class="add-to-cart-btn" onclick="addToCart('<%= p.variantId %>')">Add to Cart</button>
+              <button class="add-to-cart-btn" onclick="addToCart('<%= p.productId %>', '<%= p.variantId %>')">
+Add to Cart</button>
             </div>
           </div>
         <% }) %>
@@ -421,7 +434,9 @@
     </div>
   </section>
 </div>
+
 <% } %>
+<%- include("../../views/partials/user/footer") %>
 
     
    <!-- <div class="pagination">
@@ -438,7 +453,7 @@ class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
   <% } %>
 </div> -->
 
-<% include("../../views/partials/user/footer.ejs") %>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -473,6 +488,32 @@ class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
   window.addEventListener("popstate", () => {
     window.location.reload();
   });
+async function addToCart(productId, variantId) {
+  try {
+    const res = await fetch('/addToCart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, variantId, quantity: 1 })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        updateCartBadge(data.cartCount)
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Cart',
+        timer: 1200,
+        showConfirmButton: false
+      });
+    } else {
+      Swal.fire('Info', data.message || 'Please login first', 'info');
+    }
+  } catch (err) {
+    Swal.fire('Error', 'Something went wrong', 'error');
+  }
+}
 
 function addToWishlist(productId, variantId, btn) {
   fetch("/wishlist/add", {
@@ -483,9 +524,8 @@ function addToWishlist(productId, variantId, btn) {
   .then(res => res.json())
   .then(data => {
     if (data.success) {
-      // button active class add ചെയ്യുന്നു
       btn.classList.add('active');
-
+updateWishlistBadge(data.wishlistCount)
       Swal.fire({
         icon: 'success',
         title: 'Added to Wishlist ❤️',

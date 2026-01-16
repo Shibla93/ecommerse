@@ -134,7 +134,6 @@ const loadShoppingPage = async (req, res) => {
       user: userData,
       products,
       categories,
-      
       selectedCategory: req.query.category || null,
   selectedBrand: req.query.brand || null,
   sort: req.query.sort || null,
