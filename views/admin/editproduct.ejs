@@ -1072,7 +1072,7 @@ imageContainers.forEach((imgEl, imgIndex) => {
   const imgInput = variant.querySelectorAll('.img-input')[imgIndex];
 ;
   
-  // 1️⃣ If new image is cropped or uploaded
+  
   if (imgInput?.croppedBlob) {
     formData.append("images", imgInput.croppedBlob, `variant${index}_img${imgIndex + 1}_cropped.jpg`);
     variantObj.images.push({
@@ -1084,7 +1084,7 @@ imageContainers.forEach((imgEl, imgIndex) => {
       originalFileName: `variant${index}_img${imgIndex + 1}_original.jpg`
     });
   } 
-  // 2️⃣ Else use existing DB image
+  
   else if (imgEl?.dataset?.croppedUrl || imgEl?.dataset?.originalUrl) {
     variantObj.images.push({
       croppedUrl: imgEl.dataset.croppedUrl || null,
@@ -1109,10 +1109,10 @@ formData.append("variants", JSON.stringify(variantsArr));
 
 
 } else {
-        scrollToError();  // <- Scroll to first error
+        scrollToError();  
     }
 fetch(`/admin/product/edit/${productId}`, {
-  method: "POST",
+  method: "PATCH",
   body: formData
 })
   .then((res) => res.json())

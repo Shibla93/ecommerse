@@ -158,6 +158,26 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
   }
+  .pagination {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 25px 0;
+  gap: 6px;
+}
+
+.pagination a {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--dark);
+}
+
+.pagination a.active {
+  background: var(--dark);
+  color: white;
+}
 
   @media (max-width: 768px) {
     .addresses-grid {
@@ -326,6 +346,17 @@
 
       </div>
     </div>
+    <% if (totalPages > 1) { %>
+  <div class="pagination">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <a href="?page=<%= i %>"
+         class="<%= i === currentPage ? 'active' : '' %>">
+        <%= i %>
+      </a>
+    <% } %>
+  </div>
+<% } %>
+
       <%- include("../../views/partials/user/footer") %>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>

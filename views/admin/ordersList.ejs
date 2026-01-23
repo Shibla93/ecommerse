@@ -1,49 +1,50 @@
 <%- include("../../views/partials/admin/header") %>
-<style>
-  :root {
-    --color-gold: #d4af37;
-    --color-gold-hover: #c19a2e;
-    --color-dark: #1a1a1a;
-    --color-muted: #6b7280;
-    --color-border: #e5e7eb;
-    --color-card-bg: #ffffff;
-    --color-light-bg: #f9fafb;
-    --radius-lg: 1rem;
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-  }
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
 
-  body {
-    font-family: 'Montserrat', sans-serif;
-    background: var(--color-light-bg);
-    min-height: 100vh;
-  }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+    }
 
-  .orders-container {
-    max-width: 1400px;
-    margin: 120px auto 80px; /* Clears fixed header + space for footer */
-    padding: 0 20px;
-  }
+    .orders-container {
+      max-width: 1400px;
+      margin: 120px auto 80px;
+      /* Clears fixed header + space for footer */
+      padding: 0 20px;
+    }
 
-  .page-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--color-dark);
-    text-align: center;
-    margin-bottom: 2.5rem;
-    border-bottom: 2px solid var(--color-gold);
-    display: inline-block;
-    padding-bottom: 0.5rem;
-  }
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      text-align: center;
+      margin-bottom: 2.5rem;
+      border-bottom: 2px solid var(--color-gold);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
 
-  .table-wrapper {
-    background: var(--color-card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-  }
+    .table-wrapper {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
 
-.search-bar {
+    .search-bar {
       margin-bottom: 2rem;
       display: flex;
       justify-content: flex-end;
@@ -82,255 +83,273 @@
       font-size: 1.1rem;
     }
 
-  .orders-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .orders-table th,
-  .orders-table td {
-    padding: 1.2rem 1.5rem;
-    text-align: left;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .orders-table th {
-    background: var(--color-dark);
-    color: white;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
-  }
-
-  .orders-table tr:last-child td {
-    border-bottom: none;
-  }
-
-  .orders-table tr:hover {
-    background: #f8f9fa;
-  }
-/* Pagination Container */
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-/* Pagination links */
-.pagination a {
-  padding: 8px 12px;
-  margin: 2px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-/* Hover effect */
-.pagination a:hover {
-  background-color: #d4af37; /* gold */
-  color: white;
-  border-color: #c19a2e;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* Active page */
-.pagination a.active {
-  background-color: #1a1a1a; /* dark */
-  color: white;
-  border-color: #1a1a1a;
-  font-weight: 600;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .pagination a {
-    padding: 6px 10px;
-    font-size: 0.9rem;
-  }
-}
-
-  .status-select {
-    padding: 0.6rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    background: white;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .status-select:focus {
-    outline: none;
-    border-color: var(--color-gold);
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  }
-
-  .action-btn {
-    padding: 0.5rem 1rem;
-    margin-right: 0.5rem;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: var(--color-gold);
-    color: white;
-  }
-
-  .action-btn:hover {
-    background: var(--color-gold-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .no-orders {
-    text-align: center;
-    padding: 6rem 2rem;
-    background: var(--color-card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .no-orders h4 {
-    font-size: 1.8rem;
-    color: var(--color-dark);
-    margin-bottom: 1rem;
-  }
-
-  @media (max-width: 992px) {
-    .orders-container {
-      margin: 100px auto 80px;
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
     }
-  }
-</style>
-<div class="search-bar">
-        
-          <div class="position-relative">
-            <i class="bi bi-search search-icon"></i>
-             <input type="text" name="search"  id="searchInput"placeholder="Search Order" value="<%= search %>">
-          </div>
-        
-      </div>
-<div class="orders-container">
-  <h2 class="page-title">All Orders</h2>
 
-  <% if (orders.length > 0) { %>
-    <div class="table-wrapper">
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <th>Order Number</th>
-            <th>Date</th>
-            <th>User</th>
-            <th>Status</th>
-            <th>Total Amount</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% orders.forEach(order => { %>
+    .orders-table th,
+    .orders-table td {
+      padding: 1.2rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .orders-table th {
+      background: var(--color-dark);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+
+    .orders-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .orders-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    /* Pagination Container */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    /* Pagination links */
+    .pagination a {
+      padding: 8px 12px;
+      margin: 2px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    /* Hover effect */
+    .pagination a:hover {
+      background-color: #d4af37;
+      /* gold */
+      color: white;
+      border-color: #c19a2e;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Active page */
+    .pagination a.active {
+      background-color: #1a1a1a;
+      /* dark */
+      color: white;
+      border-color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .pagination a {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+      }
+    }
+
+    .status-select {
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      background: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .status-select:focus {
+      outline: none;
+      border-color: var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      margin-right: 0.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--color-gold);
+      color: white;
+    }
+
+    .action-btn:hover {
+      background: var(--color-gold-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .no-orders {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .no-orders h4 {
+      font-size: 1.8rem;
+      color: var(--color-dark);
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 992px) {
+      .orders-container {
+        margin: 100px auto 80px;
+      }
+    }
+  </style>
+  <div class="search-bar">
+
+    <div class="position-relative">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" name="search" id="searchInput" placeholder="Search Order" value="<%= search %>">
+    </div>
+
+  </div>
+  <div class="orders-container">
+    <h2 class="page-title">All Orders</h2>
+
+    <% if (orders.length> 0) { %>
+      <div class="table-wrapper">
+        <table class="orders-table">
+          <thead>
             <tr>
-              <td><%= order.orderNumber %></td>
-              <td><%= order.createdAt.toDateString() %></td>
-              <td>
-                <%= order.userId.name %> <br>
-                <small class="text-muted"><%= order.userId.email %></small>
-              </td>
-              <td>
-                <select class="status-select" id="statusFilter" name="status"onchange="changeStatus('<%= order._id %>', this.value)">
-                  <option value="pending" <%= order.orderStatus === 'processing' ? 'selected' : '' %>>Processing</option>
-                  <option value="shipped" <%= order.orderStatus === 'shipped' ? 'selected' : '' %>>Shipped</option>
-                  
-                  <option value="delivered" <%= order.orderStatus === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                  <option value="cancelled" <%= order.orderStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                </select>
-              </td>
-              <td>₹<%= order.totalAmount %></td>
-              <td>
-             <a href="/admin/order/<%= order._id %>" class="action-btn">View</a>
-
-              </td>
+              <th>Order Number</th>
+              <th>Date</th>
+              <th>User</th>
+              <th>Status</th>
+              <th>Total Amount</th>
+              <th>Actions</th>
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-  <% } else { %>
-    <div class="no-orders">
-      <h4>No orders found</h4>
-      <p>No orders have been placed yet.</p>
-    </div>
-  <% } %>
-</div>
+          </thead>
+          <tbody>
+            <% orders.forEach(order=> { %>
+              <tr>
+                <td>
+                  <%= order.orderNumber %>
+                </td>
+                <td>
+                  <%= order.createdAt.toDateString() %>
+                </td>
+                <td>
+                  <%= order.userId.name %> <br>
+                    <small class="text-muted">
+                      <%= order.userId.email %>
+                    </small>
+                </td>
+                <td><select class="status-select" name="status"
+  onchange="changeStatus('<%= order._id %>', this.value)"
+  <%= order.orderStatus === 'returned' ? 'disabled' : '' %>>
 
-<div class="pagination">
-  <% for(let i = 1; i <= totalPages; i++) { %>
-    <a href="?page=<%= i %>&search=<%= search %>&status=<%= statusFilter %>&sortBy=<%= sortBy %>&sortOrder=<%= sortOrder %>" 
-       class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
-  <% } %>
-</div>
+                    <option value="processing" <%=order.orderStatus==='processing' ? 'selected' : '' %>>
+                      Processing
+                    </option>
 
-<%- include("../../views/partials/admin/footer") %>
+                    <option value="shipped" <%=order.orderStatus==='shipped' ? 'selected' : '' %>>Shipped</option>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
+                    <option value="delivered" <%=order.orderStatus==='delivered' ? 'selected' : '' %>>Delivered</option>
+                    <option value="cancelled" <%=order.orderStatus==='cancelled' ? 'selected' : '' %>>Cancelled</option>
+                  
+                  </select>
+                </td>
+                <td>₹<%= order.finalTotal.toFixed(2) %>
+                </td>
+                <td>
+                  <a href="/admin/order/<%= order._id %>" class="action-btn">View</a>
+
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } else { %>
+        <div class="no-orders">
+          <h4>No orders found</h4>
+          <p>No orders have been placed yet.</p>
+        </div>
+        <% } %>
+  </div>
+
+  <div class="pagination">
+    <% for(let i=1; i <=totalPages; i++) { %>
+      <a href="?page=<%= i %>&search=<%= search %>&status=<%= statusFilter %>&sortBy=<%= sortBy %>&sortOrder=<%= sortOrder %>"
+        class="<%= i === currentPage ? 'active' : '' %>">
+        <%= i %>
+      </a>
+      <% } %>
+  </div>
+
+  <%- include("../../views/partials/admin/footer") %>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+      function changeStatus(orderId, status) {
+        fetch(`/admin/order/status/${orderId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message,
+                confirmButtonText: 'OK'
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: data.message,
+                confirmButtonText: 'OK'
+              });
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops!',
+              text: 'Something went wrong.',
+              confirmButtonText: 'OK'
+            });
+          });
+      }
+    </script>
+    <script>
+      let debounceTimeout;
+
+      const searchInput = document.getElementById('searchInput');
   
-function changeStatus(orderId, status) {
-  fetch(`/admin/order/status/${orderId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if(data.success){
-      Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: data.message,
-        confirmButtonText: 'OK'
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: data.message,
-        confirmButtonText: 'OK'
-      });
-    }
-  })
-  .catch(err => {
-    console.error(err);
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops!',
-      text: 'Something went wrong.',
-      confirmButtonText: 'OK'
-    });
-  });
-}
-</script>
-<script>
-let debounceTimeout;
 
-const searchInput = document.getElementById('searchInput');
-    const status = document.getElementById('statusFilter')
+      if (searchInput) {
+        searchInput.addEventListener('keyup', function () {
+          clearTimeout(debounceTimeout);
 
-if(searchInput){
-  searchInput.addEventListener('keyup', function() {
-    clearTimeout(debounceTimeout);
-
-    debounceTimeout = setTimeout(() => {
-      const query = this.value;
-      window.location.href = `/admin/order?search=${query}`;
-    }, 500);
-  });
-}
-</script>
+          debounceTimeout = setTimeout(() => {
+            const query = this.value;
+            window.location.href = `/admin/order?search=${query}`;
+          }, 500);
+        });
+      }
+    </script>

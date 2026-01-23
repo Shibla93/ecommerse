@@ -54,9 +54,13 @@ const Messages = {
   VARIANT_UNAVAILABLE:"product variant not vailable",
 MAX_LIMIT_REACHED:"maximum 5 product can purachase at one time",
    ITEM_REMOVED:"product removed from the cart" ,
-   ORDER_NOTFOUND:"order not found"    
-
-   
+   ORDER_NOTFOUND:"order not found" ,
+   ITEM_NOT_FOUND:"item not found" ,
+   ORDER_ALREADY_CANCELLED:"order already canceelled", 
+ORDER_CANCELLED_SUCCESS:"order cancellled successfully",
+ORDER_ALREADY_RETURNED:"This order has already been returned.",
+  RETURN_NOT_ALLOWED : "Only delivered orders are eligible for return.",
+    INSUFFICIENT_STOCK: "Insufficient stock available for the selected product",
 };
 
 module.exports = Messages;

@@ -5,97 +5,104 @@ const orderItemSchema = new Schema({
   productId: {
     type: Schema.Types.ObjectId,
     ref: "Product",
-    required: true,
+    required: true
   },
   variantId: {
-    type: Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId
   },
   quantity: {
     type: Number,
-    required: true,
+    required: true
   },
   purchasedPrice: {
     type: Number,
-    required: true,
+    required: true
   },
+
+  // 🔥 PRODUCT LEVEL STATUS
+  itemStatus: {
+    type: String,
+    enum: [
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+      "returned"
+    ],
+    default: "processing"
+  },
+
+  cancellation: {
+    isCancelled: { type: Boolean, default: false },
+    reason: String,
+    cancelledAt: Date
+  },
+
+  return: {
+    isReturned: { type: Boolean, default: false },
+    reason: String,
+    returnedAt: Date
+  }
 });
 
 const orderSchema = new Schema(
   {
-     orderNumber: { type: String, required: true, unique: true },
+    orderNumber: {
+      type: String,
+      required: true,
+      unique: true
+    },
+
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: true
     },
 
     orderedItems: [orderItemSchema],
 
-    subTotal: {
-      type: Number,
-      required: true,
-    },
-
-    tax: {
-      type: Number,
-      default: 0,
-    },
-
-    discount: {
-      type: Number,
-      default: 0,
-    },
-
-    shippingCharge: {
-      type: Number,
-      default: 0,
-    },
-
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
+    subTotal: Number,
+    tax: Number,
+    discount: Number,
+    shippingCharge: Number,
+    totalAmount: Number,
 
     paymentMethod: {
       type: String,
-      enum: ["COD"],
-      default: "COD",
+      enum: ["COD", "ONLINE"],
+      default: "COD"
     },
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid"],
-      default: "pending",
+      enum: ["pending", "paid", "refunded"],
+      default: "pending"
     },
 
-    orderStatus: {
-      type: String,
-      enum: ["processing", "shipped", "delivered", "cancelled"],
-      default: "processing",
-    },
+    // 🔥 DERIVED ORDER STATUS (summary)
+  orderStatus: {
+  type: String,
+  enum: [
+    "processing",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "returned"
+  ],
+  default: "processing"
+}
+,
 
     shippingAddress: {
       name: String,
-  house: String,
-  city: String,
-  state: String,
-  pincode: Number,
-  phone: String,
-    },
-     cancellation: {
-    isCancelled: { type: Boolean, default: false },
-    reason: { type: String },
-    cancelledAt: { type: Date }
+      house: String,
+      city: String,
+      state: String,
+      pincode: Number,
+      phone: String
+    }
   },
-  return: {
-    isReturned: { type: Boolean, default: false },
-    reason: { type: String },
-    returnedAt: { type: Date }
-  }
-  },
- 
   { timestamps: true }
 );
 
-const Order = mongoose.model("Order", orderSchema);
-module.exports=Order
+module.exports = mongoose.model("Order", orderSchema);

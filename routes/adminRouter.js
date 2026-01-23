@@ -40,7 +40,7 @@ router.get("/product",adminAuth,productController.getProduct)
 router.patch("/product/list/:id/:variantId",adminAuth,productController.listProduct)
 router.patch("/product/delete/:id/:variantId",adminAuth,productController.deleteProduct)
 router.get("/product/edit/:id",adminAuth ,productController.getEditProduct);
-router.post("/product/edit/:id",adminAuth,upload.any(),productController.editProduct);
+router.patch("/product/edit/:id",adminAuth,upload.any(),productController.editProduct);
 
 router.get('/order', adminAuth, orderController.listOrders);
 router.post("/order/status/:orderId",adminAuth,orderController.updateOrderStatus);

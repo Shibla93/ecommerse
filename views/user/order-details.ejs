@@ -115,6 +115,8 @@
     .status-delivered  { background: #10b981; color: white; }
     .status-cancelled  { background: #ef4444; color: white; }
     .status-returned   { background: #8b5cf6; color: white; }
+    .status-return_requested { background: #f97316; color: white; }
+.status-cancel_requested { background: #f97316; color: white; }
 
     .order-table {
       width: 100%;
@@ -273,9 +275,10 @@
             <span class="info-value"><%= order.createdAt.toDateString() %></span>
           </div>
           <div class="info-row">
-            <span class="info-label">Status:</span>
-            <span class="status-badge status-<%= order.orderStatus %>"><%= order.orderStatus %></span>
-          </div>
+  <span class="info-label">Order Status:</span>
+  <span class="info-value">Check product status below</span>
+</div>
+
         </div>
       </div>
 
@@ -301,26 +304,54 @@
               <th>Qty</th>
               <th>Price</th>
               <th>Total</th>
+              <th>Status</th>
+   <th>Action</th>
+
             </tr>
           </thead>
           <tbody>
-            <% order.orderedItems.forEach(item => { %>
-              <tr>
-                <td><%= item.productId.product %></td>
+<% order.orderedItems.forEach(item => { %>
+<tr>
+  <td><%= item.productId.product %></td>
 
-                 <td>
-                        
-  <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()) %>
-  <img src="<%= variant.images[0].originalUrl %>" alt="<%= item.productId.product %>">
+  <td>
+    <% const variant = item.productId.variants.find(
+      v => v._id.toString() === item.variantId.toString()
+    ) %>
+    <img src="<%= variant.images[0].originalUrl %>">
+  </td>
 
+  <td><%= item.quantity %></td>
+  <td>₹<%= item.purchasedPrice %></td>
+  <td>₹<%= item.purchasedPrice * item.quantity %></td>
 
-                      </td>
-                <td><%= item.quantity %></td>
-                <td>₹<%= item.purchasedPrice %></td>
-                <td>₹<%= item.purchasedPrice * item.quantity %></td>
-              </tr>
-            <% }) %>
-          </tbody>
+  <!-- ✅ ITEM STATUS -->
+  <td>
+    <span class="status-badge status-<%= item.itemStatus %>">
+      <%= item.itemStatus %>
+    </span>
+  </td>
+
+  <!-- ✅ ITEM ACTIONS -->
+  <td>
+    <% if (item.itemStatus === "processing" || item.itemStatus === "shipped") { %>
+      <button class="action-btn btn-cancel"
+        onclick="cancelItem('<%= order.orderNumber %>', '<%= item._id %>')">
+        Cancel
+      </button>
+    <% } %>
+
+    <% if (item.itemStatus === "delivered") { %>
+      <button class="action-btn btn-return"
+        onclick="returnItem('<%= order.orderNumber %>', '<%= item._id %>')">
+        Return
+      </button>
+    <% } %>
+  </td>
+</tr>
+<% }) %>
+</tbody>
+
         </table>
       </div>
 
@@ -328,35 +359,26 @@
       <div class="info-card">
         <h5 class="card-title">Price Summary</h5>
         <div class="info-row">
-          <span>Subtotal</span>
-          <span>₹<%= order.subTotal %></span>
-        </div>
-        <div class="info-row">
-          <span>Tax</span>
-          <span>₹<%= order.tax %></span>
-        </div>
-        <div class="info-row">
-          <span>Shipping</span>
-          <span>₹<%= order.shippingCharge %></span>
-        </div>
-        <div class="total-row">
-          <span>Total</span>
-          <span>₹<%= order.totalAmount %></span>
-        </div>
-      </div>
+  <span>Subtotal</span>
+  <span>₹<%= subTotal %></span>
+</div>
 
-      <!-- Action Buttons -->
-      <div class="d-flex gap-3 flex-wrap">
-     <% if (order.orderStatus !== "cancelled" && order.orderStatus !== "returned") { %>
-    <button class="action-btn btn-cancel"
-      onclick="cancelOrder('<%= order.orderNumber %>')">
-      Cancel Order
-    </button>
-  <% } %>
+<div class="info-row">
+  <span>Tax</span>
+  <span>₹<%= tax %></span>
+</div>
 
-        <% if (order.orderStatus === "delivered") { %>
-          <button class="action-btn btn-return">Return Order</button>
-        <% } %>
+<div class="info-row">
+  <span>Shipping</span>
+  <span>₹<%= subTotal > 0 ? order.shippingCharge : 0 %></span>
+</div>
+
+<div class="total-row">
+  <span>Total</span>
+  <span>₹<%= finalTotal %></span>
+</div>
+
+      </div>  
         <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">Download Invoice</a>
       </div>
     </div>
@@ -368,32 +390,57 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-function cancelOrder(orderId) {
+function cancelItem(orderNumber, itemId) {
   Swal.fire({
-    title: "Cancel Order?",
-    input: "textarea",
-    inputPlaceholder: "Reason (optional)",
-    showCancelButton: true,
-    confirmButtonText: "Yes, Cancel",
+    title: "Cancel this product?",
+    input: "select",
+    inputOptions: {
+     "Ordered by mistake": "Ordered by mistake",
+      "Found cheaper elsewhere": "Found cheaper elsewhere",
+      "Delivery delay": "Delivery delay",
+      "No longer needed": "No longer needed"
+    },
+    showCancelButton: true
   }).then(result => {
     if (result.isConfirmed) {
-      fetch(`/order/cancel/${orderId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+      fetch(`/order/item/cancel/${orderNumber}/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: result.value })
       })
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          Swal.fire("Cancelled!", data.message, "success")
-            .then(() => location.reload());
-        } else {
-          Swal.fire("Error", data.message, "error");
-        }
+        if (data.success) location.reload();
+        else Swal.fire("Error", data.message, "error");
       });
     }
   });
 }
+function returnItem(orderNumber, itemId) {
+  Swal.fire({
+    title: "Return this product?",
+    input: "select",
+    inputOptions: {
+      "Damaged product": "Damaged product",
+      "Wrong item delivered": "Wrong item delivered",
+      "Quality not satisfied": "Quality not satisfied",
+      "Other": "Other"
+    },
+    showCancelButton: true
+  }).then(result => {
+    if (result.isConfirmed) {
+      fetch(`/order/item/return/${orderNumber}/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: result.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) location.reload();
+        else Swal.fire("Error", data.message, "error");
+      });
+    }
+  });
+}
+
 </script>

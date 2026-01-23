@@ -1,13 +1,12 @@
 const Messages = require('../../constants/messages');
 const StatusCodes = require("../../constants/StatusCodes");
-
-
 const Brand = require("../../model/brandSchema");
 const Category = require("../../model/categorySchema");
 const Product = require("../../model/productSchema");
 const mongoose = require("mongoose");
 const cloudinary = require('../../helpers/cloudinary');
 const Order = require('../../model/orderSchema');
+const { getDisplayStatus } = require("../../helpers/displayStatus");
 
 
 const listOrders = async (req, res) => {
@@ -25,11 +24,11 @@ const listOrders = async (req, res) => {
     
     let filter = {};
     if(search) {
-      filter['orderNumber'] = { $regex: search, $options: 'i' };
+      filter.orderNumber= { $regex: search, $options: 'i' };
     }
   
     if (statusFilter) {
-  filter['orderStatus'] = statusFilter;
+  filter.orderStatus = statusFilter;
 }
 
     const orders = await Order.find(filter)
@@ -38,6 +37,26 @@ const listOrders = async (req, res) => {
       .skip(skip)
       .limit(limit);
     
+    orders.forEach(order => {
+      order.displayStatus = getDisplayStatus(order);
+    
+      let subTotal = 0;
+      order.orderedItems.forEach(item => {
+        if (!["cancelled", "returned"].includes(item.itemStatus)) {
+          subTotal += item.purchasedPrice * item.quantity;
+        }
+      });
+    
+      
+       const tax = subTotal * 0.05; 
+      const shipping = subTotal > 0 ? order.shippingCharge : 0;
+      const discount = order.discount || 0;
+      const totalAmount = subTotal + tax + shipping - discount;
+    
+      order.subTotal = subTotal;
+      order.tax = tax;
+      order.finalTotal = totalAmount;
+    });
     
 
     const totalOrders = await Order.countDocuments(filter);
@@ -50,11 +69,11 @@ const listOrders = async (req, res) => {
       search,
       statusFilter,
       sortBy,
-      sortOrder
+      sortOrder,
+
     });
 
   } catch (error) {
-    console.error('Admin Orders Error:', error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.INTERNAL_SERVER_ERROR });
     
   }
@@ -66,49 +85,71 @@ const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
-    console.log("ORDER ID:", req.params.orderId);
-console.log("STATUS:", req.body.status);
 
-
-    const order = await Order.findById(orderId).populate('orderedItems.productId');
+    const order = await Order.findById(orderId)
+      .populate('orderedItems.productId');
 
     if (!order) {
-      return res.json({ success: false, message: Messages.ORDER_NOTFOUND });
+      return res.json({
+        success: false,
+        message: Messages.ORDER_NOTFOUND
+      });
     }
 
-    if (status === 'shipped' && order.orderStatus !== 'shipped') {
-      for (let item of order.orderedItems) {
-        const product = await Product.findById(item.productId._id);
-        const variant = product.variants.id(item.variantId); 
-        if (variant) {
-          variant.stock -= item.quantity;
-          if (variant.stock < 0) variant.stock = 0;
-          await product.save();
-        }
+    // 🔁 LOOP THROUGH ITEMS
+    for (let item of order.orderedItems) {
+      const product = await Product.findById(item.productId._id);
+      const variant = product.variants.id(item.variantId);
+
+      if (!variant) continue;
+
+      
+           if (
+        status === "cancelled" &&
+        item.itemStatus !== "cancelled"
+      ) {
+        variant.stock += item.quantity;
+        item.itemStatus = "cancelled";
       }
-    }
-    if (status === 'cancelled' && order.orderStatus !== 'cancelled') {
-      for (let item of order.orderedItems) {
-        const product = await Product.findById(item.productId._id);
-        const variant = product.variants.id(item.variantId);
-        if (variant) {
-          variant.stock += item.quantity;
-          await product.save();
-        }
+
+       if (
+        status === "returned" &&
+        item.itemStatus === "delivered"
+      ) {
+        variant.stock += item.quantity;
+        item.itemStatus = "returned";
       }
+     
+      
+     if (
+        !["cancelled", "returned"].includes(item.itemStatus)
+      ) {
+        item.itemStatus = status;
+      }
+
+      await product.save();
     }
 
-
+    
     order.orderStatus = status;
+
+    
     await order.save();
 
-    res.json({ success: true, message: 'Order status updated' });
+    return res.json({
+      success: true,
+      message: "Order status updated successfully"
+    });
 
   } catch (error) {
-    console.error('Status Update Error:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+    console.error("Status Update Error:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: Messages.INTERNAL_SERVER_ERROR
+    });
   }
 };
+
 
 const viewOrder = async (req, res) => {
   try {
@@ -122,8 +163,29 @@ const viewOrder = async (req, res) => {
     if (!order) {
       return res.status(StatusCodes.BAD_REQUEST).send('Order not found');
     }
+      order.displayStatus = getDisplayStatus(order);
+      let subTotal = 0;
 
-    res.render('admin/orderDetails', { order });
+    order.orderedItems.forEach(item => {
+      if (!["cancelled", "returned"].includes(item.itemStatus)) {
+        subTotal += item.purchasedPrice * item.quantity;
+      }
+    });
+
+    const tax = subTotal * 0.05;
+    const shipping = subTotal > 0 ? order.shippingCharge : 0;
+    const discount = order.discount || 0;
+
+    const finalTotal = subTotal + tax + shipping - discount;
+
+    res.render('admin/orderDetails', {
+      order,
+      subTotal,
+      tax,
+      finalTotal
+    });
+
+   
 
   } catch (error) {
     console.error('View Order Error:', error);

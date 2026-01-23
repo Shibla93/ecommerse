@@ -205,22 +205,29 @@ body {
                   <td><%= order.orderNumber %></td>
                   <td><%= order.createdAt.toDateString() %></td>
                   <td>
-                    <span class="status <%= order.orderStatus %>"><%= order.orderStatus %></span>
+                    <span class="status <%= order.displayStatus %>">
+  <%= order.displayStatus %>
+</span>
+
                   </td>
-                  <td>₹<%= order.totalAmount %></td>
+                  <td>₹<%= order.finalTotal  %></td>
                   <td>
                    <a href="/orders/<%= order._id %>" class="action-btn btn-view">View</a>
 
-                    <% if(order.orderStatus !== 'delivered' && order.orderStatus !== 'cancelled' && order.orderStatus !== 'returned'){ %>
+                    <!-- <% if(order.orderStatus !== 'delivered' && order.orderStatus !== 'cancelled' && order.orderStatus !== 'returned'){ %>
                       <button class="action-btn btn-cancel"
                   onclick="cancelOrder( '<%= order.orderNumber %>')">
             Cancel 
           </button>
                     <% } %>
                     <% if(order.orderStatus === 'delivered'){ %>
-                      <button onclick="returnOrder('<%= order._id %>')">Return</button>
+                     <button class="action-btn btn-return"
+  onclick="returnOrder('<%= order.orderNumber %>')">
+  Return
+</button>
 
-                    <% } %>
+
+                    <% } %> -->
                     <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">Invoice</a>
                   </td>
                 </tr>
@@ -250,57 +257,84 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   // Your existing JS functions remain unchanged
-  function cancelOrder(orderId) {
-  Swal.fire({
-    title: 'Cancel Order',
-    input: 'text',
-    inputPlaceholder: 'Reason (optional)',
-    showCancelButton: true,
-    confirmButtonText: 'Cancel Order',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fetch(`/order/cancel/${orderId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: result.value })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if(data.success) {
-          Swal.fire('Cancelled!', '', 'success').then(()=> location.reload());
-        } else {
-          Swal.fire('Error', data.message, 'error');
-        }
-      });
-    }
-  });
-}
+//   function cancelOrder(orderId) {
+//   Swal.fire({
+//     title: "Cancel Order?",
+//     input: "select",
+//     inputOptions: {
+//       "Ordered by mistake": "Ordered by mistake",
+//       "Found cheaper elsewhere": "Found cheaper elsewhere",
+//       "Delivery delay": "Delivery delay",
+//       "No longer needed": "No longer needed"
+//     },
+//     inputPlaceholder: "Select a reason",
+//     showCancelButton: true,
+//     confirmButtonText: "Yes, Cancel",
+//     inputValidator: (value) => {
+//       if (!value) {
+//         return "Please select a cancellation reason";
+//       }
+//     }
+//   }).then(result => {
+//     if (result.isConfirmed) {
+//       fetch(`/order/cancel/${orderId}`, {
+//         method: "PATCH",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({ reason: result.value })
+//       })
+//       .then(res => res.json())
+//       .then(data => {
+//         if (data.success) {
+//           Swal.fire("Cancelled!", data.message, "success")
+//             .then(() => location.reload());
+//         } else {
+//           Swal.fire("Error", data.message, "error");
+//         }
+//       });
+//     }
+//   });
+// }
 
-  function returnOrder(orderNumber) {
-    Swal.fire({
-      title: 'Return Order',
-      input: 'text',
-      inputLabel: 'Reason (required)',
-      inputPlaceholder: 'Enter reason for return',
-      inputValidator: (value) => !value && 'Reason is required!',
-      showCancelButton: true,
-      confirmButtonText: 'Return Order',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        fetch('/order/return', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderNumber, reason: result.value })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if(data.success) {
-            Swal.fire('Returned!', '', 'success').then(()=> location.reload());
-          } else {
-            Swal.fire('Error', data.message, 'error');
-          }
-        });
-      }
-    });
-  }
+//   function returnOrder(orderNumber) {
+//   Swal.fire({
+//     title: "Return Order?",
+//     input: "select",
+//     inputOptions: {
+//       "Damaged product": "Damaged product",
+//       "Wrong item delivered": "Wrong item delivered",
+//       "Quality not satisfied": "Quality not satisfied",
+//       "Other": "Other"
+//     },
+//     inputPlaceholder: "Select return reason",
+//     showCancelButton: true,
+//     confirmButtonText: "Yes, Return",
+//     inputValidator: (value) => {
+//       if (!value) {
+//         return "Please select a return reason";
+//       }
+//     }
+//   }).then(result => {
+//     if (result.isConfirmed) {
+//       fetch(`/order/return/${orderNumber}`, {
+//         method: "PATCH",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({ reason: result.value })
+//       })
+//       .then(res => res.json())
+//       .then(data => {
+//         if (data.success) {
+//           Swal.fire("Returned!", data.message, "success")
+//             .then(() => location.reload());
+//         } else {
+//           Swal.fire("Error", data.message, "error");
+//         }
+//       });
+//     }
+//   });
+// }
+
 </script>

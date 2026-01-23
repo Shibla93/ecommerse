@@ -398,9 +398,11 @@
         <h5 class="mb-0">Total</h5>
         <h3 class="mb-0 text-gold">₹<span id="total"><%= grandTotal %></span></h3>
       </div>
-      <a href="/checkout" class="checkout-btn d-block text-center">
-        <i class="fi-rs-box-alt me-2"></i> Proceed To Checkout
-      </a>
+   <button class="checkout-btn" onclick="proceedCheckout()">
+  Proceed To Checkout
+</button>
+
+
     </div>
   </div>
 </div>
@@ -466,6 +468,28 @@
         }
       });
     }
+  });
+}
+
+function proceedCheckout() {
+  fetch("/checkout/validate", {
+    method: "GET",
+    credentials: "include"
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) {
+      Swal.fire({
+        icon: "error",
+        title: "Checkout Error",
+        text: data.message
+      });
+    } else {
+      window.location.href = "/checkout";
+    }
+  })
+  .catch(() => {
+    Swal.fire("Error", "Something went wrong", "error");
   });
 }
 

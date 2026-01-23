@@ -48,27 +48,28 @@ const user = await User.findById(userId);
       .populate('categories');
 
     if (!product) {
-      return res.json({ success: false, message:Messages.PRODUCT_NOT_FOUND });
+    return res.status(StatusCodes.NOT_FOUND).json({
+  success: false,
+  message: Messages.PRODUCT_NOT_FOUND
+});
     }
-
-    
-   
-    
-
-  
-    const variant = product.variants.id(variantId);
+  const variant = product.variants.id(variantId);
     if (!variant ) {
-      return res.json({ success: false, message: Messages.VARIANT_NOTFOUD });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.VARIANT_NOTFOUD });
     }
 
 
 if (!variant.isListed || variant.isDeleted) {
-  return res.json({ success:false, message: Messages.VARIANT_UNAVAILABLE });
+return res.status(StatusCodes.CONFLICT).json({
+  success: false,
+  message: Messages.VARIANT_UNAVAILABLE
+});
+
 }
 
     
     if (variant.stock <= 0) {
-      return res.json({ success: false, message: Messages.OUT_OF_STOCK });
+      return res.status(StatusCodes.CONFLICT).json({ success: false, message: Messages.OUT_OF_STOCK });
     }
     const MAX_QTY_PER_PRODUCT = 5;
 
@@ -93,16 +94,17 @@ if (!variant.isListed || variant.isDeleted) {
       if (currentQty + 1 > variant.stock) {
         return res.json({
           success: false,
-          message: Messages.STOCK_REACHED
+          message: Messages.OUT_OF_STOCK
         });
       }
 
       
       if (currentQty >= MAX_QTY_PER_PRODUCT) {
-        return res.json({
-          success: false,
-          message: Messages.MAX_LIMIT_REACHED
-        });
+       return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+  success: false,
+  message: Messages.MAX_LIMIT_REACHED
+});
+
       }
 
       cart.items[itemIndex].quantity += 1;
@@ -134,7 +136,7 @@ if (!variant.isListed || variant.isDeleted) {
 }
 
 
-    return res.json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       message: Messages.ADDED_TO_CART,
        cartCount: cart.items.reduce((t, i) => t + i.quantity, 0)
@@ -157,7 +159,7 @@ const changeQuantity = async (req, res) => {
     
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.json({ success: false });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false });
     }
 
     
@@ -169,12 +171,15 @@ const changeQuantity = async (req, res) => {
     
     const product = await Product.findById(item.productId);
     if (!product) {
-      return res.json({ success: false });
+       return res.status(StatusCodes.NOT_FOUND).json({
+  success: false,
+  message: Messages.PRODUCT_NOT_FOUND
+});
     }
 
     const variant = product.variants.id(item.variantId);
     if (!variant || !variant.isListed || variant.isDeleted) {
-      return res.json({
+      return res.status(StatusCodes.CONFLICT).json({
         success: false,
         message: Messages.VARIANT_UNAVAILABLE
       });
@@ -186,14 +191,14 @@ const changeQuantity = async (req, res) => {
     if (action === "increment") {
 
       if (item.quantity + 1 > variant.stock) {
-        return res.json({
+        return res.status(StatusCodes.CONFLICT).json({
           success: false,
-          message: Messages.STOCK_REACHED
+          message: Messages.OUT_OF_STOCK
         });
       }
 
       if (item.quantity >= MAX_QTY_PER_PRODUCT) {
-        return res.json({
+        return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
           success: false,
           message: Messages.MAX_LIMIT_REACHED
         });
@@ -205,7 +210,7 @@ const changeQuantity = async (req, res) => {
     
     if (action === "decrement") {
       if (item.quantity <= 1) {
-        return res.json({ success: false });
+        return res.status(StatusCodes.CONFLICT).json({ success: false,message:"minimum 1 product should added " });
       }
       item.quantity -= 1;
     }
@@ -215,7 +220,7 @@ const changeQuantity = async (req, res) => {
 
     await cart.save();
 
-    res.json({
+    res.status(StatusCodes.OK).json({
       success: true,
       quantity: item.quantity,
       totalPrice: item.totalPrice
@@ -223,7 +228,7 @@ const changeQuantity = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    res.json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: Messages.INTERNAL_SERVER_ERROR
     });
@@ -237,7 +242,7 @@ const removeProduct = async (req, res) => {
     console.log(cartItemId)
 
     if (!userId) {
-      return res.json({ success: false, message: Messages.USER_NOT_FOUND });
+      return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: Messages.USER_NOT_FOUND });
     }
 
     const cart = await Cart.findOne({ userId });
@@ -247,17 +252,19 @@ const removeProduct = async (req, res) => {
 
     const item = cart.items.id(cartItemId);
     if (!item) {
-      return res.json({ success: false });
+     return res.status(StatusCodes.NOT_FOUND).json({
+  success: false,
+  message: Messages.ITEM_NOT_FOUND
+});
     }
 
     
       cart.items.pull({ _id: cartItemId }); 
     await cart.save();
 
-    res.json({ success: true, message: Messages.ITEM_REMOVED});
+    res.status(StatusCodes.OK).json({ success: true, message: Messages.ITEM_REMOVED});
   } catch (error) {
-    console.log( error);
-    res.json({ success: false, message: Messages.INTERNAL_SERVER_ERROR});
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR});
   }
 };
 

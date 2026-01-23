@@ -6,14 +6,26 @@ const StatusCodes = require("../../constants/StatusCodes");
 
 const getAddress = async (req, res) => {
     try {
+
+      const page = parseInt(req.query.page) || 1;
+    const limit = 2;
+    const skip = (page - 1) * limit;
         const userId = req.session.user;
         const user = await User.findById(userId);
         const userAddress = await Address.findOne({ userId });
 
+        const totalAddress = userAddress ? userAddress.address.length : 0;
+
+    const totalPages = Math.ceil(totalAddress / limit);
+     const addresses = userAddress
+      ? userAddress.address.slice(skip, skip + limit)
+      : [];
+
         res.render("user/address-list", {
             user,
-          
-            userAddress: userAddress?.address || [],
+          userAddress: addresses,
+      currentPage: page,
+      totalPages,
             activePage: "address"
         });
     } catch (error) {

@@ -6,52 +6,80 @@ const Order = require("../../model/orderSchema");
 const Messages = require("../../constants/messages");
 const StatusCodes = require("../../constants/StatusCodes");
 
-const getCheckoutPage = async (req, res) => {
-  try {
+const validateCheckout = async (req, res) => {
+
+    try {
     const userId = req.session.user;
     if (!userId){
 return res.redirect("/login");
 
     }  
         
-        const user = await User.findById(userId);
+   const user = await User.findById(userId);
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
+
+    if (!cart || cart.items.length === 0) {
+      return res.redirect("/cart");
+    }
+for (let item of cart.items) {
+  const product = await Product.findById(item.productId._id);
+  const variant = product.variants.id(item.variantId);
+
+  if (!variant || variant.stock < item.quantity) {
+    return res.json({
+      success: false,
+         message: `${Messages.INSUFFICIENT_STOCK} for ${product.product}`
+      
+    });
+  }
+}
+    return res.json({ success: true });
+
+  } catch (err) {
+       return res.json({ success: false, message: Messages.INTERNAL_SERVER_ERROR })
+  }
+}
+
+
+const getCheckoutPage = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    if (!userId) return res.redirect("/login");
+
+    const user = await User.findById(userId);
     const cart = await Cart.findOne({ userId }).populate("items.productId");
 
     if (!cart || cart.items.length === 0) {
       return res.redirect("/cart");
     }
 
-    
     let subtotal = 0;
-    cart.items.forEach(item => {
-      subtotal += item.price * item.quantity;
-    });
+    cart.items.forEach(item => subtotal += item.price * item.quantity);
 
-    const taxes = subtotal * 0.05; 
-    const discount = 0; 
-    const shipping = 0; 
-    const total = subtotal + taxes - discount + shipping;
-    console.log("USER ", req.user);
+    const taxes = subtotal * 0.05;
+    const discount = 0;
+    const shipping = 0;
+    const total = subtotal + taxes;
 
     const userAddress = await Address.findOne({ userId });
-    res.render("checkout", {
 
+    res.render("checkout", {
       user,
-       addresses: userAddress ? userAddress.address : [],
-       
+      addresses: userAddress ? userAddress.address : [],
       cart,
       subtotal,
       taxes,
       discount,
       shipping,
-      total,
+      total
     });
 
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.redirect("/pageNotFound");
   }
-};
+}
+
 
 
 const placeOrder = async (req, res) => {
@@ -70,17 +98,31 @@ const placeOrder = async (req, res) => {
 
   
     const userAddressDoc = await Address.findOne({ userId });
-    if (!userAddressDoc) return res.json({ success: false, message: Messages.ADDRESS_NOT_FOUND });
-
+    if (!userAddressDoc) {
+      return res.json({ success: false, message: Messages.ADDRESS_NOT_FOUND });
+    }
     const address = userAddressDoc.address.find(
   addr => addr._id.toString() === addressId
 );
-// console.log("ADDRESS ID", addressId);
-// console.log("ALL ADDRESSES", userAddressDoc.address.map(a => a._id.toString()));
+
 
     if (!address){
        return res.json({ success: false, message: Messages.ADDRESS_NOT_FOUND });
     }
+
+        for (let item of cart.items) {
+      const product = await Product.findById(item.productId._id);
+      const variant = product.variants.id(item.variantId);
+
+      if (!variant || variant.stock < item.quantity) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          success: false,
+          message: Messages.OUT_OF_STOCK
+        });
+      }
+    }
+
+
     
     const orderedItems = cart.items.map(item => ({
       productId: item.productId._id,
@@ -121,6 +163,15 @@ const placeOrder = async (req, res) => {
   }
     });
 
+    for (let item of cart.items) {
+      const product = await Product.findById(item.productId._id);
+      const variant = product.variants.id(item.variantId);
+
+      variant.stock -= item.quantity;
+      await product.save();
+    }
+
+
     await order.save();
 
     
@@ -146,6 +197,7 @@ return res.redirect("/login");
 };
 
 module.exports = {
+  validateCheckout,
      getCheckoutPage,
      placeOrder,
 orderSuccessPage

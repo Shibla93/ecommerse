@@ -85,18 +85,16 @@ router.get("/cart", userAuth, cartController.getCartPage)
  router.post("/addToCart",userAuth, cartController.addToCart)
  router.post("/changeQuantity", userAuth,cartController.changeQuantity)
 router.post("/cart/remove", userAuth, cartController.removeProduct)
+router.get("/checkout/validate",userAuth,checkoutController.validateCheckout);
 router.get("/checkout", userAuth, checkoutController.getCheckoutPage);
 router.post("/checkout/placeOrder", userAuth,checkoutController.placeOrder);
 router.get("/order/success/:orderId", userAuth, checkoutController.orderSuccessPage);
 
 router.get("/orders",userAuth,orderController.getOrder)
 router.get("/orders/:orderId",userAuth,orderController.getOrderDetails)
-router.post("/order/cancel/:orderNumber",userAuth,orderController.cancelOrder);
-router.post("/order/return/:orderNumber", userAuth, orderController.returnOrder);
+router.patch("/order/item/cancel/:orderNumber/:itemId",userAuth,orderController.cancelOrder);
+router.patch("/order/item/return/:orderNumber/:itemId", userAuth, orderController.returnOrder);
 router.get('/order/invoice/:orderNumber', userAuth, orderController.generateInvoice);
-
-
-
 
 router.get("/form",userController.getform)
 router.post("/form", upload.any(), userController.postform);
