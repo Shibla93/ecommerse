@@ -1,7 +1,10 @@
+
 <%- include("../partials/user/sidebar") %>
+
 
 <div class="app-wrapper">
   <%- include("../partials/user/header") %>
+
 
   <style>
     :root {
@@ -17,6 +20,7 @@
       --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
+
     body {
       font-family: 'Montserrat', sans-serif;
       background: var(--color-light-bg);
@@ -24,6 +28,7 @@
       display: flex;
       flex-direction: column;
     }
+
 
     /* ===== SIDEBAR & MAIN LAYOUT ===== */
     .app-wrapper {
@@ -34,11 +39,13 @@
       transition: margin-left 0.4s ease;
     }
 
+
     @media (max-width: 991px) {
       .app-wrapper {
         margin-left: 0;
       }
     }
+
 
     /* ===== MAIN CONTENT ===== */
     .main {
@@ -46,11 +53,13 @@
       padding: 120px 0 100px; /* Clears fixed header + space for footer */
     }
 
+
     .checkout-container {
       max-width: 1300px;
       margin: 0 auto;
       padding: 0 20px;
     }
+
 
     .page-title {
       font-size: 2.5rem;
@@ -59,6 +68,7 @@
       text-align: center;
       margin-bottom: 2rem;
     }
+
 
     .section-title {
       font-size: 1.6rem;
@@ -69,6 +79,7 @@
       display: inline-block;
       padding-bottom: 0.5rem;
     }
+
 
     /* Address Section */
     .address-card {
@@ -83,20 +94,24 @@
       position: relative;
     }
 
+
     .address-card:hover {
       box-shadow: var(--shadow-lg);
       transform: translateY(-5px);
     }
+
 
     .address-card.selected {
       border: 2px solid var(--color-gold);
       box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
     }
 
+
     .address-radio {
       position: absolute;
       opacity: 0;
     }
+
 
     .address-content {
       display: flex;
@@ -104,19 +119,23 @@
       gap: 1rem;
     }
 
+
     .address-radio:checked + .address-content label {
       color: var(--color-gold);
       font-weight: 600;
     }
+
 
     .address-details {
       line-height: 1.7;
       color: var(--color-dark);
     }
 
+
     .address-details strong {
       font-weight: 600;
     }
+
 
     .address-actions a {
       color: var(--color-gold);
@@ -124,9 +143,11 @@
       font-size: 0.95rem;
     }
 
+
     .address-actions a:hover {
       text-decoration: underline;
     }
+
 
     /* Order Summary */
     .order-summary {
@@ -137,10 +158,12 @@
       margin-top: 2rem;
     }
 
+
     .order-table {
       width: 100%;
       border-collapse: collapse;
     }
+
 
     .order-table th,
     .order-table td {
@@ -149,15 +172,18 @@
       border-bottom: 1px solid var(--color-border);
     }
 
+
     .order-table th {
       background: var(--color-dark);
       color: white;
       font-weight: 600;
     }
 
+
     .order-table tr:last-child td {
       border-bottom: none;
     }
+
 
     /* Summary Totals */
     .summary-row {
@@ -167,6 +193,7 @@
       font-size: 1.1rem;
     }
 
+
     .total-row {
       font-size: 1.4rem;
       font-weight: 700;
@@ -175,6 +202,7 @@
       padding-top: 1rem;
       margin-top: 1rem;
     }
+
 
     /* Place Order Button */
     #placeOrderBtn {
@@ -192,11 +220,13 @@
       box-shadow: var(--shadow-md);
     }
 
+
     #placeOrderBtn:hover {
       background: var(--color-gold-hover);
       transform: translateY(-3px);
       box-shadow: var(--shadow-lg);
     }
+
 
     .empty-state {
       text-align: center;
@@ -206,11 +236,13 @@
       box-shadow: var(--shadow-lg);
     }
 
+
     /* Footer (pushed to bottom) */
     footer {
       width: 100%;
       margin-top: auto;
     }
+
 
     @media (max-width: 992px) {
       .main {
@@ -219,9 +251,11 @@
     }
   </style>
 
+
   <main class="main">
     <div class="checkout-container">
       <h2 class="page-title">Checkout</h2>
+
 
       <!-- Addresses -->
       <h4 class="section-title">Select Delivery Address</h4>
@@ -230,8 +264,8 @@
           <% addresses.forEach(addr => { %>
             <div class="address-card <%= addr.isDefault ? 'selected' : '' %>">
   <label for="addr-<%= addr._id %>" style="cursor:pointer;">
-    
-    <input 
+   
+    <input
       type="radio"
       name="addressId"
       value="<%= addr._id %>"
@@ -240,12 +274,14 @@
       <%= addr.isDefault ? 'checked' : '' %>
     >
 
+
     <div class="address-content">
       <div class="address-details">
         <strong><%= addr.name %></strong><br>
         <%= addr.house %>, <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %><br>
         Phone: <%= addr.phone %>
       </div>
+
 
       <div class="address-actions mt-2">
         <a href="/editAddress/<%= addr._id %>" class="text-muted">
@@ -254,8 +290,10 @@
       </div>
     </div>
 
+
   </label>
 </div>
+
 
           <% }) %>
         </div>
@@ -267,6 +305,7 @@
           <a href="/addAddress" class="btn btn-outline-dark mt-3">Add Address</a>
         </div>
       <% } %>
+
 
       <!-- Order Summary -->
       <h4 class="section-title">Order Summary</h4>
@@ -298,6 +337,7 @@
           </tbody>
         </table>
 
+
         <!-- Summary Totals -->
         <div class="mt-4">
           <div class="summary-row">
@@ -322,15 +362,35 @@
           </div>
         </div>
 
-        <!-- Place Order Button -->
-        <button id="placeOrderBtn">Place Order (Cash on Delivery)</button>
+
+        <div class="payment-methods mt-3">
+  <div class="form-check mb-2">
+    <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="COD" checked>
+    <label class="form-check-label" for="cod">
+      <i class="fas fa-money-bill-wave"></i> Cash on Delivery
+    </label>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="radio" name="paymentMethod" id="online" value="ONLINE">
+    <label class="form-check-label" for="online">
+      <i class="fab fa-cc-paypal"></i> Pay Online (Card/UPI)
+    </label>
+  </div>
+</div>
+
+<button id="placeOrderBtn" class="btn btn-success w-100">
+  <span id="btnText">Place Order </span>
+</button>
       </div>
     </div>
   </main>
 
 
+
 </div>
   <%- include("../partials/user/footer") %>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
    document.querySelectorAll(".address-card").forEach(card => {
@@ -338,33 +398,152 @@
     const radio = card.querySelector(".address-radio");
     radio.checked = true;
 
+
     document.querySelectorAll(".address-card")
       .forEach(c => c.classList.remove("selected"));
+
 
     card.classList.add("selected");
   });
 });
 
-  document.getElementById("placeOrderBtn").addEventListener("click", () => {
+
+  document.getElementById("placeOrderBtn").addEventListener("click",async () => {
     const selectedAddress = document.querySelector('input[name="addressId"]:checked');
     if (!selectedAddress) {
       Swal.fire("Select an address");
       return;
     }
 
-    fetch("/checkout/placeOrder", {
+const paymentMethod=document.querySelector('input[name="paymentMethod"]:checked').value;
+
+if(paymentMethod==='COD'){
+    const res= await fetch("/checkout/placeOrder", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ addressId: selectedAddress.value })
-    })
-    .then(res => res.json())
-    .then(data => {
+      body: JSON.stringify({
+         addressId: selectedAddress.value ,
+         paymentMethod:"COD"
+        })
+    });
+
+    const data = await res.json();
+    
+
       if (data.success) {
         window.location.href = "/order/success/" + data.orderId;
       } else {
         Swal.fire("Error", data.message, "error");
       }
-    });
-  });
-</script>
+  }
+  else{
+     startRazorpay(selectedAddress.value);
+  }
+});
 
+// async function startRazorpay(addressId) {
+
+//   const res = await fetch("/payment/razorpay/create-order", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({})
+//   });
+
+//   const data = await res.json();
+//   console.log("FULL DATA 👉", data);  
+//   console.log("Razorpay key:", data.keyId);
+//   console.log("Order:", data.order);
+
+
+//   if (!data.success) {
+//     Swal.fire("Unable to start payment");
+//     return;
+//   }
+
+//   const options = {
+//   key: data.keyId,
+//   amount: data.order.amount,
+//   currency: "INR",
+//   order_id: data.order.id,
+
+//   handler: function (response) {
+//     verifyPayment(response, addressId);
+//   },
+
+//   modal: {
+//     ondismiss: function () {
+//       handlePaymentFailure(addressId);
+//     }
+//   }
+// };
+
+async function startRazorpay(addressId) {
+  const res = await fetch("/payment/razorpay/create-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({})
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    Swal.fire("Unable to start payment");
+    return;
+  }
+
+  const options = {
+    key: data.keyId,
+    amount: data.amount,
+    currency: "INR",
+    order_id: data.razorpayOrderId,
+
+    handler: function (response) {
+      verifyPayment(response, addressId, data.orderId); // ✅ pass orderId
+    },
+
+    modal: {
+      ondismiss: function () {
+        handlePaymentFailure(data.orderId); // ✅
+      }
+    }
+  };
+
+  new Razorpay(options).open();
+}
+function verifyPayment(payment, addressId, orderId) {
+  fetch("/payment/razorpay/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...payment,
+      orderId,      // backend-il order find cheyyan
+      addressId     // shipping address set cheyyan
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    window.location.href = data.redirectUrl;
+  })
+  .catch(() => {
+   if (orderId) {
+  window.location.href = "/order/failure/" + orderId;
+} else {
+  window.location.href = "/order/failure";
+}
+
+  });
+}
+
+function handlePaymentFailure(orderId) {
+  fetch("/payment/razorpay/failed", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId })
+  })
+  .then(res => res.json())
+  .then(() => {
+    window.location.href = "/order/failure";
+  })
+}
+
+</script>

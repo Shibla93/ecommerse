@@ -13,6 +13,7 @@ const cartController=require("../controllers/user/cartController")
 const checkoutController=require("../controllers/user/checkoutController")
 const orderController=require("../controllers/user/orderController")  
 const wishlistController=require("../controllers/user/wishlistController")
+const paymentController=require("../controllers/user/paymentController")
 const cloudinary = require('../helpers/cloudinary')
 
 router.get("/pageNotfound",userController.pageNotFound)
@@ -80,6 +81,7 @@ router.post("/product/:id/review",userAuth,productController.addReview)
 router.get("/wishlist", userAuth, wishlistController.getWishlist);
  router.post("/wishlist/add", userAuth, wishlistController.addToWishlist);
  router.post("/wishlist/remove", userAuth, wishlistController.removeFromWishlist);
+ router.post("/wishlist/move-to-cart", userAuth, wishlistController.moveWishlistToCart);
 
 router.get("/cart", userAuth, cartController.getCartPage)
  router.post("/addToCart",userAuth, cartController.addToCart)
@@ -88,7 +90,12 @@ router.post("/cart/remove", userAuth, cartController.removeProduct)
 router.get("/checkout/validate",userAuth,checkoutController.validateCheckout);
 router.get("/checkout", userAuth, checkoutController.getCheckoutPage);
 router.post("/checkout/placeOrder", userAuth,checkoutController.placeOrder);
-router.get("/order/success/:orderId", userAuth, checkoutController.orderSuccessPage);
+router.post("/payment/razorpay/create-order",userAuth,paymentController.createRazorpayOrder);
+router.post("/payment/razorpay/verify",userAuth,paymentController.verifyRazorpayPayment);
+
+router.get("/order/failure",userAuth,orderController.orderFailurePage)
+router.get("/order/success/:orderId", userAuth, orderController.orderSuccessPage);
+router.post("/payment/razorpay/failed",userAuth,paymentController.markPaymentFailed);
 
 router.get("/orders",userAuth,orderController.getOrder)
 router.get("/orders/:orderId",userAuth,orderController.getOrderDetails)

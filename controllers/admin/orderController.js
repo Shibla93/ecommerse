@@ -55,7 +55,7 @@ const listOrders = async (req, res) => {
     
       order.subTotal = subTotal;
       order.tax = tax;
-      order.finalTotal = totalAmount;
+      order.totalAmount = totalAmount;
     });
     
 
@@ -172,17 +172,18 @@ const viewOrder = async (req, res) => {
       }
     });
 
-    const tax = subTotal * 0.05;
-    const shipping = subTotal > 0 ? order.shippingCharge : 0;
-    const discount = order.discount || 0;
+    const tax = Math.round(subTotal * 0.05);
+    const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
 
-    const finalTotal = subTotal + tax + shipping - discount;
+  const discount =Number (order.discount) || 0;
+
+    const totalAmount= subTotal + tax + shipping - discount;
 
     res.render('admin/orderDetails', {
       order,
       subTotal,
       tax,
-      finalTotal
+      totalAmount
     });
 
    
@@ -193,8 +194,11 @@ const viewOrder = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   listOrders,
   updateOrderStatus,
-  viewOrder
+  viewOrder,
+  
 };

@@ -14,23 +14,25 @@ const getCartPage = async (req, res) => {
       return res.redirect('/login');
     }
 const user = await User.findById(userId);
-    const cart = await Cart.findOne({ userId })
-      .populate('items.productId');
-
-    let grandTotal = 0;
-
-    if (cart && cart.items.length > 0) {
-      cart.items.forEach(item => {
-        grandTotal += item.price * item.quantity;
-      });
-    }
-
-    res.render('cart', {
-        user,
-      cart,
     
-      grandTotal
-    });
+const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+let grandTotal = 0;
+
+if (cart && cart.items.length > 0) {
+
+  cart.items = cart.items.filter(item => item.productId);
+
+  cart.items.forEach(item => {
+    grandTotal += item.price * item.quantity;
+  });
+}
+
+res.render('cart', {
+  user,
+  cart,
+  grandTotal
+});
 
   } catch (error) {
     console.error("Cart Page Error:", error);

@@ -93,10 +93,82 @@ const addToWishlist = async (req, res) => {
     });
   }
 };
+const moveWishlistToCart = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const { wishlistItemId, productId, variantId, quantity } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Please login" });
+    }
+
+    // 🔍 Get product & variant
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    const variant = product.variants.id(variantId);
+    if (!variant) {
+      return res.json({ success: false, message: "Variant not found" });
+    }
+
+    const price = variant.price;
+    const qty = quantity || 1;
+    const totalPrice = price * qty;
+
+    // 🛒 Find or create cart
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, items: [] });
+    }
+
+    // 🔁 Check existing cart item
+    const existingItem = cart.items.find(
+      item =>
+        item.productId.toString() === productId &&
+        item.variantId.toString() === variantId
+    );
+
+    if (existingItem) {
+      existingItem.quantity += qty;
+      existingItem.totalPrice = existingItem.quantity * existingItem.price;
+    } else {
+      cart.items.push({
+        productId,
+        variantId,
+        quantity: qty,
+        price,
+        totalPrice
+      });
+    }
+
+    await cart.save();
+
+    // ❌ Remove from wishlist
+    await Wishlist.findOneAndUpdate(
+      { userId },
+      { $pull: { items: { _id: wishlistItemId } } }
+    );
+
+    res.json({
+      success: true,
+      message: "Moved to cart successfully"
+    });
+
+  } catch (error) {
+    console.error("Move Wishlist Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
+  }
+};
 
 
 module.exports = {
   getWishlist,
   addToWishlist,
-removeFromWishlist
+removeFromWishlist,
+ moveWishlistToCart
 };  

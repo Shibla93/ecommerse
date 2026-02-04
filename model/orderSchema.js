@@ -8,7 +8,8 @@ const orderItemSchema = new Schema({
     required: true
   },
   variantId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+      required: true
   },
   quantity: {
     type: Number,
@@ -23,6 +24,7 @@ const orderItemSchema = new Schema({
   itemStatus: {
     type: String,
     enum: [
+      "pending",
       "processing",
       "shipped",
       "delivered",
@@ -63,7 +65,9 @@ const orderSchema = new Schema(
 
     subTotal: Number,
     tax: Number,
-    discount: Number,
+    couponDiscount: Number,
+offerDiscount: Number,
+
     shippingCharge: Number,
     totalAmount: Number,
 
@@ -75,7 +79,7 @@ const orderSchema = new Schema(
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "refunded"],
+      enum: ["pending","failed", "paid", "refunded"],
       default: "pending"
     },
 

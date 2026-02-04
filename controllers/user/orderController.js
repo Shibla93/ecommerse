@@ -6,6 +6,7 @@ const Order = require("../../model/orderSchema");
 const Messages = require("../../constants/messages");
 const StatusCodes = require("../../constants/StatusCodes");
 const { getDisplayStatus } = require("../../helpers/displayStatus");
+const mongoose = require("mongoose");
 
 const PDFDocument = require('pdfkit');
 
@@ -52,15 +53,15 @@ orders.forEach(order => {
     }
   });
 
- 
-   const tax = subTotal * 0.05; 
-  const shipping = subTotal > 0 ? order.shippingCharge : 0;
-  const discount = order.discount || 0;
+ const tax = Math.round(subTotal * 0.05); // 5% tax example
+  const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
+
+  const discount =Number (order.discount) || 0;
   const totalAmount = subTotal + tax + shipping - discount;
 
   order.subTotal = subTotal;
   order.tax = tax;
-  order.finalTotal = totalAmount;
+  order.totalAmount = totalAmount;
 });
 
     
@@ -104,7 +105,7 @@ const getOrderDetails=async (req, res) => {
       userId: userId
     })
       .populate("orderedItems.productId")
-      .populate("shippingAddress");
+      // .populate("shippingAddress");
 
     if (!order) return res.redirect("/orders");
     let subTotal = 0;
@@ -116,19 +117,20 @@ order.orderedItems.forEach(item => {
   }
 });
 
-    const tax = subTotal * 0.05; 
+    const tax = Math.round(subTotal * 0.05); 
+const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
 
-const shipping = subTotal > 0 ? order.shippingCharge : 0;
-const discount = order.discount || 0;
+  const discount =Number (order.discount) || 0;
 
-const finalTotal = subTotal + tax + shipping - discount;
+const totalAmount= subTotal + tax + shipping - discount;
+console.log(totalAmount)
 
     res.render("user/order-details", {
       order,
       user,
     subTotal,
       tax,
-      finalTotal
+      totalAmount
     });
 
   } catch (error) {
@@ -157,7 +159,7 @@ const cancelOrder= async (req, res) => {
     const item = order.orderedItems.id(itemId);
 
     if (!item) {
-      return res.status(404).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: "Item not found"
       });
@@ -351,7 +353,7 @@ Line Total: ₹${lineTotal}`
     const tax = parseFloat((subTotal * TAX_RATE).toFixed(2));
     const shipping = subTotal > 0 ? order.shippingCharge : 0;
     const discount = order.discount || 0;
-    const finalTotal = subTotal + tax + shipping - discount;
+    const totalAmount = subTotal + tax + shipping - discount;
 
     doc.moveDown();
     doc.fontSize(12).text(`Subtotal: ₹${subTotal}`, { align: "right" });
@@ -360,7 +362,7 @@ Line Total: ₹${lineTotal}`
     doc.text(`Discount: ₹${discount}`, { align: "right" });
 
     doc.moveDown();
-    doc.fontSize(14).text(`Grand Total: ₹${finalTotal}`, { align: "right" });
+    doc.fontSize(14).text(`Grand Total: ₹${totalAmount}`, { align: "right" });
 
     doc.end();
   } catch (error) {
@@ -371,6 +373,61 @@ Line Total: ₹${lineTotal}`
   }
 };
 
+// const orderFailurePage = async (req, res) => {
+//   try {
+//     console.log('hello')
+//     const userId = req.session.user;
+//     if (!userId) return res.redirect("/login");
+
+//     const user = await User.findById(userId);
+//     const { orderId } = req.params;
+
+
+//     if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+//       return res.redirect("/pageNotFound");
+//     }
+//     const order = await Order.findById(orderId);
+//     if (!order) {
+   
+//       return res.redirect("/pageNotFound");
+//     }
+
+//     res.render("user/order-failure", { user, order, errorMessage: "Payment failed. Try again!" });
+//   } catch (err) {
+//     console.error("Order Failure Page Error:", err);
+//     res.redirect("/pageNotFound");
+//   }
+// };
+const orderFailurePage = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    if (!userId) return res.redirect("/login");
+
+    const user = await User.findById(userId);
+
+    res.render("user/order-failure", {
+      user,
+      order: null,
+      errorMessage: "Payment failed. Amount not deducted."
+    });
+
+  } catch (err) {
+    res.redirect("/orders");
+  }
+};
+
+
+const orderSuccessPage = async (req, res) => {
+  const userId = req.session.user;
+  if (!userId) {
+    return res.redirect("/login");
+
+  }
+
+  const user = await User.findById(userId);
+  const { orderId } = req.params;
+  res.render("order-succes", { user, orderId });
+};
 
 
 
@@ -381,5 +438,7 @@ module.exports={
     getOrderDetails,
     cancelOrder,
     returnOrder,
-     generateInvoice
+     generateInvoice,
+     orderSuccessPage,
+  orderFailurePage
 }

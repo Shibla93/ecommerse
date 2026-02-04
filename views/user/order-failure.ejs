@@ -1,0 +1,294 @@
+<%- include("../partials/user/sidebar") %>
+
+<div class="app-wrapper">
+  <%- include("../partials/user/header") %>
+
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-error: #b91c1c;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Container similar to checkout */
+    .failure-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 80px; /* 🔥 reduced */
+}
+
+
+    /* Illustration uses brand colors now */
+    .payment-failure-illustration {
+      width: 100%;
+      max-width: 420px;
+      height: 260px;
+      margin: 0 auto 2rem;
+      background: linear-gradient(135deg, #fef3c7 0%, #f5f5f4 50%, #fee2e2 100%);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--color-border);
+    }
+    
+    .illustration-card {
+      position: absolute;
+      top: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-card-bg);
+      border-radius: 18px;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 18px 35px rgba(0,0,0,0.12);
+      text-align: center;
+      width: 78%;
+    }
+
+    .failure-hero {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.75rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-border);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .failure-title {
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      margin-bottom: 0.75rem;
+    }
+
+    .failure-message {
+      font-size: 1.05rem;
+      color: var(--color-muted);
+      line-height: 1.7;
+      margin: 0 auto;
+      max-width: 540px;
+    }
+
+    .error-details {
+      margin-top: 1.25rem;
+      padding: 1rem 1.25rem;
+      border-radius: 0.75rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--color-error);
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    .order-info {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 1.5rem 2rem;
+      margin-top: 1.5rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-border);
+      text-align: center;
+    }
+
+    .failure-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .retry-btn {
+      background: var(--color-gold);
+      color: #ffffff;
+      flex: 1;
+      max-width: 220px;
+      border-radius: 0.75rem;
+      border: none;
+      padding: 0.85rem 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: var(--shadow-md);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .retry-btn:hover {
+      background: var(--color-gold-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .order-details-btn {
+      background: #ffffff;
+      border: 2px solid var(--color-border);
+      color: var(--color-dark);
+      flex: 1;
+      max-width: 220px;
+      border-radius: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.25s ease;
+    }
+
+    .order-details-btn:hover {
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+      background: var(--color-light-bg);
+    }
+
+    @media (max-width: 768px) {
+      .failure-container {
+        padding: 110px 16px 60px;
+      }
+      .failure-title {
+        font-size: 1.7rem;
+      }
+      .illustration-card {
+        width: 82%;
+      }
+    }
+  </style>
+
+  <main class="main">
+    <div class="failure-container">
+      <!-- Illustration Section -->
+      <div class="payment-failure-illustration">
+        <div class="illustration-card">
+          <div style="font-size: 3.2rem; color: var(--color-error); margin-bottom: 0.4rem;">✕</div>
+          <h3 style="color: var(--color-dark); margin: 0.4rem 0 0.25rem;">Payment Failed</h3>
+          <p style="color: var(--color-muted); margin: 0; font-size: 0.9rem;">
+           Transaction ID:
+<strong>
+  <%= order ? order.orderNumber : 'N/A' %>
+</strong>
+
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Failure Message -->
+      <div class="failure-hero">
+        <h1 class="failure-title">Oops, your payment did not go through</h1>
+        <p class="failure-message">
+          Your order is still pending because the payment could not be completed. 
+          You can retry the payment or review this order from your orders page.
+        </p>
+        
+        
+
+      <!-- Action Buttons -->
+      <div class="order-info">
+        <h3 style="margin-bottom: 0.5rem; color: var(--color-dark);">Choose your next step</h3>
+        <p style="color: var(--color-muted); font-size: 0.98rem;">
+          You can attempt the payment again now, or come back to this order anytime from your order history.
+        </p>
+
+        <div class="failure-actions">
+          <button  class="btn-primary retry-btn" onclick="window.location.href='/checkout'">
+ 
+  
+  🔄 Retry Payment
+</button>
+
+          <a href="/orders" class="btn-secondary order-details-btn">
+            📋 <span>View Orders</span>
+          </a>
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <a href="/cart" class="btn-secondary" style="font-size: 0.95rem; padding: 0.75rem 1.4rem; border-radius: 0.7rem;">
+            🛒 Or modify your cart
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<% if (errorMessage) { %>
+  <div class="error-details">
+    <strong>Reason:</strong> <span><%= errorMessage %></span>
+  </div>
+<% } %>
+
+
+<%- include("../partials/user/footer") %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+function retryPayment(orderId) {
+
+  if (!orderId) {
+    alert("Invalid order");
+    window.location.href = "/orders";
+    return;
+  }
+
+  fetch("/payment/razorpay/create-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if (!data.success) {
+      alert("Unable to retry payment");
+      return;
+    }
+
+    const options = {
+      key: data.keyId,
+      name: "Your Store",
+      description: "Retry Payment",
+      order_id: data.razorpayOrderId,
+
+      handler: function (response) {
+        fetch("/payment/razorpay/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            orderId
+          })
+        })
+        .then(res => res.json())
+        .then(result => {
+          window.location.href = result.success
+            ? `/order/success/${orderId}`
+            : `/order/failure/${orderId}`;
+        });
+      },
+
+      modal: {
+        ondismiss: function () {
+          window.location.href = `/order/failure/${orderId}`;
+        }
+      }
+    };
+
+    new Razorpay(options).open();
+  });
+}
+</script>
