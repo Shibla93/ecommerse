@@ -3,6 +3,8 @@ const Address = require("../../model/addressSchema");
 const Cart = require("../../model/cartSchema");
 const Product = require("../../model/productSchema");
 const Order = require("../../model/orderSchema");
+const Wallet = require("../../model/walletSchema");
+const Coupon = require("../../model/coupenSchema");
 const Messages = require("../../constants/messages");
 const StatusCodes = require("../../constants/StatusCodes");
 const razorpay = require("../../config/razorpay");
@@ -50,7 +52,7 @@ const getCheckoutPage = async (req, res) => {
   try {
     const userId = req.session.user;
     if (!userId) return res.redirect("/login");
-
+    req.session.appliedCoupon = null;
     const user = await User.findById(userId);
     const cart = await Cart.findOne({ userId }).populate("items.productId");
 
@@ -62,9 +64,14 @@ const getCheckoutPage = async (req, res) => {
     cart.items.forEach(item => subtotal += item.price * item.quantity);
 
     const taxes = subtotal * 0.05;
-    const discount = 0;
+   let discount = 0; 
+
+
+
+
     const shipping = 0;
-    const total = subtotal + taxes;
+    
+const total = subtotal + taxes - discount;
 
     const userAddress = await Address.findOne({ userId });
 
@@ -92,7 +99,7 @@ const getCheckoutPage = async (req, res) => {
 const placeOrder = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { addressId } = req.body;
+    const { addressId ,paymentMethod} = req.body;
     console.log("USER", userId);
     if (!userId) return res.json({ success: false, message: Messages.USER_NOT_FOUND });
 
@@ -142,23 +149,83 @@ const placeOrder = async (req, res) => {
     let subTotal = 0;
     cart.items.forEach(item => subTotal += item.price * item.quantity);
     const tax = subTotal * 0.05;
-    const discount = 0;
+    let discount = 0;
+
+if (req.session.appliedCoupon) {
+
+  const coupon = await Coupon.findById(req.session.appliedCoupon.couponId);
+
+  if (
+    coupon &&
+    coupon.isActive &&
+    new Date(coupon.expiryDate) > new Date() &&
+    !coupon.usedBy.includes(userId) &&
+    subTotal >= coupon.minPurchase
+  ) {
+
+    if (coupon.discountType === "percentage") {
+      discount = (subTotal * coupon.discountValue) / 100;
+
+      if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+        discount = coupon.maxDiscount;
+      }
+
+    } else {
+      discount = coupon.discountValue;
+    }
+
+    
+    coupon.usedBy.push(userId);
+    await coupon.save();
+  }
+}
+
     const shippingCharge = 0;
     const totalAmount = subTotal + tax - discount + shippingCharge;
 
-    const orderNumber = "ORD" + Date.now();
+    let finalPaymentStatus = "pending";
 
-    const order = new Order({
-      orderNumber: "ORD-" + Date.now(),
-      userId: userId,
-      orderedItems,
-      subTotal,
-      tax,
-      discount,
-      shippingCharge,
-      totalAmount,
-      paymentMethod: "COD",
-      paymentStatus: "pending",
+if (paymentMethod === "WALLET") {
+
+  const wallet = await Wallet.findOne({ userId });
+
+  if (!wallet || wallet.balance < totalAmount) {
+    return res.json({
+      success: false,
+      message: "Insufficient wallet balance"
+    });
+  }
+
+  
+  wallet.balance -= totalAmount;
+
+  
+  wallet.transactions.push({
+    type: "debit",
+    amount: totalAmount,
+    reason: "Order Payment"
+  });
+
+  await wallet.save();
+
+  finalPaymentStatus = "paid";
+}
+
+    
+
+    
+     const order = new Order({
+  orderNumber: "ORD-" + Date.now(),
+  userId: userId,
+  orderedItems,
+  subTotal,
+  tax,
+  discount,
+  shippingCharge,
+  totalAmount,
+  paymentMethod: paymentMethod,   
+  paymentStatus: finalPaymentStatus,
+  
       orderStatus: "processing",
       shippingAddress: {
         name: address.name,
@@ -190,71 +257,74 @@ const placeOrder = async (req, res) => {
     console.error("Place Order Error:", error);
     res.json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
   }
-};
+}
 
-const createRazorpayOrder = async (req, res) => {
+
+
+
+const applyCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
-    const { addressId } = req.body;
+    const { code } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "User not logged in" });
+    }
 
     const cart = await Cart.findOne({ userId }).populate("items.productId");
     if (!cart || cart.items.length === 0) {
-      return res.json({ success: false, message: "Cart is empty" });
+      return res.status(400).json({ success: false, message: "Cart is empty" });
     }
 
-    // 💰 Calculate amounts
     let subTotal = 0;
     cart.items.forEach(item => subTotal += item.price * item.quantity);
-    const tax = Math.round(subTotal * 0.05);
-const totalAmount = subTotal + tax;
 
-    // 🧾 CREATE DB ORDER FIRST (THIS WAS MISSING)
-    const dbOrder = new Order({
-      orderNumber: "ORD-" + Date.now(),
-      userId,
-      orderedItems: cart.items.map(item => ({
-        productId: item.productId._id,
-        variantId: item.variantId,
-        quantity: item.quantity,
-        purchasedPrice: item.price
-      })),
-      subTotal,
-      tax,
-      totalAmount,
-      paymentMethod: "ONLINE",
-      paymentStatus: "pending",
-      orderStatus: "processing"
-    });
+    const coupon = await Coupon.findOne({ code: code.toUpperCase() });
+    if (!coupon) {
+      return res.json({ success: false, message: "Invalid coupon code" });
+    }
 
-    await dbOrder.save();
+    if (!coupon.isActive || new Date(coupon.expiryDate) < new Date()) {
+      return res.json({ success: false, message: "Coupon expired or inactive" });
+    }
 
-    // 💳 CREATE RAZORPAY ORDER
-    const razorpayOrder = await razorpay.orders.create({
-      amount: totalAmount * 100, // paise
-      currency: "INR",
-      receipt: dbOrder.orderNumber
-    });
+    if (coupon.usedBy.includes(userId)) {
+      return res.json({ success: false, message: "Coupon already used" });
+    }
 
-    res.json({
-      success: true,
-       razorpayKey: process.env.RAZORPAY_KEY_ID,
-      razorpayOrderId: razorpayOrder.id,
-      amount: razorpayOrder.amount,
-      orderId: dbOrder._id
-    });
+    if (subTotal < coupon.minPurchase) {
+      return res.json({ success: false, message: `Minimum purchase of ₹${coupon.minPurchase} required` });
+    }
 
-  } catch (err) {
-    console.error("RAZORPAY CREATE ORDER ERROR 🔥", err);
-    res.json({ success: false, message: "Failed to create Razorpay order" });
+    let discount = 0;
+    if (coupon.discountType === "percentage") {
+      discount = (subTotal * coupon.discountValue) / 100;
+      if (coupon.maxDiscount && discount > coupon.maxDiscount) discount = coupon.maxDiscount;
+    } else {
+      discount = coupon.discountValue;
+    }
+
+    // Save applied coupon in session
+    req.session.appliedCoupon = {
+      couponId: coupon._id,
+      code: coupon.code,
+      discount
+    };
+
+    return res.json({ success: true, discount, message: `Coupon applied successfully! You saved ₹${discount}` });
+    
+
+  } catch (error) {
+    console.error("Apply Coupon Error:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-
-
 
 module.exports = {
   validateCheckout,
   getCheckoutPage,
-  placeOrder
+  placeOrder,
+  applyCoupon
  
 
 };

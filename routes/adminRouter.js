@@ -7,6 +7,7 @@ const categoryController=require("../controllers/admin/categoryController")
 const brandController=require("../controllers/admin/brandController")
 const productController=require("../controllers/admin/productController")
 const orderController=require("../controllers/admin/orderController")
+const couponController=require("../controllers/admin/couponController")
 
 const upload = require('../helpers/multer'); 
 const cloudinary = require('../helpers/cloudinary')
@@ -46,7 +47,11 @@ router.get('/order', adminAuth, orderController.listOrders);
 router.post("/order/status/:orderId",adminAuth,orderController.updateOrderStatus);
 router.get('/order/:orderId', adminAuth, orderController.viewOrder);
 
-
+router.get("/coupons", adminAuth, couponController.loadCouponList);
+router.get("/coupons/create", adminAuth, couponController.loadCreateCoupon);
+router.post("/coupons/create", adminAuth, couponController.createCoupon);
+router.post("/coupons/:id/edit", adminAuth, couponController.updateCoupon);
+router.post("/coupons/:id/delete", adminAuth, couponController.deleteCoupon);
 
 
 

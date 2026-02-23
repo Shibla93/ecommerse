@@ -265,6 +265,13 @@
 
                     <option value="delivered" <%=order.orderStatus==='delivered' ? 'selected' : '' %>>Delivered</option>
                     <option value="cancelled" <%=order.orderStatus==='cancelled' ? 'selected' : '' %>>Cancelled</option>
+      \>
+
+<option value="returned"
+<%= order.orderStatus === 'returned' ? 'selected' : '' %>>
+Returned
+</option>
+
                   
                   </select>
                 </td>

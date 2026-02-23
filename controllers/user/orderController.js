@@ -5,6 +5,7 @@ const Product = require("../../model/productSchema");
 const Order = require("../../model/orderSchema");
 const Messages = require("../../constants/messages");
 const StatusCodes = require("../../constants/StatusCodes");
+const Wallet = require("../../model/walletSchema");
 const { getDisplayStatus } = require("../../helpers/displayStatus");
 const mongoose = require("mongoose");
 
@@ -34,10 +35,10 @@ console.log("USER", userId);
   filter.orderStatus= statusFilter;
 }
 
-
-    const orders = await Order.find({
+const orders = await Order.find({
   userId,
-  ...(search && { orderNumber: { $regex: search, $options: "i" } })
+  ...(search && { orderNumber: { $regex: search, $options: "i" } }),
+  ...(statusFilter && { orderStatus: statusFilter })
 })
 .sort({ [sortBy]: sortOrder })
 .skip(skip)
@@ -105,7 +106,7 @@ const getOrderDetails=async (req, res) => {
       userId: userId
     })
       .populate("orderedItems.productId")
-      // .populate("shippingAddress");
+      
 
     if (!order) return res.redirect("/orders");
     let subTotal = 0;
@@ -139,12 +140,11 @@ console.log(totalAmount)
   }
 };
 
-const cancelOrder= async (req, res) => {
+const cancelOrder = async (req, res) => {
   try {
     const userId = req.session.user;
     const { orderNumber, itemId } = req.params;
     const { reason } = req.body;
-    console.log("ITEM ID:", itemId);
 
     const order = await Order.findOne({ orderNumber, userId })
       .populate("orderedItems.productId");
@@ -161,11 +161,10 @@ const cancelOrder= async (req, res) => {
     if (!item) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: "Item not found"
+        message: Messages.ITEM_NOT_FOUND
       });
     }
-console.log("ITEM ID:", itemId);
-console.log("FOUND ITEM:", item)
+
     if (item.itemStatus === "cancelled") {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
@@ -179,36 +178,69 @@ console.log("FOUND ITEM:", item)
         message: "This item cannot be cancelled"
       });
     }
-    
+
+    // ✅ Restore Stock
     const product = await Product.findById(item.productId._id);
     const variant = product.variants.id(item.variantId);
     variant.stock += item.quantity;
     await product.save();
 
-    
-item.itemStatus = "cancelled";
-item.cancellation = {
-  isCancelled: true,
-  reason,
-  cancelledAt: new Date()
-};
+    // ✅ Update item status
+    item.itemStatus = "cancelled";
+    item.cancellation = {
+      isCancelled: true,
+      reason,
+      cancelledAt: new Date()
+    };
 
+    // ✅ Check active items
+    const activeItems = order.orderedItems.filter(
+      i => !["cancelled", "returned"].includes(i.itemStatus)
+    );
 
-const activeItems = order.orderedItems.filter(
-  i => !["cancelled", "returned"].includes(i.itemStatus)
-);
+    // ✅ Wallet Refund (Only if Paid)
+    if (order.paymentStatus === "paid") {
 
-if (activeItems.length === 0) {
-  order.orderStatus = "cancelled";
-}
+      const refundAmount = item.purchasedPrice * item.quantity;
 
+      let wallet = await Wallet.findOne({ userId });
 
-await order.save();
+      if (!wallet) {
+        wallet = new Wallet({
+          userId,
+          balance: 0,
+          transactions: []
+        });
+      }
+
+      wallet.balance += refundAmount;
+
+      wallet.transactions.push({
+        type: "credit",
+        amount: refundAmount,
+        reason: "Refund for cancelled product",
+        orderId: order._id
+      });
+
+      await wallet.save();
+
+      // If all items cancelled → mark order refunded
+      if (activeItems.length === 0) {
+        order.paymentStatus = "refunded";
+      }
+    }
+
+    // ✅ If all items cancelled → order cancelled
+    if (activeItems.length === 0) {
+      order.orderStatus = "cancelled";
+    }
+
+    await order.save();
 
     res.json({
       success: true,
-      message: "Product cancelled successfully"
-    });
+      message: "Product cancelled & refunded successfully"
+    })
 
   } catch (error) {
     console.error("Cancel Item Error:", error);
@@ -241,7 +273,7 @@ const returnOrder = async (req, res) => {
     if (!item) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: "Item not found"
+        message:Messages.ITEM_NOT_FOUND
       });
     }
 
@@ -253,33 +285,42 @@ const returnOrder = async (req, res) => {
       });
     }
 
-    const product = await Product.findById(item.productId._id);
-    const variant = product.variants.id(item.variantId);
-    variant.stock += item.quantity;
-    await product.save();
+    item.itemStatus="return_requested";
+
+     item.return.status = "requested";
+     item.return.reason = reason;
+    item.return.requestedAt = new Date();
+
+    
+    await order.save();
+
+    // const product = await Product.findById(item.productId._id);
+    // const variant = product.variants.id(item.variantId);
+    // variant.stock += item.quantity;
+    // await product.save();
 
   
-    item.itemStatus = "returned";
-item.return = {
-  isReturned: true,
-  reason,
-  returnedAt: new Date()
-};
+//     item.itemStatus = "returned";
+// item.return = {
+//   isReturned: true,
+//   reason,
+//   returnedAt: new Date()
+// };
 
-const activeItems = order.orderedItems.filter(
-  i => !["cancelled", "returned"].includes(i.itemStatus)
-);
+// const activeItems = order.orderedItems.filter(
+//   i => !["cancelled", "returned"].includes(i.itemStatus)
+// );
 
-if (activeItems.length === 0) {
-  order.orderStatus = "returned";
-}
+// if (activeItems.length === 0) {
+//   order.orderStatus = "returned";
+// }
 
 
-    await order.save();
+//     await order.save();
 
     res.json({
       success: true,
-      message: "Product returned successfully"
+      message: "Return request submitted successfully"
     });
 
   } catch (error) {
@@ -349,7 +390,7 @@ Line Total: ₹${lineTotal}`
     });
 
   
-    const TAX_RATE = 0.08; 
+    const TAX_RATE = 0.05 
     const tax = parseFloat((subTotal * TAX_RATE).toFixed(2));
     const shipping = subTotal > 0 ? order.shippingCharge : 0;
     const discount = order.discount || 0;

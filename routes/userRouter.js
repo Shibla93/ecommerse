@@ -14,6 +14,8 @@ const checkoutController=require("../controllers/user/checkoutController")
 const orderController=require("../controllers/user/orderController")  
 const wishlistController=require("../controllers/user/wishlistController")
 const paymentController=require("../controllers/user/paymentController")
+const walletController=require("../controllers/user/walletController")
+const couponController = require("../controllers/user/couponController");
 const cloudinary = require('../helpers/cloudinary')
 
 router.get("/pageNotfound",userController.pageNotFound)
@@ -90,6 +92,7 @@ router.post("/cart/remove", userAuth, cartController.removeProduct)
 router.get("/checkout/validate",userAuth,checkoutController.validateCheckout);
 router.get("/checkout", userAuth, checkoutController.getCheckoutPage);
 router.post("/checkout/placeOrder", userAuth,checkoutController.placeOrder);
+router.post("/apply-coupon", userAuth,checkoutController.applyCoupon);
 router.post("/payment/razorpay/create-order",userAuth,paymentController.createRazorpayOrder);
 router.post("/payment/razorpay/verify",userAuth,paymentController.verifyRazorpayPayment);
 
@@ -102,6 +105,9 @@ router.get("/orders/:orderId",userAuth,orderController.getOrderDetails)
 router.patch("/order/item/cancel/:orderNumber/:itemId",userAuth,orderController.cancelOrder);
 router.patch("/order/item/return/:orderNumber/:itemId", userAuth, orderController.returnOrder);
 router.get('/order/invoice/:orderNumber', userAuth, orderController.generateInvoice);
+
+router.get("/wallet",userAuth,walletController.getWallet)
+router.get("/coupon",userAuth,couponController.getCoupens)
 
 router.get("/form",userController.getform)
 router.post("/form", upload.any(), userController.postform);

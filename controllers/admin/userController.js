@@ -114,22 +114,6 @@ const blockCustomer = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports={
     getCustomer,
     blockCustomer

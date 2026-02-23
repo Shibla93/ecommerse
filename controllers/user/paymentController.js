@@ -38,7 +38,7 @@ const createRazorpayOrder = async (req, res) => {
     await Payment.create({
       userId,
       amount: totalAmount,
-      paymentMethod: "RAZORPAY",
+      paymentMethod: "ONLINE",
       status: "pending",
       gatewayOrderId: razorpayOrder.id
     });
@@ -78,7 +78,7 @@ const verifyRazorpayPayment = async (req, res) => {
       return res.json({ success: false, message: "Payment not found" });
     }
 
-    // Signature verification
+  
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)

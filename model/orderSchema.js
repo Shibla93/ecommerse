@@ -28,6 +28,7 @@ const orderItemSchema = new Schema({
       "processing",
       "shipped",
       "delivered",
+      "return_requested",
       "cancelled",
       "returned"
     ],
@@ -41,10 +42,17 @@ const orderItemSchema = new Schema({
   },
 
   return: {
-    isReturned: { type: Boolean, default: false },
-    reason: String,
-    returnedAt: Date
-  }
+  status: {
+    type: String,
+    enum: ["none", "requested", "approved", "rejected"],
+    default: "none"
+  },
+  reason: String,
+  requestedAt: Date,
+  approvedAt: Date,
+  rejectedAt: Date
+}
+
 });
 
 const orderSchema = new Schema(
@@ -73,7 +81,7 @@ offerDiscount: Number,
 
     paymentMethod: {
       type: String,
-      enum: ["COD", "ONLINE"],
+      enum: ["COD", "ONLINE","WALLET"],
       default: "COD"
     },
 
@@ -91,7 +99,9 @@ offerDiscount: Number,
     "shipped",
     "delivered",
     "cancelled",
-    "returned"
+    "returned",
+    "return_requested",   
+
   ],
   default: "processing"
 }

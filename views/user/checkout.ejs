@@ -337,29 +337,42 @@
           </tbody>
         </table>
 
+<!-- Coupon Section -->
+<div class="mt-4">
+  <div class="summary-row">
+    <input type="text" id="couponCode" class="form-control me-2" 
+           placeholder="Enter coupon code" 
+           style="max-width: 250px; display:inline-block;">
 
+    <button type="button" id="applyCouponBtn" 
+            class="btn btn-dark">
+      Apply
+    </button>
+  </div>
+
+  <small id="couponMessage"></small>
+</div>
         <!-- Summary Totals -->
-        <div class="mt-4">
-          <div class="summary-row">
-            <span>Subtotal</span>
-            <span>₹<%= subtotal %></span>
-          </div>
-          <div class="summary-row">
-            <span>Taxes</span>
-            <span>₹<%= taxes %></span>
-          </div>
-          <div class="summary-row">
-            <span>Discount</span>
-            <span>₹<%= discount %></span>
-          </div>
-          <div class="summary-row">
-            <span>Shipping</span>
-            <span class="text-success">₹<%= shipping %></span>
-          </div>
-          <div class="total-row">
-            <span>Total</span>
-            <span>₹<%= total %></span>
-          </div>
+        <div class="summary-row">
+  <span>Subtotal</span>
+  <span id="subtotal">₹<%= subtotal %></span>
+</div>
+<div class="summary-row">
+  <span>Taxes</span>
+  <span id="taxes">₹<%= taxes %></span>
+</div>
+<div class="summary-row">
+  <span>Discount</span>
+  <span id="discount">₹<%= discount %></span>
+</div>
+<div class="summary-row">
+  <span>Shipping</span>
+  <span id="shipping" class="text-success">₹<%= shipping %></span>
+</div>
+<div class="total-row">
+  <span>Total</span>
+  <span id="finalTotal">₹<%= total %></span>
+</div>
         </div>
 
 
@@ -376,6 +389,16 @@
       <i class="fab fa-cc-paypal"></i> Pay Online (Card/UPI)
     </label>
   </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="radio" name="paymentMethod" id="wallet" value="WALLET">
+    <label class="form-check-label" for="wallet">
+     <i class="fas fa-wallet"></i> Pay using Wallet
+    </label>
+  </div>
+  <!-- <label>
+  <input type="radio" name="paymentMethod" value="WALLET">
+  Pay using Wallet
+</label> -->
 </div>
 
 <button id="placeOrderBtn" class="btn btn-success w-100">
@@ -417,29 +440,55 @@
 
 const paymentMethod=document.querySelector('input[name="paymentMethod"]:checked').value;
 
-if(paymentMethod==='COD'){
-    const res= await fetch("/checkout/placeOrder", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-         addressId: selectedAddress.value ,
-         paymentMethod:"COD"
-        })
-    });
+// if(paymentMethod==='COD'){
+//     const res= await fetch("/checkout/placeOrder", {
+//       method: "POST",
+//       headers: {"Content-Type": "application/json"},
+//       body: JSON.stringify({
+//          addressId: selectedAddress.value ,
+//          paymentMethod:"COD"
+//         })
+//     });
 
-    const data = await res.json();
+//     const data = await res.json();
     
 
-      if (data.success) {
-        window.location.href = "/order/success/" + data.orderId;
-      } else {
-        Swal.fire("Error", data.message, "error");
-      }
+//       if (data.success) {
+//         window.location.href = "/order/success/" + data.orderId;
+//       } else {
+//         Swal.fire("Error", data.message, "error");
+//       }
+//   }
+//   else{
+//      startRazorpay(selectedAddress.value);
+//   }
+// });
+if (paymentMethod === 'COD' || paymentMethod === 'WALLET') {
+
+  const res = await fetch("/checkout/placeOrder", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      addressId: selectedAddress.value,
+      paymentMethod: paymentMethod
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    window.location.href = "/order/success/" + data.orderId;
+  } else {
+    Swal.fire("Error", data.message, "error");
   }
-  else{
-     startRazorpay(selectedAddress.value);
-  }
-});
+
+}
+else if (paymentMethod === 'ONLINE') {
+
+  startRazorpay(selectedAddress.value);
+
+}
+  })
 
 // async function startRazorpay(addressId) {
 
@@ -546,4 +595,35 @@ function handlePaymentFailure(orderId) {
   })
 }
 
+document.getElementById("applyCouponBtn").addEventListener("click", async () => {
+  const code = document.getElementById("couponCode").value.trim();
+  if (!code) {
+    Swal.fire("Error", "Enter a coupon code", "error");
+    return;
+  }
+
+  const res = await fetch("/apply-coupon", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    Swal.fire("Success", data.message, "success");
+
+    // Dynamic update
+    document.getElementById("discount").textContent = `₹${data.discount}`;
+
+    const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace('₹',''));
+    const taxes = parseFloat(document.getElementById("taxes").textContent.replace('₹',''));
+    const shipping = parseFloat(document.getElementById("shipping").textContent.replace('₹','')) || 0;
+
+    const total = subtotal + taxes - data.discount + shipping;
+    document.getElementById("finalTotal").textContent = `₹${total}`;
+  } else {
+    Swal.fire("Error", data.message, "error");
+  }
+});
 </script>

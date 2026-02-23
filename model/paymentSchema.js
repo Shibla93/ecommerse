@@ -23,7 +23,7 @@ const paymentSchema = new Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["COD", "RAZORPAY", "WALLET"],
+      enum: ["COD", "ONLINE", "WALLET"],
       required: true
     },
 

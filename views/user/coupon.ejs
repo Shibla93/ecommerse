@@ -1,0 +1,261 @@
+<%- include("../../views/partials/user/header") %>
+<%- include("../../views/partials/user/sidebar") %>
+
+<style>
+  :root {
+    --titan-gold: #d4af37;
+    --titan-gold-dark: #b8972e;
+    --dark-bg: #1a1a1a;
+    --light-bg: #f8f9fa;
+    --card-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  }
+
+  body {
+    background: var(--light-bg);
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-width);
+    padding: 40px 30px;
+    min-height: calc(100vh - var(--header-height));
+    transition: margin-left 0.4s ease;
+  }
+
+  .page-title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--dark-bg);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .page-title::after {
+    content: '';
+    width: 80px;
+    height: 4px;
+    background: var(--titan-gold);
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+
+  .coupon-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+    margin-bottom: 2rem;
+  }
+
+  .coupon-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(212,175,55,0.18);
+  }
+
+  .coupon-header {
+    background: linear-gradient(135deg, var(--titan-gold) 0%, var(--titan-gold-dark) 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .coupon-code {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: 6px;
+    margin: 0.5rem 0;
+    text-transform: uppercase;
+  }
+
+  .coupon-type {
+    font-size: 1.1rem;
+    opacity: 0.95;
+  }
+
+  .coupon-body {
+    padding: 1.8rem 2rem;
+  }
+
+  .coupon-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #444;
+  }
+
+  .detail-label {
+    font-weight: 600;
+    color: #555;
+  }
+
+  .copy-btn {
+    background: var(--titan-gold);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .copy-btn:hover {
+    background: var(--titan-gold-dark);
+    transform: translateY(-2px);
+  }
+
+  .coupon-footer {
+    background: #f8f9fa;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #666;
+    border-top: 1px solid #eee;
+  }
+
+  .expired-badge {
+    background: #ef4444;
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .no-coupons {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .no-coupons i {
+    font-size: 5rem;
+    color: #d1d5db;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 991px) {
+    .main-content {
+      margin-left: 0;
+      padding: 25px 15px;
+    }
+  }
+</style>
+
+<div class="main-content">
+  <h1 class="page-title">Available Coupons</h1>
+
+  <% if (coupons && coupons.length > 0) { %>
+    <div class="row g-4">
+      <% coupons.forEach(coupon => { %>
+        <div class="col-lg-6 col-xl-4">
+          <div class="coupon-card">
+            <div class="coupon-header">
+              <div class="coupon-type">
+                <%= coupon.discountType === 'percentage' ? 'Percentage Off' : 'Flat Discount' %>
+              </div>
+              <div class="coupon-code"><%= coupon.code %></div>
+            </div>
+
+            <div class="coupon-body">
+              <div class="coupon-detail">
+                <span class="detail-label">Discount:</span>
+                <strong>
+                  <%= coupon.discountValue %><%= coupon.discountType === 'percentage' ? '%' : ' ₹' %>
+                </strong>
+              </div>
+
+              <div class="coupon-detail">
+                <span class="detail-label">Minimum Purchase:</span>
+                <strong>₹<%= Number(coupon.minPurchase || 0).toFixed(2) %></strong>
+              </div>
+
+              <% if (coupon.maxDiscount) { %>
+                <div class="coupon-detail">
+                  <span class="detail-label">Max Discount:</span>
+                  <strong>₹<%= Number(coupon.maxDiscount).toFixed(2) %></strong>
+                </div>
+              <% } %>
+
+              <div class="coupon-detail">
+                <span class="detail-label">Valid Until:</span>
+                <strong>
+                  <%= new Date(coupon.expiryDate).toLocaleDateString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                  }) %>
+                </strong>
+              </div>
+
+              <div class="coupon-detail">
+                <span class="detail-label">Usage Limit:</span>
+                <strong><%= coupon.usageLimit %> uses</strong>
+              </div>
+
+              <div class="text-center mt-4">
+                <button class="copy-btn" onclick="copyToClipboard('<%= coupon.code %>')">
+                  Copy Code
+                </button>
+              </div>
+            </div>
+
+            <div class="coupon-footer">
+              <% if (new Date(coupon.expiryDate) < new Date()) { %>
+                <span class="expired-badge">Expired</span>
+              <% } else if (!coupon.isActive) { %>
+                <span class="expired-badge bg-secondary">Inactive</span>
+              <% } else { %>
+                Use this code at checkout • Enjoy your savings!
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="no-coupons">
+      <i class="fas fa-ticket-alt"></i>
+      <h4>No active coupons available right now</h4>
+      <p class="text-muted mt-3">
+        Check back soon — we're always adding new offers for our valued customers!
+      </p>
+      <a href="/shop" class="btn btn-outline-primary mt-4 px-5 py-2">
+        Continue Shopping
+      </a>
+    </div>
+  <% } %>
+</div>
+
+<!-- Footer -->
+<%- include("../../views/partials/user/footer") %>
+
+<!-- JavaScript for copy to clipboard -->
+<script>
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Copied!',
+        text: 'Coupon code copied to clipboard',
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+    }).catch(err => {
+      Swal.fire('Error', 'Failed to copy code', 'error');
+    });
+  }
+</script>
+
+<!-- SweetAlert2 (optional but recommended for nice feedback) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
