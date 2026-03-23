@@ -1,5 +1,6 @@
 const User = require("../../model/userSchema");
 const Product = require("../../model/productSchema");
+const Category = require("../../model/categorySchema");
 const Wishlist=require("../../model/wishlistSchema");
 const mongodb = require("mongodb");
 const Cart = require('../../model/cartSchema');
@@ -15,7 +16,12 @@ const getCartPage = async (req, res) => {
     }
 const user = await User.findById(userId);
     
-const cart = await Cart.findOne({ userId }).populate('items.productId');
+const cart = await Cart.findOne({ userId }).populate({
+  path: "items.productId",
+  populate: {
+    path: "category"
+  }
+});
 
 let grandTotal = 0;
 
@@ -24,7 +30,28 @@ if (cart && cart.items.length > 0) {
   cart.items = cart.items.filter(item => item.productId);
 
   cart.items.forEach(item => {
-    grandTotal += item.price * item.quantity;
+            const product = item.productId;
+
+        const variant = product.variants.find(
+          v => v._id.toString() === item.variantId.toString()
+        );
+
+        if (!variant) return;
+
+        const maxOffer = Math.max(
+          product.productOffer || 0,
+          product.category?.categoryOffer || 0
+        );
+
+        const discount = variant.price * (maxOffer / 100);
+        const finalPrice = Math.round(variant.price - discount);
+
+        item.price = finalPrice;
+        item.totalPrice = finalPrice * item.quantity;
+
+        grandTotal += item.totalPrice;
+
+
   });
 }
 
@@ -47,7 +74,7 @@ const addToCart=async(req,res)=>{
 const user = await User.findById(userId);
     
     const product = await Product.findById(productId)
-      .populate('categories');
+      .populate('category');
 
     if (!product) {
     return res.status(StatusCodes.NOT_FOUND).json({
@@ -68,7 +95,13 @@ return res.status(StatusCodes.CONFLICT).json({
 });
 
 }
+const maxOffer = Math.max(
+  product.productOffer || 0,
+  product.category.categoryOffer || 0
+);
 
+const discount = variant.price * (maxOffer / 100);
+const finalPrice = Math.round(variant.price - discount);
     
     if (variant.stock <= 0) {
       return res.status(StatusCodes.CONFLICT).json({ success: false, message: Messages.OUT_OF_STOCK });
@@ -118,8 +151,8 @@ return res.status(StatusCodes.CONFLICT).json({
         productId,
         variantId,
         quantity: 1,
-        price: variant.price, 
-        totalPrice: variant.price
+        price: finalPrice,
+  totalPrice: finalPrice
       });
     }
 

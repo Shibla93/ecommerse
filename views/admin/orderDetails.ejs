@@ -124,7 +124,33 @@
     padding-top: 1rem;
     margin-top: 1rem;
   }
+.action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
 
+.btn-approve {
+  background-color: #10b981; /* Green */
+}
+
+.btn-approve:hover {
+  background-color: #059669; /* Darker green on hover */
+  transform: translateY(-2px);
+}
+
+.btn-reject {
+  background-color: #ef4444; /* Red */
+}
+
+.btn-reject:hover {
+  background-color: #b91c1c; /* Darker red on hover */
+  transform: translateY(-2px);
+}
   .back-btn {
     display: inline-block;
     padding: 0.8rem 1.8rem;
@@ -148,48 +174,34 @@
     }
   }
 </style>
+]
+
 
 <div class="order-details-container">
-  <h2 class="page-title">Order Details</h2>
+  <h2 class="page-title">Order Details (Admin)</h2>
 
   <!-- Order Info -->
   <div class="info-card">
     <h5 class="card-title">Order Info</h5>
-    <div class="info-row">
-      <span class="info-label">Order Number:</span>
-      <span class="info-value"><%= order.orderNumber %></span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">Date:</span>
-      <span class="info-value"><%= order.createdAt.toDateString() %></span>
-    </div>
-   <div class="info-row">
-  <span class="info-label">Status:</span>
-  <span class="status-badge status-<%= order.displayStatus %>">
-    <%= order.displayStatus %>
-  </span>
-</div>
-
-    <div class="info-row">
-      <span class="info-label">Total Amount:</span>
-      <span class="info-value">₹<%= totalAmount %></span>
-    </div>
+    <div class="info-row"><span class="info-label">Order Number:</span><span class="info-value"><%= order.orderNumber %></span></div>
+    <div class="info-row"><span class="info-label">Date:</span><span class="info-value"><%= order.createdAt.toDateString() %></span></div>
+    <div class="info-row"><span class="info-label">Payment Method:</span><span class="info-value"><%= order.paymentMethod %></span></div>
+    <div class="info-row"><span class="info-label">Payment Status:</span><span class="info-value"><%= order.paymentStatus %></span></div>
+    <div class="info-row"><span class="info-label">Order Status:</span><span class="info-value"><%= order.orderStatus %></span></div>
+    <% if(order.discount && order.discount > 0){ %>
+      <div class="info-row"><span class="info-label">Discount:</span><span class="info-value">₹<%= order.discount %></span></div>
+    <% } %>
+    <div class="info-row"><span class="info-label">Total Amount:</span><span class="info-value">₹<%= totalAmount %></span></div>
   </div>
 
   <!-- User Details -->
   <div class="info-card">
     <h5 class="card-title">User Details</h5>
-    <div class="info-row">
-      <span class="info-label">Name:</span>
-      <span class="info-value"><%= order.userId.name %></span>
-    </div>
-    <div class="info-row">
-      <span class="info-label">Email:</span>
-      <span class="info-value"><%= order.userId.email %></span>
-    </div>
+    <div class="info-row"><span class="info-label">Name:</span><span class="info-value"><%= order.userId.name %></span></div>
+    <div class="info-row"><span class="info-label">Email:</span><span class="info-value"><%= order.userId.email %></span></div>
+    <div class="info-row"><span class="info-label">Shipping Address:</span><span class="info-value"><%= order.shippingAddress.house %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></span></div>
   </div>
 
-    
   <!-- Ordered Items -->
   <div class="info-card">
     <h5 class="card-title">Ordered Items</h5>
@@ -197,34 +209,87 @@
       <thead>
         <tr>
           <th>Product</th>
-          <th>Quantity</th>
+          <th>Qty</th>
           <th>Price</th>
           <th>Status</th>
+          <th>Return Status</th>
+          <th>Admin Remark</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <% order.orderedItems.forEach(item => { %>
-          <tr>
-            <td><%= item.productId.product %></td>
-           
-            <td><%= item.quantity %></td>
-            <td>₹<%= item.purchasedPrice  %></td>
-            <td>
-                <span class="status-badge status-<%= item.itemStatus %>">
-    <%= item.itemStatus %>
-  </span>
-            </td>
-         
-          </tr>
-        <% }) %>
+      <% order.orderedItems.forEach(item => { %>
+        <tr>
+          <td><%= item.productId.product %></td>
+          <td><%= item.quantity %></td>
+          <td>₹<%= item.purchasedPrice %></td>
+          <td><span class="status-badge status-<%= item.itemStatus %>"><%= item.itemStatus %></span></td>
+          <td>
+  <%= item.return?.status || "none" %>
+</td>
+<td>
+  <%= item.return?.adminRemark || "" %>
+</td>
+          <td>
+            <% if(item.itemStatus === "cancel_requested" || item.itemStatus === "return_requested") { %>
+              <button class="action-btn btn-approve" onclick="approveItem('<%= order._id %>','<%= item._id %>')">Approve</button>
+              <button class="action-btn btn-reject" onclick="rejectItem('<%= order._id %>','<%= item._id %>')">Reject</button>
+            <% } else { %>
+              -
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
       </tbody>
     </table>
   </div>
 
-  <!-- Back Button -->
-  <a href="/admin/order" class="back-btn mt-4">
-    ⬅ Back to Orders
-  </a>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function approveItem(orderId, itemId) {
+  Swal.fire({
+    title: "Approve this request?",
+    icon: "question",
+    showCancelButton: true
+  }).then(result => {
+    if(result.isConfirmed){
+      fetch(`/admin/order/item/approve/${orderId}/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remark: "Approved by admin" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) location.reload();
+        else Swal.fire("Error", data.message, "error");
+      });
+    }
+  });
+}
+
+function rejectItem(orderId, itemId) {
+  Swal.fire({
+    title: "Reject this request?",
+    icon: "warning",
+    showCancelButton: true
+  }).then(result => {
+    if(result.isConfirmed){
+      fetch(`/admin/order/item/reject/${orderId}/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remark: "Rejected by admin" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) location.reload();
+        else Swal.fire("Error", data.message, "error");
+      });
+    }
+  });
+}
+</script>
+
 <%- include("../../views/partials/admin/footer") %>
+

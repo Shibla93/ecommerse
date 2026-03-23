@@ -396,11 +396,7 @@
           <div id="errorStrap" class="error-message">Please select a strap material</div>
         </div>
 
-        <div class="form-group">
-          <label for="discount">Discount (%)</label>
-          <input type="number" name="discount" placeholder="0" min="0" value="<%= product ? product.discount : '' %>" />
-          <div id="errorDiscount" class="error-message">Discount is required</div>
-        </div>
+        
 
         <div class="form-group">
           <label for="productOffer">Product Offer (%)</label>
@@ -413,21 +409,21 @@
           <textarea name="description" placeholder="Enter product description"><%= product ? product.description : '' %></textarea>
         </div>
 
-        <div class="form-group full-width">
-          <label>Categories</label>
-          <div class="checkbox-group">
-            <% categories.forEach(cat => { %>
-              <div class="checkbox-item">
-                <input type="checkbox" name="categories[]" value="<%= cat._id %>"
-                  <%= product && product.categories && product.categories.map(c => c._id.toString()).includes(cat._id.toString()) ? 'checked' : '' %> />
-                <label><%= cat.name %></label>
-              </div>
-            <% }) %>
-          </div>
-          <div id="errorCategory" class="error-message">Please select at least one category</div>
-        </div>
-      </div>
+       <div class="form-group full-width">
+            <label>Category</label>
+              <select name="category" id="category">
+  <option value="">--Select Category--</option>
+  <% categories.forEach(cat => { %>
+    <option value="<%= cat._id %>" 
+      <%= product && product.category && product.category._id.toString() === cat._id.toString() ? "selected" : "" %>>
+      <%= cat.name %>
+    </option>
+  <% }) %>
+</select>
 
+            <div id="errorCategory" class="error-message"></div>
+            </div>
+            </div>
       <!-- Wrapped variants in proper structure -->
       <div id="variantsContainer">
         <% if(product && product.variants && product.variants.length){ %>
@@ -792,12 +788,12 @@ const name = document.getElementById("name");
 const er1 = document.getElementById("errorName");
 const brand = document.getElementById("brand");
 const er2 = document.getElementById("errorBrand");
-const categories = document.querySelectorAll('input[name="categories[]"]');
+const category = document.getElementById("category");
 const strap = document.getElementById("strapMaterial");
 const er3 = document.getElementById("errorStrap");
-const discountInput = document.querySelector('input[name="discount"]');
+
 const offerInput = document.querySelector('input[name="productOffer"]');
-const errorDiscount = document.getElementById('errorDiscount');
+
 const errorOffer = document.getElementById('errorProductOffer');
  
 
@@ -853,24 +849,17 @@ function validateBrand() {
   }
 }
 
-function validateCategory() {
-  let selected = false;
-  for (let i = 0; i < categories.length; i++) {
-    if (categories[i].checked) {
-      selected = true;
-      break;
-    }
-  }
-  if (!selected) {
-    document.getElementById("errorCategory").textContent =
-      "Please select at least one category";
-    document.getElementById("errorCategory").style.display = "block";
-    return false;
-  } else {
-    document.getElementById("errorCategory").style.display = "none";
-    return true;
-  }
-}
+ function validateCategory() {
+
+        if (category.value === "") {
+          document.getElementById("errorCategory").innerText = "Please select category";
+          document.getElementById("errorCategory").style.display = "block";
+          return false;
+        }
+
+        document.getElementById("errorCategory").style.display = "none";
+        return true;
+      }
 
 function strapValidate() {
   if (strap.value.trim() === "") {
@@ -885,20 +874,6 @@ function strapValidate() {
 
 
 
-function validateDiscount() {
-    const value = Number(discountInput.value);
-    if (discountInput.value === "") {
-        errorDiscount.style.display = "none"; // optional
-        return true;
-    } else if (isNaN(value) || value < 0 || value > 100) {
-        errorDiscount.textContent = "Discount must be between 0 and 100";
-        errorDiscount.style.display = "block";
-        return false;
-    } else {
-        errorDiscount.style.display = "none";
-        return true;
-    }
-}
 
 function validateOffer() {
     const value = Number(offerInput.value);
@@ -1024,10 +999,10 @@ form.addEventListener("submit", function (e) {
   const isCategoryValid = validateCategory();
   const isStrapValid = strapValidate();
   const isVariantsValid = validateVariants();
- let isDiscountValid = validateDiscount();
+
     let isOfferValid = validateOffer();
 
-  if (isNameValid && isBrandValid && isCategoryValid && isStrapValid && isVariantsValid && isDiscountValid && isOfferValid) {
+  if (isNameValid && isBrandValid && isCategoryValid && isStrapValid && isVariantsValid && isOfferValid) {
     
   
 
@@ -1041,14 +1016,10 @@ formData.append("_id", "<%= product._id %>");
         formData.append("brand", brand.value);
         formData.append("description", description);
         formData.append("strapMaterial", strap.value);
-        formData.append("discount", document.querySelector('input[name="discount"]').value);
+
         formData.append("productOffer", document.querySelector('input[name="productOffer"]').value);
-        let selectedCats = [];
-        document.querySelectorAll('input[name="categories[]"]:checked').forEach(cat => {
-      selectedCats.push(cat.value);
-        });
-console.log("Selected categories:", selectedCats);
-formData.append("categories", JSON.stringify(selectedCats))
+       
+ formData.append("category", category.value);
 
 
 // Categories

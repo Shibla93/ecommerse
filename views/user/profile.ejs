@@ -580,7 +580,35 @@
                     </svg>
                   </div>
                 </div>
+               <div class="form-group">
+  <label class="form-label">
+    🎁 Referral Code
+  </label>
 
+  <div class="input-wrapper" style="display:flex; gap:10px;">
+    
+    <input 
+      type="text" 
+      value="<%= user.referralCode %>" 
+      readonly 
+      class="form-input"
+      style="flex:1; font-weight:bold; letter-spacing:2px;"
+    >
+
+    <button type="button" class="btn btn-outline" onclick="copyReferral()">
+      Copy
+    </button>
+
+  </div>
+
+  <small style="color: var(--color-muted);">
+    Share this code with friends & earn rewards 🎉
+  </small>
+</div>
+<div class="form-group">
+  <label>Total Rewards</label>
+  <p>₹<%= user.referralRewards.length * 100 %></p>
+</div>
                 <!-- Password -->
 
                 <div class="form-footer">
@@ -773,9 +801,7 @@
           }
 
           if (!valid) e.preventDefault();
-        }); z
-      </script>
-      <script>
+        }); 
           <% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
             Swal.fire({
               icon: "<%= success ? 'success' : 'error' %>",
@@ -784,6 +810,21 @@
               confirmButtonColor: "#d4af37"
             });
   <% } %>
+
+  
+function copyReferral() {
+  const code = "<%= user.referralCode %>";
+  navigator.clipboard.writeText(code);
+
+  Swal.fire({
+    icon: "success",
+    title: "Copied!",
+    text: "Referral code copied",
+    timer: 1500,
+    showConfirmButton: false
+  });
+}
+
       </script>
 
 </body>

@@ -350,14 +350,26 @@
                       <td data-label="product-name">
                         <%= item.productId.product %>
                       </td>
-                      <td data-label="price">
-  ₹<%= variant.price * item.quantity %>
-  <br>
-  <small class="small-price">
-    ₹<%= variant.price %> / item
-  </small>
-</td>
+             <td data-label="price">
 
+<span style="font-weight:700;color:#d4af37;">
+₹<%= item.totalPrice %>
+</span>
+
+<br>
+
+<small class="small-price">
+₹<%= item.price %> / item
+</small>
+
+<% if(item.price < variant.price){ %>
+<br>
+<small style="text-decoration:line-through;color:#999;">
+₹<%= variant.price %>
+</small>
+<% } %>
+
+</td>
                       
 <td data-label="Quantity">
                         <div class="quantity-control">

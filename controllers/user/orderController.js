@@ -1,7 +1,8 @@
 const User = require("../../model/userSchema");
-const Address=require("../../model/addressSchema");
+const Address = require("../../model/addressSchema");
 const Cart = require("../../model/cartSchema");
 const Product = require("../../model/productSchema");
+const Category = require("../../model/categorySchema");
 const Order = require("../../model/orderSchema");
 const Messages = require("../../constants/messages");
 const StatusCodes = require("../../constants/StatusCodes");
@@ -11,125 +12,217 @@ const mongoose = require("mongoose");
 
 const PDFDocument = require('pdfkit');
 
+// const getOrder = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+// console.log("USER", userId);
+
+//     if (!userId) 
+//       return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: Messages.USER_NOT_FOUND });
+//    const user = await User.findById(userId);
+//    const page = parseInt(req.query.page) || 1;
+//     const limit = 5;
+//     const skip = (page - 1) * limit;
+//     let filter = {};
+//     const search= req.query.search || "";
+//     const statusFilter = req.query.status || '';
+//     const sortBy = req.query.sortBy || 'createdAt';
+//     const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+//     if(search) {
+//       filter.orderNumber = { $regex: search, $options: 'i' };
+//     }
+
+//     if (statusFilter) {
+//   filter.orderStatus= statusFilter;
+// }
+
+// const orders = await Order.find({
+//   userId,
+//   ...(search && { orderNumber: { $regex: search, $options: "i" } }),
+//   ...(statusFilter && { orderStatus: statusFilter })
+// })
+// .sort({ [sortBy]: sortOrder })
+// .skip(skip)
+// .limit(limit);
+
+// // orders.forEach(order => {
+// //   order.displayStatus = getDisplayStatus(order);
+
+// //   let subTotal = 0;
+// //   order.orderedItems.forEach(item => {
+// //     if (!["cancelled", "returned"].includes(item.itemStatus)) {
+// //       subTotal += item.purchasedPrice * item.quantity;
+// //     }
+// //   });
+
+// //  const tax = Math.round(subTotal * 0.05); // 5% tax example
+// //   const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
+
+// //   const discount = Number(order.couponDiscount) || 0;
+// //   const totalAmount = subTotal + tax + shipping - discount;
+
+// //   order.subTotal = subTotal;
+// //   order.tax = tax;
+// //   order.totalAmount = totalAmount;
+// // });
+// orders.forEach(order => {
+//   order.displayStatus = getDisplayStatus(order);
+
+//   let subTotal = 0;
+//   order.orderedItems.forEach(item => {
+//     if (!["cancelled", "returned"].includes(item.itemStatus)) {
+//       subTotal += item.purchasedPrice * item.quantity;
+//     }
+//   });
+
+//   const tax = Math.round(subTotal * 0.05);
+//   const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
+//   const discount = Number(order.couponDiscount) || 0;
+//   const totalAmount = subTotal + tax + shipping - discount;
+
+//   order.subTotal = subTotal;
+//   order.tax = tax;
+//   order.totalAmount = totalAmount;
+// });
+
+//         const totalOrders =  await Order.countDocuments({
+//   userId,
+//   ...(search && { orderNumber: { $regex: search, $options: "i" } }),
+//   ...(statusFilter && { orderStatus: statusFilter })
+// });
+
+//         const totalPages = Math.ceil(totalOrders / limit);
+
+
+//     res.render("user/orders", {
+//       user,      
+//       orders,
+//        currentPage: page,
+//       totalPages,
+//       search,
+//        statusFilter,
+//        sortBy,
+//       sortOrder,
+//       activePage: "orders"     
+//     });
+
+//   } catch (error) {
+//     res.redirect("/pageNotFound");
+//   }
+// };
+
 const getOrder = async (req, res) => {
   try {
     const userId = req.session.user;
-console.log("USER", userId);
-
-    if (!userId) 
+    if (!userId)
       return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: Messages.USER_NOT_FOUND });
-   const user = await User.findById(userId);
-   const page = parseInt(req.query.page) || 1;
+
+    const user = await User.findById(userId);
+    const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
-    let filter = {};
-    const search= req.query.search || "";
+
+    const search = req.query.search || "";
     const statusFilter = req.query.status || '';
     const sortBy = req.query.sortBy || 'createdAt';
     const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
-    if(search) {
-      filter.orderNumber = { $regex: search, $options: 'i' };
-    }
+
   
-    if (statusFilter) {
-  filter.orderStatus= statusFilter;
-}
+    let filter = { userId };
+    if (search) filter.orderNumber = { $regex: search, $options: 'i' };
 
-const orders = await Order.find({
-  userId,
-  ...(search && { orderNumber: { $regex: search, $options: "i" } }),
-  ...(statusFilter && { orderStatus: statusFilter })
-})
-.sort({ [sortBy]: sortOrder })
-.skip(skip)
-.limit(limit);
-
-orders.forEach(order => {
-  order.displayStatus = getDisplayStatus(order);
-
-  let subTotal = 0;
-  order.orderedItems.forEach(item => {
-    if (!["cancelled", "returned"].includes(item.itemStatus)) {
-      subTotal += item.purchasedPrice * item.quantity;
+  
+    if (statusFilter && statusFilter !== 'payment_failed') {
+      filter.orderStatus = statusFilter;
     }
-  });
 
- const tax = Math.round(subTotal * 0.05); // 5% tax example
-  const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
+    const orders = await Order.find(filter)
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(limit);
 
-  const discount =Number (order.discount) || 0;
-  const totalAmount = subTotal + tax + shipping - discount;
+    // Calculate displayStatus and totals
+    orders.forEach(order => {
+      order.displayStatus = getDisplayStatus(order);
 
-  order.subTotal = subTotal;
-  order.tax = tax;
-  order.totalAmount = totalAmount;
-});
+      let subTotal = 0;
+      order.orderedItems.forEach(item => {
+        if (!["cancelled", "returned"].includes(item.itemStatus)) {
+          subTotal += item.purchasedPrice * item.quantity;
+        }
+      });
 
-    
-        const totalOrders =  await Order.countDocuments({
-  userId,
-  ...(search && { orderNumber: { $regex: search, $options: "i" } }),
-  ...(statusFilter && { orderStatus: statusFilter })
-});
+      const tax = Math.round(subTotal * 0.05);
+      const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
+      const discount = Number(order.couponDiscount) || 0;
+      
+      const totalAmount = Math.max(0, subTotal + tax + shipping - discount);
 
-        const totalPages = Math.ceil(totalOrders / limit);
-    
+      order.subTotal = subTotal;
+      order.tax = tax;
+      order.totalAmount = totalAmount;
+    });
+
+    const totalOrders = await Order.countDocuments(filter);
+    const totalPages = Math.ceil(totalOrders / limit);
 
     res.render("user/orders", {
-      user,      
+      user,
       orders,
-       currentPage: page,
+      currentPage: page,
       totalPages,
       search,
-       statusFilter,
-       sortBy,
+      statusFilter,
+      sortBy,
       sortOrder,
-      activePage: "orders"     
+      activePage: "orders"
     });
 
   } catch (error) {
+    console.error("Get Order Error:", error);
     res.redirect("/pageNotFound");
   }
 };
-
-
-const getOrderDetails=async (req, res) => {
+const getOrderDetails = async (req, res) => {
   try {
     const userId = req.session.user;
     const { orderId } = req.params;
 
     if (!userId) return res.redirect("/login");
- const user = await User.findById(userId);
-  
-    const order = await Order.findOne({
-      _id: orderId,
-      userId: userId
-    })
-      .populate("orderedItems.productId")
-      
+    const user = await User.findById(userId);
+
+const order = await Order.findOne({
+  _id: orderId,
+  userId: userId
+})
+.populate({
+  path: "orderedItems.productId",
+  populate: {
+    path: "category"
+  }
+});
 
     if (!order) return res.redirect("/orders");
     let subTotal = 0;
 
-order.orderedItems.forEach(item => {
-  if (!["cancelled", "returned"].includes(item.itemStatus)) {
-    subTotal += item.purchasedPrice * item.quantity;
-    
-  }
-});
+    order.orderedItems.forEach(item => {
+      if (!["cancelled", "returned"].includes(item.itemStatus)) {
+        subTotal += item.purchasedPrice * item.quantity;
 
-    const tax = Math.round(subTotal * 0.05); 
-const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
+      }
+    });
 
-  const discount =Number (order.discount) || 0;
+    const tax = Math.round(subTotal * 0.05);
+    const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
 
-const totalAmount= subTotal + tax + shipping - discount;
-console.log(totalAmount)
+    const discount = Number(order.couponDiscount) || 0;
+const totalAmount = Math.max(0, subTotal + tax + shipping - discount);
+    console.log(totalAmount)
 
     res.render("user/order-details", {
       order,
       user,
-    subTotal,
+      subTotal,
       tax,
       totalAmount
     });
@@ -201,30 +294,48 @@ const cancelOrder = async (req, res) => {
     // ✅ Wallet Refund (Only if Paid)
     if (order.paymentStatus === "paid") {
 
-      const refundAmount = item.purchasedPrice * item.quantity;
+      const itemTotal = item.purchasedPrice * item.quantity;
 
-      let wallet = await Wallet.findOne({ userId });
+      const orderSubtotal = order.subTotal || 0;
+      const orderTax = order.tax || 0;
+      const orderDiscount =
+        (order.couponDiscount || 0) ;
 
-      if (!wallet) {
-        wallet = new Wallet({
-          userId,
-          balance: 0,
-          transactions: []
-        });
+      let refundAmount = itemTotal;
+
+      if (orderSubtotal > 0) {
+
+        const itemTaxShare = (itemTotal / orderSubtotal) * orderTax;
+
+        const itemDiscountShare =
+          (itemTotal / orderSubtotal) * orderDiscount;
+
+        refundAmount = Math.round(
+          itemTotal + itemTaxShare - itemDiscountShare
+        );
       }
+     let wallet = await Wallet.findOne({ userId });
 
-      wallet.balance += refundAmount;
+  if (!wallet) {
+    wallet = new Wallet({
+      userId,
+      balance: 0,
+      transactions: []
+    });
+  }
 
-      wallet.transactions.push({
-        type: "credit",
-        amount: refundAmount,
-        reason: "Refund for cancelled product",
-        orderId: order._id
-      });
+  wallet.balance += refundAmount;
 
-      await wallet.save();
+  wallet.transactions.push({
+    type: "credit",
+    amount: refundAmount,
+    reason: "Refund for cancelled item",
+    createdAt: new Date()
+  });
 
-      // If all items cancelled → mark order refunded
+  await wallet.save();
+
+
       if (activeItems.length === 0) {
         order.paymentStatus = "refunded";
       }
@@ -273,11 +384,11 @@ const returnOrder = async (req, res) => {
     if (!item) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message:Messages.ITEM_NOT_FOUND
+        message: Messages.ITEM_NOT_FOUND
       });
     }
 
-  
+
     if (item.itemStatus !== "delivered") {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
@@ -285,38 +396,16 @@ const returnOrder = async (req, res) => {
       });
     }
 
-    item.itemStatus="return_requested";
+    item.itemStatus = "return_requested";
 
-     item.return.status = "requested";
-     item.return.reason = reason;
+    item.return.status = "requested";
+    item.return.reason = reason;
     item.return.requestedAt = new Date();
 
-    
+
     await order.save();
 
-    // const product = await Product.findById(item.productId._id);
-    // const variant = product.variants.id(item.variantId);
-    // variant.stock += item.quantity;
-    // await product.save();
-
-  
-//     item.itemStatus = "returned";
-// item.return = {
-//   isReturned: true,
-//   reason,
-//   returnedAt: new Date()
-// };
-
-// const activeItems = order.orderedItems.filter(
-//   i => !["cancelled", "returned"].includes(i.itemStatus)
-// );
-
-// if (activeItems.length === 0) {
-//   order.orderStatus = "returned";
-// }
-
-
-//     await order.save();
+    
 
     res.json({
       success: true,
@@ -332,88 +421,39 @@ const returnOrder = async (req, res) => {
   }
 };
 
-const generateInvoice = async (req, res) => {
+const generateInvoice= async (req, res) => {
   try {
+
     const userId = req.session.user;
-    const orderNumber = req.params.orderNumber;
+   const orderNumber = req.params.orderNumber;
+   console.log(req.params.orderNumber);
 
-    const order = await Order.findOne({ orderNumber, userId })
-      .populate("orderedItems.productId", "product variants");
+const order = await Order.findOne({
+  orderNumber,
+  userId
+}).populate("orderedItems.productId");
 
+   console.log("Order:", order);
     if (!order) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: Messages.ORDER_NOTFOUND
-      });
+      return res.redirect("/orders");
     }
 
-    const doc = new PDFDocument({ margin: 50 });
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=Invoice-${orderNumber}.pdf`
-    );
+    const orderItems = order.orderedItems.map(item => ({
+      productName: item.productId.product,
+      price: item.purchasedPrice,
+      quantity: item.quantity
+    }));
 
-    doc.pipe(res);
-
-    doc.fontSize(22).text("Tax Invoice", { align: "center" });
-    doc.moveDown();
-
-    doc.fontSize(12);
-    doc.text(`Order Number: ${order.orderNumber}`);
-    doc.text(`Order Date: ${order.createdAt.toDateString()}`);
-    doc.moveDown();
-
-    doc.fontSize(13).text("Items", { underline: true });
-    doc.moveDown(0.5);
-
-    let subTotal = 0;
-
-    order.orderedItems.forEach((item, index) => {
-      let lineTotal = 0;
-
-
-      if (!["cancelled", "returned"].includes(item.itemStatus)) {
-        lineTotal = item.purchasedPrice * item.quantity;
-        subTotal += lineTotal;
-      }
-
-      doc.fontSize(11).text(
-        `${index + 1}. ${item.productId.product}
-Qty: ${item.quantity}
-Status: ${item.itemStatus}
-Price: ₹${item.purchasedPrice}
-Line Total: ₹${lineTotal}`
-      );
-
-      doc.moveDown(0.8);
+    res.render("user/invoice", {
+      order,
+      orderItems
     });
 
-  
-    const TAX_RATE = 0.05 
-    const tax = parseFloat((subTotal * TAX_RATE).toFixed(2));
-    const shipping = subTotal > 0 ? order.shippingCharge : 0;
-    const discount = order.discount || 0;
-    const totalAmount = subTotal + tax + shipping - discount;
-
-    doc.moveDown();
-    doc.fontSize(12).text(`Subtotal: ₹${subTotal}`, { align: "right" });
-    doc.text(`Tax (8%): ₹${tax}`, { align: "right" });
-    doc.text(`Shipping: ₹${shipping}`, { align: "right" });
-    doc.text(`Discount: ₹${discount}`, { align: "right" });
-
-    doc.moveDown();
-    doc.fontSize(14).text(`Grand Total: ₹${totalAmount}`, { align: "right" });
-
-    doc.end();
   } catch (error) {
-    console.error("Invoice Error:", error);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: Messages.INTERNAL_SERVER_ERROR });
+    console.error("Invoice page error:", error);
+    res.redirect("/orders");
   }
 };
-
 // const orderFailurePage = async (req, res) => {
 //   try {
 //     console.log('hello')
@@ -429,7 +469,7 @@ Line Total: ₹${lineTotal}`
 //     }
 //     const order = await Order.findById(orderId);
 //     if (!order) {
-   
+
 //       return res.redirect("/pageNotFound");
 //     }
 
@@ -439,25 +479,51 @@ Line Total: ₹${lineTotal}`
 //     res.redirect("/pageNotFound");
 //   }
 // };
+// const orderFailurePage = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     if (!userId) return res.redirect("/login");
+
+//     const user = await User.findById(userId);
+
+//     res.render("user/order-failure", {
+//       user,
+//       order: null,
+//       errorMessage: "Payment failed. Amount not deducted."
+//     });
+
+//   } catch (err) {
+//     res.redirect("/orders");
+//   }
+// };
+
 const orderFailurePage = async (req, res) => {
   try {
     const userId = req.session.user;
     if (!userId) return res.redirect("/login");
 
     const user = await User.findById(userId);
+    const { orderId } = req.params;
+
+    if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.redirect("/orders");
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) return res.redirect("/orders");
 
     res.render("user/order-failure", {
       user,
-      order: null,
-      errorMessage: "Payment failed. Amount not deducted."
+      order,
+      errorMessage: "Payment failed. Please retry."
     });
 
   } catch (err) {
+    console.error(err);
     res.redirect("/orders");
   }
 };
-
-
 const orderSuccessPage = async (req, res) => {
   const userId = req.session.user;
   if (!userId) {
@@ -467,19 +533,23 @@ const orderSuccessPage = async (req, res) => {
 
   const user = await User.findById(userId);
   const { orderId } = req.params;
-  res.render("order-succes", { user, orderId });
+  res.render("user/order-succes", { user, orderId });
 };
 
 
 
 
 
-module.exports={
-    getOrder,
-    getOrderDetails,
-    cancelOrder,
-    returnOrder,
-     generateInvoice,
-     orderSuccessPage,
+module.exports = {
+  getOrder,
+  getOrderDetails,
+  cancelOrder,
+  returnOrder,
+  generateInvoice,
+  orderSuccessPage,
   orderFailurePage
 }
+
+
+
+

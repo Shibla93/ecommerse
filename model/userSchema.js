@@ -45,23 +45,7 @@ const userSchema=new Schema({
       type: Boolean,
       default: false
     },
-//  cart: {
-//   type: [
-//     {
-//       productId: {
-//         type: Schema.Types.ObjectId,
-//         ref: "Product",
-//         required: true
-//       },
-//       quantity: {
-//         type: Number,
-//         required: true,
-//         default: 1
-//       }
-//     }
-//   ],
-//   default: []
-// },
+
 
  
   emailVerificationToken: String,
@@ -75,16 +59,21 @@ const userSchema=new Schema({
         default:Date.now
     },
   
-    // referalCode:{
-    //     type:String
-    // },
-    // redeemed:{
-    //     type:Boolean
-    // },
-    // redeemedUsers:[{
-    //     type:Schema.Types.ObjectId,
-    //     ref:"User"
-    // }],
+    referralCode: {
+    type: String,
+    unique: true
+},
+referredBy: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+},
+
+referralRewards: [{
+    offerId: { type: Schema.Types.ObjectId, ref: "Offer" },
+    redeemed: { type: Boolean, default: false },
+    createdOn: { type: Date, default: Date.now }
+}],
     searchHistory:[{
         category:{
             type:Schema.Types.ObjectId,

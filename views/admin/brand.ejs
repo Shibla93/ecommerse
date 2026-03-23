@@ -24,7 +24,16 @@
     margin: 120px auto 80px; /* Clears fixed header + space for footer */
     padding: 0 20px;
   }
+.pagination .page-link {
+  color: #d4af37;
+  border-radius: 8px;
+}
 
+.pagination .active .page-link {
+  background-color: #d4af37;
+  border-color: #d4af37;
+  color: white;
+}
   .page-title {
     font-size: 2.5rem;
     font-weight: 700;
@@ -297,16 +306,30 @@
       </table>
     </div>
 
-    <% if (totalPages > 1) { %>
-      <div class="pagination">
-        <% for(let i = 1; i <= totalPages; i++) { %>
-          <a href="/admin/brand?page=<%= i %>&search=<%= encodeURIComponent(search || '') %>"
-             class="<%= currentPage === i ? 'active' : '' %>">
-             <%= i %>
-          </a>
-        <% } %>
-      </div>
-    <% } %>
+    <div class="d-flex justify-content-center mt-4">
+  <nav>
+    <ul class="pagination">
+
+      <!-- Previous -->
+      <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+      </li>
+
+      <!-- Page Numbers -->
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <!-- Next -->
+      <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+      </li>
+
+    </ul>
+  </nav>
+</div>
 
   <% } else { %>
     <div class="no-brands">

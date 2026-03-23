@@ -29,6 +29,9 @@ const getWallet = async (req, res) => {
       await wallet.save();
     }
 
+    const transactions = wallet.transactions.sort(
+  (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+);
     res.render("wallet", {
       user,
       wallet,

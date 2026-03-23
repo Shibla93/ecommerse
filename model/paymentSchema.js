@@ -15,6 +15,15 @@ const paymentSchema = new Schema(
       ref: "User",
       required: true
     },
+    discount: {
+      type: Number,
+      default: 0
+    },
+
+    couponCode: {
+      type: String,
+      default: null
+    },
 
     amount: {
       type: Number,

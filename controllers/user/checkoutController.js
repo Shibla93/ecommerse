@@ -2,6 +2,7 @@ const User = require("../../model/userSchema");
 const Address = require("../../model/addressSchema");
 const Cart = require("../../model/cartSchema");
 const Product = require("../../model/productSchema");
+const Category= require("../../model/categorySchema");
 const Order = require("../../model/orderSchema");
 const Wallet = require("../../model/walletSchema");
 const Coupon = require("../../model/coupenSchema");
@@ -52,20 +53,49 @@ const getCheckoutPage = async (req, res) => {
   try {
     const userId = req.session.user;
     if (!userId) return res.redirect("/login");
-    req.session.appliedCoupon = null;
+    //req.session.appliedCoupon = null;
     const user = await User.findById(userId);
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    const cart = await Cart.findOne({ userId }).populate({
+  path: "items.productId",
+  populate: { path: "category" }
+});
 
     if (!cart || cart.items.length === 0) {
       return res.redirect("/cart");
     }
 
     let subtotal = 0;
-    cart.items.forEach(item => subtotal += item.price * item.quantity);
+  let offerDiscount = 0;
+
+cart.items.forEach(item => {
+
+  const product = item.productId;
+
+  const variant = product.variants.find(
+    v => v._id.toString() === item.variantId.toString()
+  );
+
+  if (!variant) return;
+
+  const maxOffer = Math.max(
+    product.productOffer || 0,
+    product.category?.categoryOffer || 0
+  );
+
+  const discount = variant.price * (maxOffer / 100);
+  const finalPrice = Math.round(variant.price - discount);
+
+  const itemTotal = finalPrice * item.quantity;
+
+  subtotal += itemTotal;
+
+  offerDiscount += (variant.price - finalPrice) * item.quantity;
+
+});
 
     const taxes = subtotal * 0.05;
-   let discount = 0; 
-
+  
+  let discount=0
 
 
 
@@ -79,6 +109,7 @@ const total = subtotal + taxes - discount;
       user,
       addresses: userAddress ? userAddress.address : [],
       cart,
+        offerDiscount,
       subtotal,
       taxes,
       discount,
@@ -105,7 +136,12 @@ const placeOrder = async (req, res) => {
 
 
 
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "items.productId",
+      populate: {
+        path: "category"
+      }
+    });
     if (!cart || cart.items.length === 0) {
       return res.json({ success: false, message: Messages.CART_EMPTY });
     }
@@ -146,11 +182,36 @@ const placeOrder = async (req, res) => {
     }));
 
 
-    let subTotal = 0;
-    cart.items.forEach(item => subTotal += item.price * item.quantity);
-    const tax = subTotal * 0.05;
-    let discount = 0;
+   let subTotal = 0;
+let offerDiscount = 0;
 
+cart.items.forEach(item => {
+
+  const product = item.productId;
+
+  const variant = product.variants.find(
+    v => v._id.toString() === item.variantId.toString()
+  );
+
+  if (!variant) return;
+
+  const maxOffer = Math.max(
+    product.productOffer || 0,
+    product.category?.categoryOffer || 0
+  );
+
+  const discountAmount = variant.price * (maxOffer / 100);
+  const finalPrice = Math.round(variant.price - discountAmount);
+
+  subTotal += finalPrice * item.quantity;
+
+  offerDiscount += (variant.price - finalPrice) * item.quantity;
+
+});
+    const tax = Math.round(subTotal * 0.05);
+    let discount = 0;
+console.log("Session coupon:", req.session.appliedCoupon);
+console.log("Discount calculated:", discount)
 if (req.session.appliedCoupon) {
 
   const coupon = await Coupon.findById(req.session.appliedCoupon.couponId);
@@ -159,12 +220,12 @@ if (req.session.appliedCoupon) {
     coupon &&
     coupon.isActive &&
     new Date(coupon.expiryDate) > new Date() &&
-    !coupon.usedBy.includes(userId) &&
+   !coupon.usedBy.some(id => id.toString() === userId.toString()) &&
     subTotal >= coupon.minPurchase
   ) {
 
     if (coupon.discountType === "percentage") {
-      discount = (subTotal * coupon.discountValue) / 100;
+      discount = Math.round(subTotal * coupon.discountValue) / 100;
 
       if (coupon.maxDiscount && discount > coupon.maxDiscount) {
         discount = coupon.maxDiscount;
@@ -220,7 +281,9 @@ if (paymentMethod === "WALLET") {
   orderedItems,
   subTotal,
   tax,
-  discount,
+  offerDiscount: offerDiscount,   
+   couponDiscount: discount,  
+  
   shippingCharge,
   totalAmount,
   paymentMethod: paymentMethod,   
@@ -287,8 +350,7 @@ const applyCoupon = async (req, res) => {
     if (!coupon.isActive || new Date(coupon.expiryDate) < new Date()) {
       return res.json({ success: false, message: "Coupon expired or inactive" });
     }
-
-    if (coupon.usedBy.includes(userId)) {
+if (coupon.usedBy.some(id => id.toString() === userId.toString())) {
       return res.json({ success: false, message: "Coupon already used" });
     }
 
@@ -320,11 +382,21 @@ const applyCoupon = async (req, res) => {
   }
 };
 
+const removeCoupon = (req, res) => {
+
+   req.session.appliedCoupon = null;
+
+  return res.json({
+    success: true,
+    message: "Coupon removed successfully"
+  });
+};
 module.exports = {
   validateCheckout,
   getCheckoutPage,
   placeOrder,
-  applyCoupon
+  applyCoupon,
+  removeCoupon
  
 
 };

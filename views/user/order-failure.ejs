@@ -202,9 +202,8 @@
         </p>
 
         <div class="failure-actions">
-          <button  class="btn-primary retry-btn" onclick="window.location.href='/checkout'">
- 
-  
+         <button class="btn-primary retry-btn"
+        onclick="retryPayment('<%= order._id %>')">
   🔄 Retry Payment
 </button>
 
@@ -232,7 +231,7 @@
 <%- include("../partials/user/footer") %>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
 <script>
 function retryPayment(orderId) {

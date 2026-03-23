@@ -34,10 +34,12 @@ const login = async (req, res) => {
                 req.session.adminId = admin._id;
                 return res.redirect("/admin/dashboard");
             } else {
-                return res.render("admin/login", { error: Messages.INCORRECT_PASSWORD }); 
+                return res.render("admin/login", { error: Messages.INCORRECT_PASSWORD ,email:email}); 
             }
         } else {
-            return res.render("admin/login", { error: "Admin not found" });
+            return res.render("admin/login", { error: "Admin not found" ,
+                email:email
+            });
         }
     } catch (error) {
         console.error("Login error:", error);

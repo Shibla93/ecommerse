@@ -49,12 +49,18 @@ const addCategory = async (req, res) => {
 
     name = name?.trim();
     description = description?.trim();
+       categoryOffer = categoryOffer || 0;
 
     
     if (!name || !description) {
       return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.ALL_FIELDS_REQUIERED });
     }
-
+  if (categoryOffer < 0 || categoryOffer > 90) {
+  return res.json({
+    success:false,
+    message:"Offer must be between 0 and 90"
+  })
+}
     
     const existCategory = await Category.findOne({
       name: { $regex: new RegExp("^" + name + "$", "i") }
@@ -65,7 +71,7 @@ const addCategory = async (req, res) => {
     }
 
   
-    const newCategory = new Category({ name, description });
+    const newCategory = new Category({ name, description,categoryOffer });
     await newCategory.save();
    return res.status(StatusCodes.OK).json({ success: true, message: Messages.CATEGORY_ADDED });
     
@@ -105,7 +111,7 @@ try{
 const editCategory=async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const { name, description } = req.body;
+    const { name, description ,categoryOffer} = req.body;
 
     
     if (!name || !description) {
@@ -115,10 +121,16 @@ res.json({
   message: Messages.ALL_FIELDS_REQUIERED  
 })
     }
+    if (categoryOffer < 0 || categoryOffer > 90) {
+  return res.json({
+    success:false,
+    message:"Offer must be between 0 and 90"
+  })
+}
 
     const updatedCategory = await Category.findByIdAndUpdate(
       categoryId,
-      { name, description },
+      { name, description,categoryOffer },
       { new: true }
     );
 

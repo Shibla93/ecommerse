@@ -19,6 +19,11 @@
       min-height: 100vh;
     }
 
+    .orders-table th,
+    .orders-table td {
+      padding: 0.9rem 1rem;
+    }
+
     .orders-container {
       max-width: 1400px;
       margin: 120px auto 80px;
@@ -36,6 +41,32 @@
       display: inline-block;
       padding-bottom: 0.5rem;
     }
+    .status-badge{
+padding:4px 10px;
+border-radius:20px;
+font-size:12px;
+font-weight:600;
+color:white;
+}
+
+.status-processing{
+background:#f59e0b;
+}
+
+.status-shipped{
+background:#3b82f6;
+}
+
+.status-delivered{
+background:#10b981;
+}
+
+.status-cancelled{
+background:#ef4444;
+}
+.status-payment_failed{
+background:#5544ef;
+}
 
     .table-wrapper {
       background: var(--color-card-bg);
@@ -88,12 +119,7 @@
       border-collapse: collapse;
     }
 
-    .orders-table th,
-    .orders-table td {
-      padding: 1.2rem 1.5rem;
-      text-align: left;
-      border-bottom: 1px solid var(--color-border);
-    }
+
 
     .orders-table th {
       background: var(--color-dark);
@@ -188,6 +214,11 @@
       color: white;
     }
 
+    .orders-table td:first-child {
+      font-weight: 600;
+      color: var(--color-dark);
+    }
+
     .action-btn:hover {
       background: var(--color-gold-hover);
       transform: translateY(-2px);
@@ -214,16 +245,18 @@
       }
     }
   </style>
-  <div class="search-bar">
+ 
+  <div class="orders-container">
+
+     <div class="search-bar">
 
     <div class="position-relative">
       <i class="bi bi-search search-icon"></i>
       <input type="text" name="search" id="searchInput" placeholder="Search Order" value="<%= search %>">
     </div>
-
-  </div>
-  <div class="orders-container">
+    </div>
     <h2 class="page-title">All Orders</h2>
+    
 
     <% if (orders.length> 0) { %>
       <div class="table-wrapper">
@@ -253,30 +286,44 @@
                       <%= order.userId.email %>
                     </small>
                 </td>
-                <td><select class="status-select" name="status"
-  onchange="changeStatus('<%= order._id %>', this.value)"
-  <%= order.orderStatus === 'returned' ? 'disabled' : '' %>>
+                <td>
+                  
 
-                    <option value="processing" <%=order.orderStatus==='processing' ? 'selected' : '' %>>
-                      Processing
-                    </option>
+<span class="status-badge status-<%= order.orderStatus %>">
+<%= order.orderStatus %>
+</span>
 
-                    <option value="shipped" <%=order.orderStatus==='shipped' ? 'selected' : '' %>>Shipped</option>
-
-                    <option value="delivered" <%=order.orderStatus==='delivered' ? 'selected' : '' %>>Delivered</option>
-                    <option value="cancelled" <%=order.orderStatus==='cancelled' ? 'selected' : '' %>>Cancelled</option>
-      \>
-
-<option value="returned"
-<%= order.orderStatus === 'returned' ? 'selected' : '' %>>
-Returned
+<br><br>
+<select class="status-select"
+onchange="changeStatus('<%= order._id %>', this.value)"
+<%= order.orderStatus === 'cancelled' || order.orderStatus === 'delivered' ? 'disabled' : '' %>>
+<option value="processing"
+<%= order.orderStatus === 'processing' ? 'selected' : '' %>
+<%= order.orderStatus !== 'processing' ? 'disabled' : '' %>>
+Processing
 </option>
 
-                  
-                  </select>
-                </td>
-                <td>₹<%= order.totalAmount.toFixed(2) %>
-                </td>
+<option value="shipped"
+<%= order.orderStatus === 'shipped' ? 'selected' : '' %>
+<%= order.orderStatus === 'delivered' || order.orderStatus === 'cancelled' ? 'disabled' : '' %>>
+Shipped
+</option>
+
+<option value="delivered"
+<%= order.orderStatus === 'delivered' ? 'selected' : '' %>
+<%= order.orderStatus !== 'shipped' ? 'disabled' : '' %>>
+Delivered
+</option>
+<option value="cancelled"
+<%= order.orderStatus === 'cancelled' ? 'selected' : '' %>
+<%= order.orderStatus === 'delivered' || order.orderStatus === 'cancelled' ? 'disabled' : '' %>>
+Cancelled
+</option>
+</select>
+</td>
+                <td style="font-weight:600;color:#1a1a1a">
+₹<%= order.totalAmount.toFixed(2) %>
+</td>
                 <td>
                   <a href="/admin/order/<%= order._id %>" class="action-btn">View</a>
 
@@ -316,22 +363,26 @@ Returned
         })
           .then(res => res.json())
           .then(data => {
-            if (data.success) {
-              Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: data.message,
-                confirmButtonText: 'OK'
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: data.message,
-                confirmButtonText: 'OK'
-              });
-            }
-          })
+  if (data.success) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: data.message,
+      confirmButtonText: 'OK'
+    }).then(() => {
+      location.reload();
+    });
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error!',
+      text: data.message,
+      confirmButtonText: 'OK'
+    }).then(() => {
+      location.reload();
+    });
+  }
+})
           .catch(err => {
             console.error(err);
             Swal.fire({
@@ -347,7 +398,7 @@ Returned
       let debounceTimeout;
 
       const searchInput = document.getElementById('searchInput');
-  
+
 
       if (searchInput) {
         searchInput.addEventListener('keyup', function () {
@@ -355,8 +406,55 @@ Returned
 
           debounceTimeout = setTimeout(() => {
             const query = this.value;
-            window.location.href = `/admin/order?search=${query}`;
+            window.location.href = `/admin/order?search=${query}&status=<%= statusFilter %>&sortBy=<%= sortBy %>&sortOrder=<%= sortOrder %>`;;
           }, 500);
         });
       }
+
+      function changeStatus(orderId, status) {
+
+  Swal.fire({
+    title: "Change Order Status?",
+    text: `Are you sure you want to change status to ${status}?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "No"
+  }).then((result) => {
+
+    if (result.isConfirmed) {
+
+      fetch(`/admin/order/status/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+      .then(res => res.json())
+      .then(data => {
+
+        if (data.success) {
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: data.message
+          }).then(() => location.reload());
+
+        } else {
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message
+          });
+
+        }
+
+      });
+
+    }
+
+  });
+
+}
     </script>

@@ -197,7 +197,7 @@
 /* Page title */
 @media (max-width: 576px) {
   .page-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
 }
 
@@ -217,7 +217,7 @@
   }
 
   .card-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 }
 
@@ -251,7 +251,7 @@
 /* Price summary */
 @media (max-width: 576px) {
   .total-row {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     display: flex;
     justify-content: space-between;
   }
@@ -274,9 +274,23 @@
             <span class="info-label">Order Date:</span>
             <span class="info-value"><%= order.createdAt.toDateString() %></span>
           </div>
-          <div class="info-row">
+       <div class="info-row">
+  <span class="info-label">Payment Method:</span>
+  <span class="info-value"><%= order.paymentMethod %></span>
+</div>
+
+<div class="info-row">
+  <span class="info-label">Payment Status:</span>
+  <span class="info-value">
+    <%= order.paymentStatus %>
+  </span>
+</div>
+
+<div class="info-row">
   <span class="info-label">Order Status:</span>
-  <span class="info-value">Check product status below</span>
+  <span class="info-value">
+    <%= order.orderStatus %>
+  </span>
 </div>
 
         </div>
@@ -334,7 +348,7 @@
 
   <!-- ✅ ITEM ACTIONS -->
   <td>
-    <% if (item.itemStatus === "processing" || item.itemStatus === "shipped") { %>
+    <% if (item.itemStatus === "processing" ) { %>
       <button class="action-btn btn-cancel"
         onclick="cancelItem('<%= order.orderNumber %>', '<%= item._id %>')">
         Cancel
@@ -372,14 +386,29 @@
   <span>Shipping</span>
   <span>₹<%= subTotal > 0 ? order.shippingCharge : 0 %></span>
 </div>
+<% if(order.couponDiscount > 0) { %>
+<div class="info-row">
+  <span>Coupon Discount</span>
+  <span>- ₹<%= order.couponDiscount %></span>
+</div>
+<% } %>
 
+<% if(order.offerDiscount > 0) { %>
+<div class="info-row">
+  <span>Offer Discount</span>
+  <span>- ₹<%= order.offerDiscount %></span>
+</div>
+<% } %>
 <div class="total-row">
   <span>Total</span>
   <span>₹<%= totalAmount%></span>
 </div>
 
       </div>  
+      <% if(order.orderStatus==='delivered'){ %>
         <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">Download Invoice</a>
+     <% }
+      %>
       </div>
     </div>
   </main>

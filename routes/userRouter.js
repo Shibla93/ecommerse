@@ -93,12 +93,14 @@ router.get("/checkout/validate",userAuth,checkoutController.validateCheckout);
 router.get("/checkout", userAuth, checkoutController.getCheckoutPage);
 router.post("/checkout/placeOrder", userAuth,checkoutController.placeOrder);
 router.post("/apply-coupon", userAuth,checkoutController.applyCoupon);
+router.post("/remove-coupon", userAuth,checkoutController.removeCoupon);
 router.post("/payment/razorpay/create-order",userAuth,paymentController.createRazorpayOrder);
 router.post("/payment/razorpay/verify",userAuth,paymentController.verifyRazorpayPayment);
 
-router.get("/order/failure",userAuth,orderController.orderFailurePage)
+router.get("/order/failure/:orderId",userAuth,orderController.orderFailurePage)
 router.get("/order/success/:orderId", userAuth, orderController.orderSuccessPage);
 router.post("/payment/razorpay/failed",userAuth,paymentController.markPaymentFailed);
+//router.post("/payment/razorpay/retry/:orderId",userAuth,paymentController.retryPayment);
 
 router.get("/orders",userAuth,orderController.getOrder)
 router.get("/orders/:orderId",userAuth,orderController.getOrderDetails)

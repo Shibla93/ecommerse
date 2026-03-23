@@ -61,18 +61,14 @@ const productSchema = new Schema(
     enum: ["leather", "rubber", "metal", "ceramics","silicon","steel"], 
     required: true
    },
-    discount: { 
-        type: Number,
-         default: 0,
-          min:0
-         },
+  
 
     
-    categories: [
+    category: 
       { type: mongoose.Schema.Types.ObjectId,
          ref: "Category", 
-         required: true }
-    ],
+         required: true },
+    
 
     variants: [variantSchema],
     reviews: {

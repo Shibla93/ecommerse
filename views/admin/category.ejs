@@ -60,7 +60,16 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
+.pagination .page-link {
+  color: #d4af37;
+  border-radius: 8px;
+}
 
+.pagination .active .page-link {
+  background-color: #d4af37;
+  border-color: #d4af37;
+  color: white;
+}
   .table-wrapper {
     background: var(--color-card-bg);
     border-radius: var(--radius-lg);
@@ -276,6 +285,7 @@
           <tr>
             <th>Category Name</th>
             <th>Description</th>
+            <th>Offer %</th>
             <th style="text-align: center;">Status</th>
             <th style="text-align: center;">Actions</th>
           </tr>
@@ -285,6 +295,7 @@
             <tr>
               <td><%= cat.name %></td>
               <td><%= cat.description %></td>
+              <td><%=cat.categoryOffer %>%</td>
               <td style="text-align: center;">
                 <% if (cat.isListed) { %>
                   <button class="action-btn list-btn" data-id="<%= cat._id %>">Unlist</button>
@@ -297,6 +308,7 @@
                         data-id="<%= cat._id %>"
                         data-name="<%= cat.name %>"
                         data-description="<%= cat.description %>"
+                        data-offer="<%= cat.categoryOffer %>"
                         onclick="openEditModal(this)">
                   Edit
                 </button>
@@ -307,17 +319,30 @@
         </tbody>
       </table>
     </div>
+<div class="d-flex justify-content-center mt-4">
+  <nav>
+    <ul class="pagination">
 
-    <% if (totalPages > 1) { %>
-      <div class="pagination">
-        <% for(let i = 1; i <= totalPages; i++) { %>
-          <a href="/admin/category?page=<%= i %>&search=<%= encodeURIComponent(search || '') %>"
-             class="<%= currentPage === i ? 'active' : '' %>">
-             <%= i %>
-          </a>
-        <% } %>
-      </div>
-    <% } %>
+      <!-- Previous -->
+      <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+      </li>
+
+      <!-- Page Numbers -->
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      <!-- Next -->
+      <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+      </li>
+
+    </ul>
+  </nav>
+</div>
 
   <% } else { %>
     <div class="no-categories">
@@ -345,6 +370,7 @@
             <label for="description" class="form-label">Description</label>
             <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter description"></textarea>
           </div>
+    
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-success">Add Category</button>
@@ -373,7 +399,7 @@
             <label for="editDescription" class="form-label">Description</label>
             <textarea class="form-control" id="editDescription" name="description" rows="4"></textarea>
           </div>
-          <div class="modal-footer">
+        <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-primary">Update Category</button>
           </div>
@@ -408,7 +434,7 @@
     e.preventDefault();
     const name = document.getElementById("name").value.trim();
     const description = document.getElementById("description").value.trim();
-
+   
     if (!name || !description) {
       Swal.fire("Error", "All fields are required", "error");
       return;
@@ -418,7 +444,7 @@
       const response = await fetch("/admin/category", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description })
+        body: JSON.stringify({ name, description,categoryOffer })
       });
 
       const result = await response.json();
@@ -472,22 +498,25 @@
     const id = element.dataset.id;
     const name = element.dataset.name;
     const description = element.dataset.description;
+      const offer = element.dataset.offer;
 
     document.getElementById('editName').value = name;
     document.getElementById('editDescription').value = description;
+      
     document.getElementById('editForm').action = `/admin/category/${id}`;
 
     const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
     modal.show();
   }
 
-  // Update Category
+  
   document.getElementById('editForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.target;
     const id = form.action.split('/').pop();
     const name = document.getElementById('editName').value.trim();
     const description = document.getElementById('editDescription').value.trim();
+   
 
     if (!name || !description) {
       Swal.fire('Error', 'All fields are required', 'error');

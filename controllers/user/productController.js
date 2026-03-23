@@ -12,6 +12,7 @@ const Category = require("../../model/categorySchema");
 const Product = require("../../model/productSchema");
 const mongoose = require("mongoose");
 const cloudinary = require('../../helpers/cloudinary');
+const { max } = require("moment/moment");
 
 
 const loadShoppingPage = async (req, res) => {
@@ -53,8 +54,9 @@ const loadShoppingPage = async (req, res) => {
       matchStage.product = { $regex: search, $options: "i" };
     }
     if (selectedCategory) {
-      matchStage.categories = { $in: [new mongoose.Types.ObjectId(selectedCategory)] };
-    }
+  matchStage.category = new mongoose.Types.ObjectId(selectedCategory);
+}
+
     if (selectedBrand) {
       matchStage.brand = { $in: [new mongoose.Types.ObjectId(selectedBrand)] };
     }
@@ -68,8 +70,8 @@ const loadShoppingPage = async (req, res) => {
       "variants.isListed": true,
       "variants.price": { $gte: minPrice, $lte: maxPrice },
       ...(search && { product: { $regex: search, $options: "i" } }),
-      ...(selectedCategory && { categories: { $in: [new mongoose.Types.ObjectId(selectedCategory)] } }),
-      ...(selectedBrand && { brand: { $in: [new mongoose.Types.ObjectId(selectedBrand)] } })
+     ...(selectedCategory && { category: new mongoose.Types.ObjectId(selectedCategory) }),
+      ...(selectedCategory && { category: new mongoose.Types.ObjectId(selectedCategory) }),
     } 
   },
   // join brand
@@ -78,7 +80,7 @@ const loadShoppingPage = async (req, res) => {
   { $match: { "brandDetails.isBlocked": false } },
 
   // join category
-  { $lookup: { from: "categories", localField: "categories", foreignField: "_id", as: "categoryDetails" } },
+  { $lookup: { from: "categories", localField: "category", foreignField: "_id", as: "categoryDetails" } },
   { $match: { "categoryDetails.isListed": true } },
 
   // projection
@@ -87,26 +89,40 @@ const loadShoppingPage = async (req, res) => {
       productId: "$_id",
       product: 1,
       brand: "$brandDetails",
-      categories: "$categoryDetails",
+      category: { $arrayElemAt: ["$categoryDetails", 0] },
       dialColor: "$variants.dialColor",
       strapColor: "$variants.strapColor",
       price: "$variants.price",
+       stock: "$variants.stock", 
       image: { $arrayElemAt: ["$variants.images.croppedUrl", 0] },
       variantId: "$variants._id",
       createdAt: "$createdAt",
+       productOffer: 1,
+    categoryOffer: { $arrayElemAt: ["$categoryDetails.categoryOffer", 0] }
     } 
   }
 ]);
 
-    products = products.sort(() => Math.random() - 0.5);
+  products = products.map(p => {
+  const maxOffer = Math.max(p.productOffer || 0, p.category.categoryOffer || 0);
+  const discount = p.price * (maxOffer / 100);
+  const finalPrice =  Math.round(p.price - discount);
+
+  return {
+    ...p,
+    maxOffer,
+    discount,
+    finalPrice
+  };
+});
 
     
     switch (sort) {
       case "priceLowHigh":
-        products.sort((a, b) => a.price - b.price);
+        products.sort((a, b) => a.finalPrice - b.finalPrice);
         break;
       case "priceHighLow":
-        products.sort((a, b) => b.price - a.price);
+        products.sort((a, b) => b.finalPrice - a.finalPrice);
         break;
       case "nameAsc":
         products.sort((a, b) => a.product.localeCompare(b.product));
@@ -158,7 +174,7 @@ const loadProductDetail = async (req, res) => {
 
     const product = await Product.findById(id)
      .populate('brand', 'name')
-     .populate('categories', 'name')
+     .populate('category', 'name')
     .lean();
 
    if (!product) {
@@ -184,9 +200,17 @@ const loadProductDetail = async (req, res) => {
       if (found) activeVariant = found;
     }
 
+    const maxOffer = Math.max(
+  product.productOffer || 0,
+  product.category.categoryOffer || 0
+);
+
+const discount = activeVariant.price * (maxOffer / 100);
+const finalPrice = Math.round(activeVariant.price - discount);
+
      const relatedProducts = await Product.find({
       _id: { $ne: product._id }, 
-     categories: { $in: product.categories },
+      category: product.category, 
       'variants.isListed': true,
   'variants.isDeleted': false
     })
@@ -202,8 +226,8 @@ const loadProductDetail = async (req, res) => {
       activeVariant,
       listedVariants,
       relatedProducts,
-      
-      
+       maxOffer,
+ finalPrice   
     });
   } catch (error) {
     console.log("Error loading product details:", error);

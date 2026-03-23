@@ -23,13 +23,13 @@ const addproduct = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     
-    const { product, brand, description, strapMaterial, discount, productOffer } = req.body;
+    const { product, brand, description, strapMaterial,  productOffer } = req.body;
     
 
     
 
     
-    const parsedCategories = req.body.categories ? JSON.parse(req.body.categories) : [];
+    const category = req.body.category
 let parsedVariants = [];
 try {
     parsedVariants = req.body.variants ? JSON.parse(req.body.variants) : [];
@@ -62,17 +62,14 @@ if (!parsedVariants.length) {
        return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:Messages.PRODUCT_BRAND_STRAPE });
     }
     
-    if (!parsedCategories || parsedCategories.length === 0){
-       return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:Messages.CATOGORY_SELECT })
-    };
-
-    const discountVal = Number(discount);
-if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: "Discount must be a number between 0 and 100"
-    });
+   if (!category) {
+ return res.status(StatusCodes.BAD_REQUEST).json({
+   success:false,
+   message:"Category is required"
+ })
 }
+
+  
 
 // Validate productOffer
 const productOfferVal = Number(productOffer);
@@ -132,10 +129,10 @@ const newProduct = new Product({
   brand,
   description,
   strapMaterial,
-  discount,
+  
   productOffer,
   variants: parsedVariants,
-  categories: parsedCategories
+  category: category
 });
 
 await newProduct.save();
@@ -191,9 +188,9 @@ const totalPages = Math.ceil(totalProducts / limit);
      {
     $lookup: {
       from: "categories",
-      localField: "categories",
+      localField: "category",
       foreignField: "_id",
-      as: "categories"
+      as: "category"
     }
   },
   { $group: {
@@ -202,8 +199,7 @@ const totalPages = Math.ceil(totalProducts / limit);
       brand: { $first: "$brand" },
       description: { $first: "$description" },
       strapMaterial: { $first: "$strapMaterial" },
-      discount: { $first: "$discount" },
-      categories: { $first: "$categories" },
+      category: { $first: "$category" },
       variants: { $push: "$variants" },
       productOffer: { $first: "$productOffer" },
       createdAt: { $first: "$createdAt" },
@@ -309,11 +305,11 @@ const getEditProduct = async (req, res) => {
     const product = await Product.findById(productId)
 
       .populate("brand")
-      .populate("categories")
+      .populate("category")
       ;
     console.log("Product found:", product);
     if (!product) {
-      return res.status(404).jsonjson({ success: false, message: Messages.PRODUCT_NOT_FOUND});
+      return res.status(404).json({ success: false, message: Messages.PRODUCT_NOT_FOUND});
     }
 
     product.variants = product.variants.filter(v => !v.isDeleted);
@@ -339,8 +335,7 @@ const getEditProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const { product, brand, description, strapMaterial, discount, productOffer } = req.body;
-
-    const parsedCategories = req.body.categories ? JSON.parse(req.body.categories) : [];
+const category = req.body.category
     let parsedVariants = [];
 
     try {
@@ -365,19 +360,15 @@ const getEditProduct = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "Strap material is required" });
     }
 
-    if (!parsedCategories.length) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "At least one category must be selected" });
-    }
-
     
-    // 🔹 Discount & Product Offer Validation
-    const discountVal = Number(discount);
-    if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: "Discount must be a number between 0 and 100"
-      });
-    }
+    
+    if (!category) {
+ return res.status(StatusCodes.BAD_REQUEST).json({
+   success:false,
+   message:"Category is required"
+ })
+}
+   
 
     const productOfferVal = Number(productOffer);
     if (isNaN(productOfferVal) || productOfferVal < 0 || productOfferVal > 100) {
@@ -482,9 +473,9 @@ if (stock > 10000) {
     productDoc.brand = brand;
     productDoc.description = description;
     productDoc.strapMaterial = strapMaterial;
-    productDoc.discount = discount;
+   
     productDoc.productOffer = productOffer;
-    productDoc.categories = parsedCategories;
+    productDoc.category = category;
 
     await productDoc.save();
 

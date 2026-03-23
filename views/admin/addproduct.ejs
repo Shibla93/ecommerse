@@ -1,514 +1,517 @@
-
 <%- include("../../views/partials/admin/header") %>
-<style>
-  :root {
-    --color-gold: #d4af37;
-    --color-gold-hover: #c19a2e;
-    --color-dark: #1a1a1a;
-    --color-muted: #6b7280;
-    --color-border: #e5e7eb;
-    --color-card-bg: #ffffff;
-    --color-light-bg: #f9fafb;
-    --radius-lg: 1rem;
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-    --danger: #ef4444;
-    --success: #22c55e;
-  }
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
 
-  body {
-    font-family: 'Montserrat', sans-serif;
-    background: var(--color-light-bg);
-    min-height: 100vh;
-    color: #333;
-  }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+      color: #333;
+    }
 
-  .container {
-    max-width: 1000px;
-    margin: 120px auto 80px;
-    padding: 0 20px;
-  }
-
-  .page-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--color-dark);
-    text-align: center;
-    margin-bottom: 3rem;
-    border-bottom: 2px solid var(--color-gold);
-    display: inline-block;
-    padding-bottom: 0.5rem;
-  }
-
-  .form-card {
-    background: var(--color-card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    padding: 40px;
-    margin-bottom: 30px;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-group.full-width {
-    grid-column: 1 / -1;
-  }
-
-  label {
-    font-weight: 600;
-    color: var(--color-dark);
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-  }
-
-  input[type="text"],
-  input[type="number"],
-  textarea,
-  select {
-    padding: 0.8rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  input:focus,
-  textarea:focus,
-  select:focus {
-    outline: none;
-    border-color: var(--color-gold);
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  }
-
-  textarea {
-    min-height: 120px;
-    resize: vertical;
-  }
-
-  .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-
-  .checkbox-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .checkbox-item input[type="checkbox"] {
-    width: auto;
-    accent-color: var(--color-gold);
-  }
-
-  .variants-container {
-    margin-top: 3rem;
-  }
-
-  .variant {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    background: #fdfdfd;
-    position: relative;
-    box-shadow: var(--shadow-md);
-  }
-.remove-variant-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.remove-variant-btn:hover {
-  opacity: 0.9;
-}
-
-  .variant h4 {
-    margin: 0 0 1.5rem 0;
-    color: var(--color-dark);
-    font-size: 1.4rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--color-gold);
-    display: inline-block;
-  }
-
-  .variant-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .image-upload-group {
-    margin-top: 1.5rem;
-  }
-
-  .image-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .preview-box img,
-  .final img {
-    max-width: 100%;
-    max-height: 250px;
-    object-fit: cover;
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow-md);
-  }
-
-  .final img {
-    border: 2px solid var(--color-gold);
-  }
-
-  input[type="file"] {
-    padding: 0.5rem;
-    border: 1px dashed var(--color-border);
-    border-radius: 0.75rem;
-    background: #f9f9f9;
-  }
-
-  input[type="file"]::file-selector-button {
-    background: var(--color-gold);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    margin-right: 1rem;
-    font-weight: 600;
-  }
-
-  .crop-btn {
-    background: var(--color-gold);
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    margin-top: 0.5rem;
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .edit-btn {
-    background: #007bff;
-    color: white;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .delete-btn {
-    background: var(--danger);
-    color: white;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .btn {
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 0.75rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .add-variant-btn {
-    background: transparent;
-    color: var(--color-gold);
-    border: 2px solid var(--color-gold);
-    margin: 1rem 0 2rem;
-  }
-
-  .add-variant-btn:hover {
-    background: var(--color-gold);
-    color: white;
-  }
-
-  .submit-btn {
-    background: var(--color-gold);
-    color: white;
-    display: block;
-    width: 100%;
-    margin-top: 2rem;
-  }
-
-  .submit-btn:hover,
-  .crop-btn:hover,
-  .edit-btn:hover,
-  .delete-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .error-message {
-    color: var(--danger);
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
-    display: none;
-  }
-
-  @media (max-width: 992px) {
     .container {
-      margin: 100px auto 80px;
+      max-width: 1000px;
+      margin: 120px auto 80px;
+      padding: 0 20px;
     }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      text-align: center;
+      margin-bottom: 3rem;
+      border-bottom: 2px solid var(--color-gold);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
+
     .form-card {
-      padding: 30px;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 40px;
+      margin-bottom: 30px;
     }
-  }
 
-  @media (max-width: 768px) {
-    .form-grid,
-    .variant-grid,
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--color-dark);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      accent-color: var(--color-gold);
+    }
+
+    .variants-container {
+      margin-top: 3rem;
+    }
+
+    .variant {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      background: #fdfdfd;
+      position: relative;
+      box-shadow: var(--shadow-md);
+    }
+
+    .remove-variant-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .remove-variant-btn:hover {
+      opacity: 0.9;
+    }
+
+    .variant h4 {
+      margin: 0 0 1.5rem 0;
+      color: var(--color-dark);
+      font-size: 1.4rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-gold);
+      display: inline-block;
+    }
+
+    .variant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .image-upload-group {
+      margin-top: 1.5rem;
+    }
+
     .image-row {
-      grid-template-columns: 1fr;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
-  }
-</style>
 
-<div class="container">
-  <h2 class="page-title">Add Product</h2>
+    .preview-box img,
+    .final img {
+      max-width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border: 1px solid var(--color-border);
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-md);
+    }
 
-  <div class="form-card">
-    <form id="productForm" action="/admin/addproduct" method="POST" enctype="multipart/form-data" novalidate>
+    .final img {
+      border: 2px solid var(--color-gold);
+    }
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="name">Product Name</label>
-          <input type="text" name="product" id="name" placeholder="Enter product name" />
-          <div id="errorName" class="error-message"></div>
-        </div>
+    input[type="file"] {
+      padding: 0.5rem;
+      border: 1px dashed var(--color-border);
+      border-radius: 0.75rem;
+      background: #f9f9f9;
+    }
 
-        <div class="form-group">
-          <label for="brand">Brand</label>
-          <select name="brand" id="brand">
-            <option value="">--Select Brand--</option>
-            <% brands.forEach(brand => { %>
-              <option value="<%= brand._id %>"><%= brand.name %></option>
-            <% }) %>
-          </select>
-          <div id="errorBrand" class="error-message"></div>
-        </div>
+    input[type="file"]::file-selector-button {
+      background: var(--color-gold);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-right: 1rem;
+      font-weight: 600;
+    }
 
-        <div class="form-group full-width">
-          <label for="description">Description</label>
-          <textarea name="description" placeholder="Enter product description"></textarea>
-        </div>
+    .crop-btn {
+      background: var(--color-gold);
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
 
-        <div class="form-group">
-          <label for="strapMaterial">Strap Material</label>
-          <select name="strapMaterial" id="strapMaterial">
-            <option value="">--Select Material--</option>
-            <option value="leather">Leather</option>
-            <option value="rubber">Rubber</option>
-            <option value="metal">Metal</option>
-            <option value="ceramics">Ceramics</option>
-            <option value="silicon">Silicon</option>
-            <option value="steel">Steel</option>
-          </select>
-          <div id="errorStrap" class="error-message"></div>
-        </div>
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
 
-        <div class="form-group">
-          <label for="discount">Discount (%)</label>
-          <input type="number" name="discount" placeholder="0" min="0" />
-          <div id="errorDiscount" class="error-message"></div>
-        </div>
+    .edit-btn {
+      background: #007bff;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
 
-        <div class="form-group">
-          <label for="productOffer">Product Offer (%)</label>
-          <input type="number" name="productOffer" placeholder="0" min="0" />
-          <div id="errorOffer" class="error-message"></div>
-        </div>
+    .delete-btn {
+      background: var(--danger);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
 
-        <div class="form-group full-width">
-          <label>Categories</label>
-          <div class="checkbox-group">
-            <% categories.forEach(cat => { %>
-              <div class="checkbox-item">
-                <input type="checkbox" name="categories[]" value="<%= cat._id %>" />
-                <span><%= cat.name %></span>
-              </div>
-            <% }) %>
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .add-variant-btn {
+      background: transparent;
+      color: var(--color-gold);
+      border: 2px solid var(--color-gold);
+      margin: 1rem 0 2rem;
+    }
+
+    .add-variant-btn:hover {
+      background: var(--color-gold);
+      color: white;
+    }
+
+    .submit-btn {
+      background: var(--color-gold);
+      color: white;
+      display: block;
+      width: 100%;
+      margin-top: 2rem;
+    }
+
+    .submit-btn:hover,
+    .crop-btn:hover,
+    .edit-btn:hover,
+    .delete-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    @media (max-width: 992px) {
+      .container {
+        margin: 100px auto 80px;
+      }
+
+      .form-card {
+        padding: 30px;
+      }
+    }
+
+    @media (max-width: 768px) {
+
+      .form-grid,
+      .variant-grid,
+      .image-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div class="container">
+    <h2 class="page-title">Add Product</h2>
+
+    <div class="form-card">
+      <form id="productForm" action="/admin/addproduct" method="POST" enctype="multipart/form-data" novalidate>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">Product Name</label>
+            <input type="text" name="product" id="name" placeholder="Enter product name" />
+            <div id="errorName" class="error-message"></div>
           </div>
-          <div id="errorCategory" class="error-message"></div>
-        </div>
-      </div>
 
-      <div class="variants-container" id="variantsContainer">
-        <!-- Variant 1 -->
-        <div class="variant">
-          <h4>Variant 1</h4>
+          <div class="form-group">
+            <label for="brand">Brand</label>
+            <select name="brand" id="brand">
+              <option value="">--Select Brand--</option>
+              <% brands.forEach(brand=> { %>
+                <option value="<%= brand._id %>">
+                  <%= brand.name %>
+                </option>
+                <% }) %>
+            </select>
+            <div id="errorBrand" class="error-message"></div>
+          </div>
 
-          <div class="variant-grid">
-            <div class="form-group">
-              <label>Dial Color</label>
-              <input type="text" name="dialColor[]" placeholder="Dial Color" required />
-              <div class="error-message"></div>
-            </div>
+          <div class="form-group full-width">
+            <label for="description">Description</label>
+            <textarea name="description" placeholder="Enter product description"></textarea>
+          </div>
 
-            <div class="form-group">
-              <label>Strap Color</label>
-              <input type="text" name="strapColor[]" placeholder="Strap Color" required />
-              <div class="error-message"></div>
-            </div>
+          <div class="form-group">
+            <label for="strapMaterial">Strap Material</label>
+            <select name="strapMaterial" id="strapMaterial">
+              <option value="">--Select Material--</option>
+              <option value="leather">Leather</option>
+              <option value="rubber">Rubber</option>
+              <option value="metal">Metal</option>
+              <option value="ceramics">Ceramics</option>
+              <option value="silicon">Silicon</option>
+              <option value="steel">Steel</option>
+            </select>
+            <div id="errorStrap" class="error-message"></div>
+          </div>
 
-            <div class="form-group">
-              <label>Price</label>
-              <input type="number" name="price[]" placeholder="Price" min="0" required />
-              <div class="error-message"></div>
-            </div>
 
-            <div class="form-group">
-              <label>Stock</label>
-              <input type="number" name="stock[]" placeholder="Stock" min="0" required />
-              <div class="error-message"></div>
+
+          <div class="form-group">
+            <label for="productOffer">Product Offer (%)</label>
+            <input type="number" name="productOffer" placeholder="0" min="0" />
+            <div id="errorOffer" class="error-message"></div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Category</label>
+
+            <select name="category" id="category">
+              <option value="">--Select Category--</option>
+              <% categories.forEach(cat=> { %>
+                <option value="<%= cat._id %>">
+                  <%= cat.name %>
+                </option>
+                <% }) %>
+            </select>
+
+            <div id="errorCategory" class="error-message"></div>
+          </div>
+         </div>
+          <div class="variants-container" id="variantsContainer">
+            <!-- Variant 1 -->
+            <div class="variant">
+              <h4>Variant 1</h4>
+
+              <div class="variant-grid">
+                <div class="form-group">
+                  <label>Dial Color</label>
+                  <input type="text" name="dialColor[]" placeholder="Dial Color" required />
+                  <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                  <label>Strap Color</label>
+                  <input type="text" name="strapColor[]" placeholder="Strap Color" required />
+                  <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                  <label>Price</label>
+                  <input type="number" name="price[]" placeholder="Price" min="0" required />
+                  <div class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                  <label>Stock</label>
+                  <input type="number" name="stock[]" placeholder="Stock" min="0" required />
+                  <div class="error-message"></div>
+                </div>
+              </div>
+
+              <div class="image-upload-group">
+                <label>Images (please upload 4 images)</label>
+
+                <div class="image-row">
+                  <div>
+                    <input type="file" id="img1_1" name="img1" accept="image/*" />
+                    <div class="error-message"></div>
+                    <div class="preview-box"><img src="/placeholder.svg" id="pre1_1" alt=""></div>
+                    <button type="button" id="cropBtn1_1" class="crop-btn" style="display:none">Crop & Upload</button>
+                    <div class="final">
+                      <img src="/placeholder.svg" id="im1_1" alt="">
+                      <div class="action-buttons">
+                        <button type="button" class="edit-btn" style="display:none">Edit</button>
+                        <button type="button" class="delete-btn" style="display:none">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <input type="file" id="img1_2" name="img2" accept="image/*" />
+                    <div class="error-message"></div>
+                    <div class="preview-box"><img id="pre1_2" alt=""></div>
+                    <button type="button" id="cropBtn1_2" class="crop-btn" style="display:none">Crop & Upload</button>
+                    <div class="final">
+                      <img src="/placeholder.svg" id="im1_2" alt="">
+                      <div class="action-buttons">
+                        <button type="button" class="edit-btn" style="display:none">Edit</button>
+                        <button type="button" class="delete-btn" style="display:none">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <input type="file" id="img1_3" name="img3" accept="image/*" />
+                    <div class="error-message"></div>
+                    <div class="preview-box"><img id="pre1_3" alt=""></div>
+                    <button type="button" id="cropBtn1_3" class="crop-btn" style="display:none">Crop & Upload</button>
+                    <div class="final">
+                      <img src="/placeholder.svg" id="im1_3" alt="">
+                      <div class="action-buttons">
+                        <button type="button" class="edit-btn" style="display:none">Edit</button>
+                        <button type="button" class="delete-btn" style="display:none">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <input type="file" id="img1_4" name="img4" accept="image/*" />
+                    <div class="error-message"></div>
+                    <div class="preview-box"><img id="pre1_4" alt=""></div>
+                    <button type="button" id="cropBtn1_4" class="crop-btn" style="display:none">Crop & Upload</button>
+                    <div class="final">
+                      <img src="/placeholder.svg" id="im1_4" alt="">
+                      <div class="action-buttons">
+                        <button type="button" class="edit-btn" style="display:none">Edit</button>
+                        <button type="button" class="delete-btn" style="display:none">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="image-upload-group">
-            <label>Images (please upload 4 images)</label>
+          <button type="button" class="btn add-variant-btn" onclick="addVariant()">+ Add Another Variant</button>
 
-            <div class="image-row">
-              <div>
-                <input type="file" id="img1_1" name="img1" accept="image/*" />
-                <div class="error-message"></div>
-                <div class="preview-box"><img src="/placeholder.svg" id="pre1_1" alt=""></div>
-                <button type="button" id="cropBtn1_1" class="crop-btn" style="display:none">Crop & Upload</button>
-                <div class="final">
-                  <img src="/placeholder.svg" id="im1_1" alt="">
-                  <div class="action-buttons">
-                    <button type="button" class="edit-btn" style="display:none">Edit</button>
-                    <button type="button" class="delete-btn" style="display:none">Delete</button>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <input type="file" id="img1_2" name="img2" accept="image/*" />
-                <div class="error-message"></div>
-                <div class="preview-box"><img id="pre1_2" alt=""></div>
-                <button type="button" id="cropBtn1_2" class="crop-btn" style="display:none">Crop & Upload</button>
-                <div class="final">
-                  <img src="/placeholder.svg" id="im1_2" alt="">
-                  <div class="action-buttons">
-                    <button type="button" class="edit-btn" style="display:none">Edit</button>
-                    <button type="button" class="delete-btn" style="display:none">Delete</button>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <input type="file" id="img1_3" name="img3" accept="image/*" />
-                <div class="error-message"></div>
-                <div class="preview-box"><img id="pre1_3" alt=""></div>
-                <button type="button" id="cropBtn1_3" class="crop-btn" style="display:none">Crop & Upload</button>
-                <div class="final">
-                  <img src="/placeholder.svg" id="im1_3" alt="">
-                  <div class="action-buttons">
-                    <button type="button" class="edit-btn" style="display:none">Edit</button>
-                    <button type="button" class="delete-btn" style="display:none">Delete</button>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <input type="file" id="img1_4" name="img4" accept="image/*" />
-                <div class="error-message"></div>
-                <div class="preview-box"><img id="pre1_4" alt=""></div>
-                <button type="button" id="cropBtn1_4" class="crop-btn" style="display:none">Crop & Upload</button>
-                <div class="final">
-                  <img src="/placeholder.svg" id="im1_4" alt="">
-                  <div class="action-buttons">
-                    <button type="button" class="edit-btn" style="display:none">Edit</button>
-                    <button type="button" class="delete-btn" style="display:none">Delete</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button type="button" class="btn add-variant-btn" onclick="addVariant()">+ Add Another Variant</button>
-
-      <button type="submit" class="btn submit-btn">Add Product</button>
-    </form>
+          <button type="submit" class="btn submit-btn">Add Product</button>
+      </form>
+    </div>
   </div>
-</div>
+</body>
 
-<%- include("../../views/partials/admin/footer") %>
+    </html>
+  <%- include("../../views/partials/admin/footer") %>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-<!-- Swal2 CDN -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Swal2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-  <script>
+    <script>
 
-    
-let variantCount = 1;
-function validateImageFile(input) {
-    const file = input.files[0];
-    if (!file) return true;
-    const allowedTypes = ["image/jpeg","image/png","image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-       Swal.fire({ icon: 'error', text: 'Only JPG, PNG, or WEBP images are allowed. PDFs are not allowed.' });
 
-        input.value = "";
-        return false;
-    }
-    return true;
-}
+      let variantCount = 1;
+      function validateImageFile(input) {
+        const file = input.files[0];
+        if (!file) return true;
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+        if (!allowedTypes.includes(file.type)) {
+          Swal.fire({ icon: 'error', text: 'Only JPG, PNG, or WEBP images are allowed. PDFs are not allowed.' });
 
- document.addEventListener("change", function (event) {
-        if (event.target.classList.contains("img-input")) {
-            validateImageFile(event.target);
+          input.value = "";
+          return false;
         }
-    });
- let isAddingVariantsFinished = false;
+        return true;
+      }
 
- function addVariant() {
-  const container = document.getElementById("variantsContainer");
+      document.addEventListener("change", function (event) {
+        if (event.target.classList.contains("img-input")) {
+          validateImageFile(event.target);
+        }
+      });
+      let isAddingVariantsFinished = false;
 
-  // ⭐ DOM-based count
-  const variantNumber = container.querySelectorAll(".variant").length + 1;
+      function addVariant() {
+        const container = document.getElementById("variantsContainer");
 
-  const div = document.createElement("div");
-  div.className = "variant";
+        // ⭐ DOM-based count
+        const variantNumber = container.querySelectorAll(".variant").length + 1;
 
-  div.innerHTML = `
+        const div = document.createElement("div");
+        div.className = "variant";
+
+        div.innerHTML = `
     <button type="button" class="remove-variant-btn"
       style="background:#f44336;margin-bottom:10px;color:white;">
       Remove Variant
@@ -545,7 +548,7 @@ function validateImageFile(input) {
     <div class="image-upload-group">
       <label>Images (upload 4 images)</label>
       <div class="image-row">
-        ${[1,2,3,4].map(i => `
+        ${[1, 2, 3, 4].map(i => `
           <div>
             <input type="file" class="img-input" id="img${variantNumber}_${i}">
             <div class="preview-box"><img id="pre${variantNumber}_${i}"></div>
@@ -565,498 +568,468 @@ function validateImageFile(input) {
     </div>
   `;
 
-  container.appendChild(div);
+        container.appendChild(div);
 
-  // remove variant
-  div.querySelector(".remove-variant-btn").onclick = () => {
-    div.remove();
-    updateVariantTitles(); // ⭐ MUST
-  };
+        // remove variant
+        div.querySelector(".remove-variant-btn").onclick = () => {
+          div.remove();
+          updateVariantTitles(); // ⭐ MUST
+        };
 
-  // setup cropper
-  [1,2,3,4].forEach(i => {
-    setupCropper(
-      document.getElementById(`img${variantNumber}_${i}`),
-      document.getElementById(`pre${variantNumber}_${i}`),
-      document.getElementById(`im${variantNumber}_${i}`),
-      document.getElementById(`cropBtn${variantNumber}_${i}`)
-    );
-  });
-}
-function updateVariantTitles() {
-  const variants = document.querySelectorAll("#variantsContainer .variant");
+        // setup cropper
+        [1, 2, 3, 4].forEach(i => {
+          setupCropper(
+            document.getElementById(`img${variantNumber}_${i}`),
+            document.getElementById(`pre${variantNumber}_${i}`),
+            document.getElementById(`im${variantNumber}_${i}`),
+            document.getElementById(`cropBtn${variantNumber}_${i}`)
+          );
+        });
+      }
+      function updateVariantTitles() {
+        const variants = document.querySelectorAll("#variantsContainer .variant");
 
-  variants.forEach((variant, index) => {
-    const title = variant.querySelector("h4");
-    if (title) {
-      title.textContent = `Variant ${index + 1}`;
-    }
-  });
-}
+        variants.forEach((variant, index) => {
+          const title = variant.querySelector("h4");
+          if (title) {
+            title.textContent = `Variant ${index + 1}`;
+          }
+        });
+      }
 
 
 
-function setupCropper(input, preview, final, cropBtn) {
-  let cropper;
-    const parent = final.parentElement; 
-  const editBtn = parent.querySelector(".edit-btn");
-  const deleteBtn = parent.querySelector(".delete-btn");
+      function setupCropper(input, preview, final, cropBtn) {
+        let cropper;
+        const parent = final.parentElement;
+        const editBtn = parent.querySelector(".edit-btn");
+        const deleteBtn = parent.querySelector(".delete-btn");
 
-  input.addEventListener("change", function () {
-    if (!validateImageFile(input)) return;
-    const file = input.files[0];
-    if (!file) return;
+        input.addEventListener("change", function () {
+          if (!validateImageFile(input)) return;
+          const file = input.files[0];
+          if (!file) return;
 
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = "block";
+          preview.src = URL.createObjectURL(file);
+          preview.style.display = "block";
 
-    if (cropper) cropper.destroy();
+          if (cropper) cropper.destroy();
 
-    cropper = new Cropper(preview, {
-      aspectRatio: 1,
-      viewMode: 2,
-      movable: true,
-      zoomable: true,
-      scalable: true,
-    });
+          cropper = new Cropper(preview, {
+            aspectRatio: 1,
+            viewMode: 2,
+            movable: true,
+            zoomable: true,
+            scalable: true,
+          });
 
-    cropBtn.style.display = "inline-block";
+          cropBtn.style.display = "inline-block";
 
-    cropBtn.onclick = function () {
-      const canvas = cropper.getCroppedCanvas({
-        // width: 400,
-        // height: 400,
-        imageSmoothingQuality: 'high'
+          cropBtn.onclick = function () {
+            const canvas = cropper.getCroppedCanvas({
+              // width: 400,
+              // height: 400,
+              imageSmoothingQuality: 'high'
+            });
+
+
+
+            canvas.toBlob(function (blob) {
+              input.croppedBlob = blob;   // now safe
+              final.src = URL.createObjectURL(blob);
+
+              preview.style.display = "none";
+              cropBtn.style.display = "none";
+              input.style.display = "none";
+              cropper.destroy();
+
+              editBtn.style.display = "inline-block";
+              deleteBtn.style.display = "inline-block";
+
+
+              input.originalFile = input.files[0];
+            }, "image/jpeg");
+          };
+        });
+
+        editBtn?.addEventListener("click", function () {
+          preview.src = final.src;
+          preview.style.display = "block";
+          final.src = "";
+          editBtn.style.display = "none";
+          deleteBtn.style.display = "none";
+
+          cropper = new Cropper(preview, { aspectRatio: 1, viewMode: 2 });
+          cropBtn.style.display = "inline-block";
+        });
+
+
+        deleteBtn?.addEventListener("click", function () {
+          input.value = "";
+          input.croppedBlob = null;
+          final.src = "";
+          preview.src = "";
+          preview.style.display = "none";
+          editBtn.style.display = "none";
+          deleteBtn.style.display = "none";
+          input.style.display = "block";
+
+        });
+
+      }
+
+
+      [1, 2, 3, 4].forEach(i => {
+        setupCropper(
+          document.getElementById(`img1_${i}`),
+          document.getElementById(`pre1_${i}`),
+          document.getElementById(`im1_${i}`),
+          document.getElementById(`cropBtn1_${i}`)
+        );
       });
 
-      
-    
-    canvas.toBlob(function(blob){
-    input.croppedBlob = blob;   // now safe
-    final.src = URL.createObjectURL(blob);
-
-    preview.style.display = "none";
-    cropBtn.style.display = "none";
-    input.style.display="none";
-    cropper.destroy();
-
-    editBtn.style.display = "inline-block";
-    deleteBtn.style.display = "inline-block";
 
 
-     input.originalFile = input.files[0];
-  }, "image/jpeg");
-};
-  });
-
-  editBtn?.addEventListener("click", function () {
-    preview.src = final.src;
-    preview.style.display = "block";
-    final.src = "";
-    editBtn.style.display = "none";
-    deleteBtn.style.display = "none";
-
-    cropper = new Cropper(preview, { aspectRatio: 1, viewMode: 2 });
-    cropBtn.style.display = "inline-block";
-  });
-
-  
-  deleteBtn?.addEventListener("click", function () {
-    input.value = "";
-    input.croppedBlob = null;
-    final.src = "";
-    preview.src = "";
-    preview.style.display = "none";
-    editBtn.style.display = "none";
-    deleteBtn.style.display = "none";
-      input.style.display = "block";
-
-  });
-
-}
+      const form = document.getElementById("productForm")
 
 
-[1,2,3,4].forEach(i => {
-  setupCropper(
-    document.getElementById(`img1_${i}`),
-    document.getElementById(`pre1_${i}`),
-    document.getElementById(`im1_${i}`),
-    document.getElementById(`cropBtn1_${i}`)
-  );
-});
+      let valid = true;
+
+      document.querySelectorAll(".error-message").forEach(el => el.style.display = "none");
+
+      const name = document.getElementById("name")
+      const er1 = document.getElementById("errorName")
+      const brand = document.getElementById("brand");
+      const er2 = document.getElementById("errorBrand");
+      const category = document.getElementById("category");
+      let strap = document.getElementById('strapMaterial')
+      let er3 = document.getElementById('errorStrap')
+
+      const offerInput = document.querySelector('input[name="productOffer"]');
+      const errorOffer = document.getElementById('errorOffer');
 
 
+      function scrollToError() {
+        const firstError = document.querySelector(".error-message[style*='block']");
+        if (firstError) {
 
-const form=document.getElementById("productForm")
+          setTimeout(() => {
+            firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 50);
+        }
+      }
+      function validateProductName() {
+        const value = name.value.trim();
+        if (value === "") {
+          er1.textContent = "Product name is required";
+          er1.style.display = "block";
+          return false;
+        } else if (value.length < 3) {
+          er1.textContent = "Name must be at least 3 characters";
+          er1.style.display = "block";
+          return false;
+        } else if (!/[A-Za-z]/.test(value)) {
+          er1.textContent = "Name must contain at least one letter";
+          er1.style.display = "block";
+          return false;
+        }
+        else if (!/^[A-Za-z0-9\s\-\&\.\,\*\!\@\#\$\%\^\_]+$/.test(value)) {
+          er1.textContent = "Only letters, numbers, spaces, and - & . , * ! @ # $ % ^ _ are allowed";
+          er1.style.display = "block";
+          return false;
+        }
+        else if (/^([A-Za-z])\1+$/.test(value)) {
+          er1.textContent = "Name cannot be made of a single repeated letter";
+          er1.style.display = "block";
+          return false;
+        } else {
+          er1.style.display = "none";
+          return true;
+        }
+      }
 
-
-let valid=true;
-
-document.querySelectorAll(".error-message").forEach(el=>el.style.display="none");
-
-const name=document.getElementById("name")
-const er1=document.getElementById("errorName")
-const brand = document.getElementById("brand");
-const er2 = document.getElementById("errorBrand");
-let categories = document.querySelectorAll('input[name="categories[]"]');
-let strap=document.getElementById('strapMaterial')
-let er3=document.getElementById('errorStrap')
-const discountInput = document.querySelector('input[name="discount"]');
-const offerInput = document.querySelector('input[name="productOffer"]');
-const errorDiscount = document.getElementById('errorDiscount');
-const errorOffer = document.getElementById('errorOffer');
-
-
-function scrollToError() {
-  const firstError = document.querySelector(".error-message[style*='block']");
-  if (firstError) {
-    
-    setTimeout(() => {
-      firstError.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 50);
-  }
-}
-function validateProductName() {
-  const value = name.value.trim();
-if (value === "") {
-    er1.textContent = "Product name is required";
-    er1.style.display = "block";
-    return false;
-  } else if (value.length < 3) {
-    er1.textContent = "Name must be at least 3 characters";
-    er1.style.display = "block";
-    return false;
-  }else if (!/[A-Za-z]/.test(value)) {
-        er1.textContent="Name must contain at least one letter";
-        er1.style.display = "block";
-        return false;
-    }
-  else if (!/^[A-Za-z0-9\s\-\&\.\,\*\!\@\#\$\%\^\_]+$/.test(value))
- {
-    er1.textContent ="Only letters, numbers, spaces, and - & . , * ! @ # $ % ^ _ are allowed";
-    er1.style.display = "block";
-    return false;
- }
-  else  if (/^([A-Za-z])\1+$/.test(value)) {
-  er1.textContent = "Name cannot be made of a single repeated letter";
-  er1.style.display = "block";
-  return false;
-} else {
-    er1.style.display = "none";
-    return true;
-  }
-}
-
-function validateBrand() {
-  if (brand.value === "") {
-    er2.textContent = "Please select a brand";
-    er2.style.display = "block";
-    return false;
-  } else {
-    er2.style.display = "none";
-    return true;
-  }
-}
+      function validateBrand() {
+        if (brand.value === "") {
+          er2.textContent = "Please select a brand";
+          er2.style.display = "block";
+          return false;
+        } else {
+          er2.style.display = "none";
+          return true;
+        }
+      }
 
 
 
-function validateCategory(){
-  let selected = false;
-for (let i = 0; i < categories.length; i++) {
-  if (categories[i].checked) { 
-    selected = true;
-    break;
-  }
-}
-if (!selected) {
-  document.getElementById('errorCategory').innerText = "Please select at least one category";
-  document.getElementById('errorCategory').style.display = "block";
-  return false
-} else {
-  document.getElementById('errorCategory').style.display = "none";
-  return true
-}
+      function validateCategory() {
 
-}
+        if (category.value === "") {
+          document.getElementById("errorCategory").innerText = "Please select category";
+          document.getElementById("errorCategory").style.display = "block";
+          return false;
+        }
 
-function strapValidate(){
-  
-if (strap.value === "") {
-  er3.innerText = "Please select strap material";
-  er3.style.display = "block";
-  return false
-} else {
-  er3.style.display = "none";
-  return true
-}
-}
-
-function validateDiscount() {
-    const value = Number(discountInput.value);
-    if (discountInput.value === "") {
-        errorDiscount.style.display = "none"; // optional
+        document.getElementById("errorCategory").style.display = "none";
         return true;
-    } else if (isNaN(value) || value < 0 || value > 100) {
-        errorDiscount.textContent = "Discount must be between 0 and 100";
-        errorDiscount.style.display = "block";
-        return false;
-    } else {
-        errorDiscount.style.display = "none";
-        return true;
-    }
-}
+      }
+      function strapValidate() {
 
-function validateOffer() {
-    const value = Number(offerInput.value);
-    if (offerInput.value === "") {
-        errorOffer.style.display = "none"; 
-        return true;
-    } else if (isNaN(value) || value < 0 || value > 100) {
-        errorOffer.textContent = "Product Offer must be between 0 and 100";
-        errorOffer.style.display = "block";
-        return false;
-    } else {
-        errorOffer.style.display = "none";
-        return true;
-    }
-}
-
-function isValidColorName(value) {
-  const colors = [
-    "black","white","blue","brown","green","silver","gold",
-    "rose gold","grey","red","cream","beige","navy","tan"
-  ];
-
-  const clean = value.trim().toLowerCase();
-  return colors.includes(clean);
-}
+        if (strap.value === "") {
+          er3.innerText = "Please select strap material";
+          er3.style.display = "block";
+          return false
+        } else {
+          er3.style.display = "none";
+          return true
+        }
+      }
 
 
+      function validateOffer() {
+        const value = Number(offerInput.value);
+        if (offerInput.value === "") {
+          errorOffer.style.display = "none";
+          return true;
+        } else if (isNaN(value) || value < 0 || value > 100) {
+          errorOffer.textContent = "Product Offer must be between 0 and 100";
+          errorOffer.style.display = "block";
+          return false;
+        } else {
+          errorOffer.style.display = "none";
+          return true;
+        }
+      }
 
-function validateVariants(){
-  let allValid = true;
-  const variants = document.querySelectorAll(".variant");
+      function isValidColorName(value) {
+        const colors = [
+          "black", "white", "blue", "brown", "green", "silver", "gold",
+          "rose gold", "grey", "red", "cream", "beige", "navy", "tan"
+        ];
 
-  variants.forEach(variant => {
-    
-    variant.querySelectorAll(".error-message").forEach(el => el.style.display = "none");
-
-    let dialColor = variant.querySelector('input[name="dialColor[]"]');
-    let strapColor = variant.querySelector('input[name="strapColor[]"]');
-    let price = variant.querySelector('input[name="price[]"]');
-    let stock = variant.querySelector('input[name="stock[]"]');
-    let images = variant.querySelectorAll('input[type="file"]');
-
-    // if(dialColor.value.trim() === ""){
-    //   dialColor.nextElementSibling.textContent = "Please enter Dial color";
-    //   dialColor.nextElementSibling.style.display = "block";
-    //   allValid = false;
-    // }
-
-    // if(strapColor.value.trim() === ""){
-    //   strapColor.nextElementSibling.textContent = "Please enter Strap color";
-    //   strapColor.nextElementSibling.style.display = "block";
-    //   allValid = false;
-    // }
-if (!isValidColorName(dialColor.value)) {
-  dialColor.nextElementSibling.textContent = "Enter a valid dial color";
-  dialColor.nextElementSibling.style.display = "block";
-  allValid = false;
-}
-
-if (!isValidColorName(strapColor.value)) {
-  strapColor.nextElementSibling.textContent = "Enter a valid strap color";
-  strapColor.nextElementSibling.style.display = "block";
-  allValid = false;
-}
-    if(price.value === "" || price.value <= 0){
-      price.nextElementSibling.textContent = "Price must be greater than 0";
-      price.nextElementSibling.style.display = "block";
-      allValid = false;
-    }
-
-    if (stock.value.trim() === "") {
-  stock.nextElementSibling.textContent = "Please enter stock quantity";
-  stock.nextElementSibling.style.display = "block";
-  allValid = false;
-} else if (isNaN(stock.value)) {
-  stock.nextElementSibling.textContent = "Stock must be a number";
-  stock.nextElementSibling.style.display = "block";
-  allValid = false;
-} else if (Number(stock.value) < 0) {
-  stock.nextElementSibling.textContent = "Stock cannot be negative";
-  stock.nextElementSibling.style.display = "block";
-  allValid = false;
-} else if (!Number.isInteger(Number(stock.value))) {
-  stock.nextElementSibling.textContent = "Stock must be a whole number";
-  stock.nextElementSibling.style.display = "block";
-  allValid = false;
-} else if (Number(stock.value) > 10000) {
-  stock.nextElementSibling.textContent = "Stock limit is 10,000";
-  stock.nextElementSibling.style.display = "block";
-  allValid = false;
-}
+        const clean = value.trim().toLowerCase();
+        return colors.includes(clean);
+      }
 
 
-    // Image validation
-    let uploaded = 0;
-    images.forEach(img => {
-      if(img.croppedBlob|| img.files.length > 0) uploaded++;
-    });
 
-    if(uploaded < 4){
-      
-      let errorDivs = variant.querySelectorAll(".error-message");
-      errorDivs[errorDivs.length - 1].textContent = "Please upload  4 images";
-      errorDivs[errorDivs.length - 1].style.display = "block";
-      allValid = false;
-    }
-  
-  });
+      function validateVariants() {
+        let allValid = true;
+        const variants = document.querySelectorAll(".variant");
 
-  return allValid;
-}
+        variants.forEach(variant => {
+
+          variant.querySelectorAll(".error-message").forEach(el => el.style.display = "none");
+
+          let dialColor = variant.querySelector('input[name="dialColor[]"]');
+          let strapColor = variant.querySelector('input[name="strapColor[]"]');
+          let price = variant.querySelector('input[name="price[]"]');
+          let stock = variant.querySelector('input[name="stock[]"]');
+          let images = variant.querySelectorAll('input[type="file"]');
+
+          // if(dialColor.value.trim() === ""){
+          //   dialColor.nextElementSibling.textContent = "Please enter Dial color";
+          //   dialColor.nextElementSibling.style.display = "block";
+          //   allValid = false;
+          // }
+
+          // if(strapColor.value.trim() === ""){
+          //   strapColor.nextElementSibling.textContent = "Please enter Strap color";
+          //   strapColor.nextElementSibling.style.display = "block";
+          //   allValid = false;
+          // }
+          if (!isValidColorName(dialColor.value)) {
+            dialColor.nextElementSibling.textContent = "Enter a valid dial color";
+            dialColor.nextElementSibling.style.display = "block";
+            allValid = false;
+          }
+
+          if (!isValidColorName(strapColor.value)) {
+            strapColor.nextElementSibling.textContent = "Enter a valid strap color";
+            strapColor.nextElementSibling.style.display = "block";
+            allValid = false;
+          }
+          if (price.value === "" || price.value <= 0) {
+            price.nextElementSibling.textContent = "Price must be greater than 0";
+            price.nextElementSibling.style.display = "block";
+            allValid = false;
+          }
+
+          if (stock.value.trim() === "") {
+            stock.nextElementSibling.textContent = "Please enter stock quantity";
+            stock.nextElementSibling.style.display = "block";
+            allValid = false;
+          } else if (isNaN(stock.value)) {
+            stock.nextElementSibling.textContent = "Stock must be a number";
+            stock.nextElementSibling.style.display = "block";
+            allValid = false;
+          } else if (Number(stock.value) < 0) {
+            stock.nextElementSibling.textContent = "Stock cannot be negative";
+            stock.nextElementSibling.style.display = "block";
+            allValid = false;
+          } else if (!Number.isInteger(Number(stock.value))) {
+            stock.nextElementSibling.textContent = "Stock must be a whole number";
+            stock.nextElementSibling.style.display = "block";
+            allValid = false;
+          } else if (Number(stock.value) > 10000) {
+            stock.nextElementSibling.textContent = "Stock limit is 10,000";
+            stock.nextElementSibling.style.display = "block";
+            allValid = false;
+          }
 
 
-form.addEventListener("submit", function(e){
-    e.preventDefault();
+          // Image validation
+          let uploaded = 0;
+          images.forEach(img => {
+            if (img.croppedBlob || img.files.length > 0) uploaded++;
+          });
 
-    
-    document.querySelectorAll(".error-message").forEach(el => el.style.display = "none");
+          if (uploaded < 4) {
 
-    // Validation
-    let isNameValid = validateProductName();
-    let isBrandValid = validateBrand();
-    let isCategoryValid = validateCategory();
-    let isStrapValid = strapValidate();
-    let isVariantsValid = validateVariants();
-    let isDiscountValid = validateDiscount();
-    let isOfferValid = validateOffer();
+            let errorDivs = variant.querySelectorAll(".error-message");
+            errorDivs[errorDivs.length - 1].textContent = "Please upload  4 images";
+            errorDivs[errorDivs.length - 1].style.display = "block";
+            allValid = false;
+          }
 
-
-    if(isNameValid && isBrandValid && isCategoryValid && isStrapValid && isVariantsValid&& isDiscountValid && isOfferValid){
-        
-        const formData = new FormData();
-        const description = document.querySelector('textarea[name="description"]').value;
-
-        formData.append("product", name.value);
-        formData.append("brand", brand.value);
-        formData.append("description", description);
-        formData.append("strapMaterial", strap.value);
-        formData.append("discount", document.querySelector('input[name="discount"]').value);
-        formData.append("productOffer", document.querySelector('input[name="productOffer"]').value);
-        let selectedCats = [];
-        document.querySelectorAll('input[name="categories[]"]:checked').forEach(cat => {
-      selectedCats.push(cat.value);
         });
-console.log("Selected categories:", selectedCats);
-formData.append("categories", JSON.stringify(selectedCats))
+
+        return allValid;
+      }
 
 
-       
-// Variants
-let variantsArr = [];
-const variants = document.querySelectorAll(".variant");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-variants.forEach((variant, index) => {
-  let variantObj = {
-    dialColor: variant.querySelector('input[name="dialColor[]"]').value,
-    strapColor: variant.querySelector('input[name="strapColor[]"]').value,
-    price: Number(variant.querySelector('input[name="price[]"]').value),
-    stock: Number(variant.querySelector('input[name="stock[]"]').value),
-    images: []
-  };
 
-  const images = variant.querySelectorAll('input[type="file"]');
-  images.forEach((imgInput, imgIndex) => {
-  if (imgInput.originalFile) {
-    formData.append(
-      "images",
-      imgInput.originalFile,
-      `variant${index}_img${imgIndex + 1}_original.jpg`
-    );
-  }
+        document.querySelectorAll(".error-message").forEach(el => el.style.display = "none");
 
-  if (imgInput.croppedBlob) {
-    formData.append(
-      "images",
-      imgInput.croppedBlob,
-      `variant${index}_img${imgIndex + 1}_cropped.jpg`
-    );
-  }
+        // Validation
+        let isNameValid = validateProductName();
+        let isBrandValid = validateBrand();
+        let isCategoryValid = validateCategory();
+        let isStrapValid = strapValidate();
+        let isVariantsValid = validateVariants();
 
-  
-  variantObj.images.push({
-    originalFileName: `variant${index}_img${imgIndex + 1}_original.jpg`,
-    croppedFileName: `variant${index}_img${imgIndex + 1}_cropped.jpg`
-  });
-})
+        let isOfferValid = validateOffer();
 
- variantsArr.push(variantObj);
-});
 
-console.log("Variants sending:", variantsArr); 
-formData.append("variants", JSON.stringify(variantsArr));
- fetch("/admin/addproduct", {
-    method: "POST",
-    body: formData
-})
-.then(res => res.json())
-.then(data => {
-    if(data.success){ // backend ninnum {success: true} varunnu enn assume cheythu
-        Swal.fire({
-            icon: 'success',
-            title: 'Product Added!',
-            text: 'Your product has been successfully added.',
-            confirmButtonText: 'OK'
-        }).then(() => {
-            form.reset(); // form reset cheyyuka
-            // Image previews reset cheyyuka
-            document.querySelectorAll('.preview-box img, .final img').forEach(img => {
-                img.src = '';
-            });
-            // Crop buttons and edit/delete buttons hide cheyyuka
-            document.querySelectorAll('.crop-btn, .edit-btn, .delete-btn').forEach(btn => btn.style.display = 'none');
-            // Show file inputs again
-            document.querySelectorAll('input[type="file"]').forEach(input => input.style.display = 'block');
-           
-        });
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: data.message || 'Something went wrong'
-        });
-    }
-})
-.catch(err => {
-    console.error(err);
-    Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: 'Something went wrong'
-    })
-})
+        if (isNameValid && isBrandValid && isCategoryValid && isStrapValid && isVariantsValid && isOfferValid) {
 
-    
-}else {
-        scrollToError(); 
-        return // <- Scroll to first error
-    }
+          const formData = new FormData();
+          const description = document.querySelector('textarea[name="description"]').value;
+
+          formData.append("product", name.value);
+          formData.append("brand", brand.value);
+          formData.append("description", description);
+          formData.append("strapMaterial", strap.value);
+
+          formData.append("productOffer", document.querySelector('input[name="productOffer"]').value);
+          formData.append("category", category.value);
+
+
+
+          // Variants
+          let variantsArr = [];
+          const variants = document.querySelectorAll(".variant");
+
+          variants.forEach((variant, index) => {
+            let variantObj = {
+              dialColor: variant.querySelector('input[name="dialColor[]"]').value,
+              strapColor: variant.querySelector('input[name="strapColor[]"]').value,
+              price: Number(variant.querySelector('input[name="price[]"]').value),
+              stock: Number(variant.querySelector('input[name="stock[]"]').value),
+              images: []
+            };
+
+            const images = variant.querySelectorAll('input[type="file"]');
+            images.forEach((imgInput, imgIndex) => {
+              if (imgInput.originalFile) {
+                formData.append(
+                  "images",
+                  imgInput.originalFile,
+                  `variant${index}_img${imgIndex + 1}_original.jpg`
+                );
+              }
+
+              if (imgInput.croppedBlob) {
+                formData.append(
+                  "images",
+                  imgInput.croppedBlob,
+                  `variant${index}_img${imgIndex + 1}_cropped.jpg`
+                );
+              }
+
+
+              variantObj.images.push({
+                originalFileName: `variant${index}_img${imgIndex + 1}_original.jpg`,
+                croppedFileName: `variant${index}_img${imgIndex + 1}_cropped.jpg`
+              });
+            })
+
+            variantsArr.push(variantObj);
+          });
+
+          console.log("Variants sending:", variantsArr);
+          formData.append("variants", JSON.stringify(variantsArr));
+          fetch("/admin/addproduct", {
+            method: "POST",
+            body: formData
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) { // backend ninnum {success: true} varunnu enn assume cheythu
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Product Added!',
+                  text: 'Your product has been successfully added.',
+                  confirmButtonText: 'OK'
+                }).then(() => {
+                  form.reset(); // form reset cheyyuka
+                  // Image previews reset cheyyuka
+                  document.querySelectorAll('.preview-box img, .final img').forEach(img => {
+                    img.src = '';
+                  });
+                  // Crop buttons and edit/delete buttons hide cheyyuka
+                  document.querySelectorAll('.crop-btn, .edit-btn, .delete-btn').forEach(btn => btn.style.display = 'none');
+                  // Show file inputs again
+                  document.querySelectorAll('input[type="file"]').forEach(input => input.style.display = 'block');
+
+                });
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error!',
+                  text: data.message || 'Something went wrong'
+                });
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Something went wrong'
+              })
+            })
+
+
+        } else {
+          scrollToError();
+          return // <- Scroll to first error
+        }
 
         // Send to backend
-})     
-function finishAddingVariants() {
-    isAddingVariantsFinished = true;
-    Swal.fire({
-      icon: 'success',
-      title: 'Ready to Submit',
-      text: 'You can now submit the product form.'
-    });
-  }
+      })
+      function finishAddingVariants() {
+        isAddingVariantsFinished = true;
+        Swal.fire({
+          icon: 'success',
+          title: 'Ready to Submit',
+          text: 'You can now submit the product form.'
+        });
+      }
 
 
-</script>
+    </script>
 
-</body>
-</html>
+    <

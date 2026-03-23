@@ -386,7 +386,23 @@
     <div class="details">
       <h2 id="title"><%= product.product %> <%= activeVariant.dialColor %> Dial with <%= activeVariant.strapColor %> Strap</h2>
       <p><%= product.description %></p>
-      <h3>₹<%= activeVariant.price.toLocaleString('en-IN') %></h3> 
+    <h3>
+
+₹<%= finalPrice.toLocaleString('en-IN') %>
+
+<% if(maxOffer > 0){ %>
+
+<span style="text-decoration:line-through;color:#999;font-size:18px;">
+₹<%= activeVariant.price.toLocaleString('en-IN') %>
+</span>
+
+<span style="color:green;font-size:18px;">
+(<%= maxOffer %>% OFF)
+</span>
+
+<% } %>
+
+</h3> 
 
       <% if(activeVariant.stock > 0) { %>
         <p class="in-stock">In Stock (<%= activeVariant.stock %> available)</p>

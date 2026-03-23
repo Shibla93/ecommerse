@@ -50,7 +50,9 @@ const orderItemSchema = new Schema({
   reason: String,
   requestedAt: Date,
   approvedAt: Date,
-  rejectedAt: Date
+  rejectedAt: Date,
+
+  adminRemark: { type: String, default: "" } 
 }
 
 });
@@ -75,9 +77,10 @@ const orderSchema = new Schema(
     tax: Number,
     couponDiscount: Number,
 offerDiscount: Number,
-
-    shippingCharge: Number,
+ shippingCharge: Number,
     totalAmount: Number,
+
+ 
 
     paymentMethod: {
       type: String,
@@ -95,6 +98,7 @@ offerDiscount: Number,
   orderStatus: {
   type: String,
   enum: [
+      "pending_payment",
     "processing",
     "shipped",
     "delivered",
@@ -103,7 +107,7 @@ offerDiscount: Number,
     "return_requested",   
 
   ],
-  default: "processing"
+  default:  "pending_payment",
 }
 ,
 
