@@ -67,7 +67,13 @@ background:#ef4444;
 .status-payment_failed{
 background:#5544ef;
 }
-
+.status-returned{
+background:#010101;
+}
+.status-completed{
+background:#44ccee;
+}
+.status-request_pending { background: #f97316; }
     .table-wrapper {
       background: var(--color-card-bg);
       border-radius: var(--radius-lg);
@@ -289,8 +295,8 @@ background:#5544ef;
                 <td>
                   
 
-<span class="status-badge status-<%= order.orderStatus %>">
-<%= order.orderStatus %>
+<span class="status-badge status-<%= order.displayStatus %>">
+  <%= order.displayStatus.replace('_', ' ') %>
 </span>
 
 <br><br>
@@ -458,3 +464,4 @@ Cancelled
 
 }
     </script>
+  

@@ -1,12 +1,11 @@
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+import Messages from '../../constants/messages.js';
+import StatusCodes from '../../constants/StatusCodes.js';
+import Brand from '../../model/brandSchema.js';
+import Category from '../../model/categorySchema.js';
+import Product from '../../model/productSchema.js';
 
+import cloudinary from '../../helpers/cloudinary.js';
 
-const Brand = require("../../model/brandSchema");
-const Category = require("../../model/categorySchema");
-const Product = require("../../model/productSchema");
-const mongoose = require("mongoose");
-const cloudinary = require('../../helpers/cloudinary');
 
 const addproduct = async (req, res) => {
   try {
@@ -494,7 +493,7 @@ if (stock > 10000) {
 
 
 
-module.exports = {
+const productController={
   addproduct,
   createProduct,
   getProduct,
@@ -503,3 +502,4 @@ module.exports = {
   getEditProduct,
   editProduct
 };
+export default productController

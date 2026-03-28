@@ -1,24 +1,26 @@
-const express=require("express");
-const router=express.Router();
-const adminController=require("../controllers/admin/adminController")
-const {adminAuth}=require("../middlewares/auth")
-const userController=require("../controllers/admin/userController")
-const categoryController=require("../controllers/admin/categoryController")
-const brandController=require("../controllers/admin/brandController")
-const productController=require("../controllers/admin/productController")
-const orderController=require("../controllers/admin/orderController")
-const couponController=require("../controllers/admin/couponController")
-const offerController = require("../controllers/admin/offerController");
-const salesController = require("../controllers/admin/salesController");
+import express from "express";
+const router = express.Router();
 
-const upload = require('../helpers/multer'); 
-const cloudinary = require('../helpers/cloudinary')
-const {preventAdminLogin} = require('../middlewares/preventAdminLogin');
+import adminController from "../controllers/admin/adminController.js";
+import { adminAuth } from "../middlewares/auth.js";
+import userController from "../controllers/admin/userController.js";
+import categoryController from "../controllers/admin/categoryController.js";
+import brandController from "../controllers/admin/brandController.js";
+import productController from "../controllers/admin/productController.js";
+import orderController from "../controllers/admin/orderController.js";
+import couponController from "../controllers/admin/couponController.js";
+import offerController from "../controllers/admin/offerController.js";
+import salesController from "../controllers/admin/salesController.js";
+
+import upload from "../helpers/multer.js";
+import cloudinary from "../helpers/cloudinary.js";
+import { preventAdminLogin } from "../middlewares/preventAdminLogin.js";
 
 router.get("/pageError",adminController.pageError)
 router.get("/login",preventAdminLogin,adminController.loadLogin)
 router.post("/login",adminController.login)
 router.get("/dashboard",adminAuth,adminController.loadDashboard)
+router.get('/dashboard-data',adminAuth, adminController.getDashboardData);
 router.get("/logout",adminController.logout);
 router.post("/logout",adminController.logout)
 
@@ -68,11 +70,10 @@ router.post("/offers/update/:offerId",adminAuth, offerController.updateOffer);
 // Delete Offer
 router.get("/offers/delete/:id",adminAuth, offerController.deleteOffer);
 
+router.get("/sales-report", adminAuth,salesController.getSalesReport)
 
-
-router.get("/sales-report", adminAuth,salesController.getSalesReport);
 router.get("/sales-report/download/pdf", adminAuth,salesController.downloadPDF);
  router.get("/sales-report/download/excel",adminAuth, salesController.downloadExcel);
 
 
-module.exports=router;
+export default router

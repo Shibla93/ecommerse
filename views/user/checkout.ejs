@@ -399,7 +399,7 @@ style="width:50px;height:50px;object-fit:cover;border-radius:5px;">
 </div>
 <div class="summary-row">
   <span>Shipping</span>
-  <span id="shipping" class="text-success">₹<%= shipping %></span>
+  <span id="shipping" class="text-success">₹<%= shippingCharge %></span>
 </div>
 <div class="total-row">
   <span>Total</span>
@@ -471,6 +471,12 @@ style="width:50px;height:50px;object-fit:cover;border-radius:5px;">
     }
 
 const paymentMethod=document.querySelector('input[name="paymentMethod"]:checked').value;
+const total = parseFloat(document.getElementById("finalTotal").textContent.replace('₹',''));
+
+if (paymentMethod === "COD" && total > 5000) {
+  Swal.fire("COD not allowed above ₹5000");
+  return;
+}
 
 if (paymentMethod === 'COD' || paymentMethod === 'WALLET') {
 
@@ -618,12 +624,14 @@ document.getElementById("removeCouponBtn").addEventListener("click", async () =>
 
     Swal.fire("Removed", "Coupon removed successfully", "success");
 
-    
+    function calculateShipping(subtotal) {
+  return subtotal < 2500 ? 50 : 0;
+}
     document.getElementById("discount").textContent = `₹0`;
 
     const subtotal = parseFloat(document.getElementById("subtotal").textContent.replace('₹',''));
     const taxes = parseFloat(document.getElementById("taxes").textContent.replace('₹',''));
-    const shipping = parseFloat(document.getElementById("shipping").textContent.replace('₹','')) || 0;
+   const shipping = calculateShipping(subtotal);
 
     const total = subtotal + taxes + shipping;
     document.getElementById("finalTotal").textContent = `₹${total}`;
@@ -636,4 +644,5 @@ document.getElementById("removeCouponBtn").addEventListener("click", async () =>
   }
 
 });
+
 </script>

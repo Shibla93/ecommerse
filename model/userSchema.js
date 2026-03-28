@@ -1,5 +1,4 @@
-
-const mongoose=require("mongoose");
+import mongoose from 'mongoose';
 const {Schema}=mongoose;
 
 
@@ -61,7 +60,8 @@ const userSchema=new Schema({
   
     referralCode: {
     type: String,
-    unique: true
+    unique: true,
+      sparse: true 
 },
 referredBy: {
     type: Schema.Types.ObjectId,
@@ -97,4 +97,4 @@ referralRewards: [{
 
 
 const User=mongoose.model("User",userSchema)
-module.exports=User
+export default User

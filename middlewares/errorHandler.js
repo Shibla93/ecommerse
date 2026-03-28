@@ -1,6 +1,6 @@
-const Messages = require('../constants/messages');
-const StatusCodes = require("../constants/StatusCodes");
-module.exports = (err, req, res, next) => {
+import Messages from '../constants/messages.js';
+import StatusCodes from '../constants/StatusCodes.js';
+export default (err, req, res, next) => {
   const view = req.originalUrl.startsWith("/admin")
     ? "admin/error"
     : "user/error";

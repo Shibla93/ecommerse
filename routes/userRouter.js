@@ -1,22 +1,24 @@
+import express from "express";
+const router = express.Router();
 
-const express=require("express");
-const router=express.Router();
-const userController=require("../controllers/user/userController")
-const upload = require('../helpers/multer'); 
+import userController from "../controllers/user/userController.js";
+import upload from "../helpers/multer.js";
 
-const passport = require("passport");
-const {userAuth}=require("../middlewares/auth")
-const profileController=require("../controllers/user/profileController")
-const productController=require("../controllers/user/productController")
-const addressController=require("../controllers/user/addressController")
-const cartController=require("../controllers/user/cartController")
-const checkoutController=require("../controllers/user/checkoutController")
-const orderController=require("../controllers/user/orderController")  
-const wishlistController=require("../controllers/user/wishlistController")
-const paymentController=require("../controllers/user/paymentController")
-const walletController=require("../controllers/user/walletController")
-const couponController = require("../controllers/user/couponController");
-const cloudinary = require('../helpers/cloudinary')
+import passport from "passport";
+import { userAuth } from "../middlewares/auth.js";
+
+import profileController from "../controllers/user/profileController.js";
+import productController from "../controllers/user/productController.js";
+import addressController from "../controllers/user/addressController.js";
+import cartController from "../controllers/user/cartController.js";
+import checkoutController from "../controllers/user/checkoutController.js";
+import orderController from "../controllers/user/orderController.js";
+import wishlistController from "../controllers/user/wishlistController.js";
+import paymentController from "../controllers/user/paymentController.js";
+import walletController from "../controllers/user/walletController.js";
+import couponController from "../controllers/user/couponController.js";
+
+import cloudinary from "../helpers/cloudinary.js";
 
 router.get("/pageNotfound",userController.pageNotFound)
 
@@ -28,7 +30,7 @@ router.get("/verifyOtp",userController.verifyOtp)
 router.post("/verifyOtp",userController.postOtp)
 router.post("/resendotp",userController.resendOtp)
 
-const {preventLogin} = require('../middlewares/preventLogin');
+import { preventLogin } from '../middlewares/preventLogin.js';
 
 router.get('/login', preventLogin, userController.loadLogin);
 
@@ -129,4 +131,4 @@ router.post("/form", upload.any(), userController.postform);
 
 
 
-module.exports = router;
+export default router

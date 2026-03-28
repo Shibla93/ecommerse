@@ -1,7 +1,10 @@
-const Brand=require("../../model/brandSchema.js")
-const mongoose = require("mongoose");
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+
+import Brand from "../../model/brandSchema.js";
+
+
+
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
 
 const getBrand=async(req,res)=>{
     
@@ -85,10 +88,12 @@ const blockBrand=async(req,res)=>{
 
 
 
-module.exports={
+const brandController={
     getBrand,
     addBrand,
     blockBrand,
     
 
+
 }
+export default brandController

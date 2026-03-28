@@ -1,7 +1,6 @@
-const User=require("../../model/userSchema")
-const mongoose = require("mongoose");
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+import User from "../../model/userSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
 
 const getCustomer = async (req, res) => {
   try {
@@ -114,7 +113,8 @@ const blockCustomer = async (req, res) => {
 
 
 
-module.exports={
+const userController={
     getCustomer,
     blockCustomer
 }
+export default userController

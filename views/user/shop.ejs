@@ -16,6 +16,21 @@
       --text-light: #999;
     }
 
+    html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+   min-height: 100vh
+}
+
+
+
+footer {
+  margin-top: auto;
+}
     body {
       font-family: 'Montserrat', sans-serif;
       background: var(--white);
@@ -550,6 +565,7 @@ transform:none;
   </div>
 
   <% } %>
+  </div>
     <%- include("../../views/partials/user/footer") %>
 
 

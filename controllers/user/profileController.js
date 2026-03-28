@@ -1,17 +1,32 @@
-const User = require("../../model/userSchema");
-const env = require("dotenv").config();
-const nodemailer = require("nodemailer");
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
-const bcrypt = require("bcrypt");
-const streamifier = require("streamifier");
-const cloudinary = require('../../helpers/cloudinary');
+import User from "../../model/userSchema.js";
+import dotenv from "dotenv";
+dotenv.config();
 
+import nodemailer from "nodemailer";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+import bcrypt from "bcrypt";
+import streamifier from "streamifier";
+import cloudinary from "../../helpers/cloudinary.js";
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+const generateReferralCode = async (name) => {
+  let code;
+  let exists = true;
+
+  while (exists) {
+    const random = Math.floor(1000 + Math.random() * 9000);
+    code = name.slice(0,2).toUpperCase() + random;
+
+    const user = await User.findOne({ referralCode: code });
+    if (!user) exists = false;
+  }
+
+  return code;
+};
 async function sendVerificationEmail(email, otp) {
   try {
     const transporter = nodemailer.createTransport({
@@ -191,8 +206,16 @@ const newPass = async (req, res) => {
 const userProfile=async(req,res)=>{
     try{
 const userId=req.session.user;
-const userData=await User.findById(userId).lean();
+const userData=await User.findById(userId);
+if (!userData.referralCode) {
+  const code = await generateReferralCode(userData.name);
 
+  await User.findByIdAndUpdate(userId, {
+    referralCode: code
+  });
+
+  userData.referralCode = code; 
+}
 res.render('profile',{
   user:userData,
     activePage: "profile",
@@ -449,7 +472,7 @@ const changePassword=async(req,res)=>{
 
 
 
-module.exports = {
+const  profileController= {
   getForgotPass,
   postEmail,
   getForgotVerify,
@@ -468,3 +491,4 @@ module.exports = {
 changePassword,
      
 };
+export default  profileController

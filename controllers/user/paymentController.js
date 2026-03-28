@@ -1,12 +1,12 @@
-const Payment = require("../../model/paymentSchema");
-const Address = require("../../model/addressSchema");
-const Cart = require("../../model/cartSchema");
-const Product = require("../../model/productSchema");
-const Category = require("../../model/categorySchema");
-const Order = require("../../model/orderSchema");
-const Coupon = require("../../model/coupenSchema");
-const razorpay = require("../../config/razorpay");
-const crypto = require("crypto");
+import Payment from "../../model/paymentSchema.js";
+import Address from "../../model/addressSchema.js";
+import Cart from "../../model/cartSchema.js";
+import Product from "../../model/productSchema.js";
+import Category from "../../model/categorySchema.js";
+import Order from "../../model/orderSchema.js";
+import Coupon from "../../model/coupenSchema.js";
+import razorpay from "../../config/razorpay.js";
+import crypto from "crypto";
 
 // const createRazorpayOrder = async (req, res) => {
 //   try {
@@ -189,6 +189,7 @@ const createRazorpayOrder = async (req, res) => {
 
       let subTotal = 0;
       let offerDiscount = 0;
+         let shippingCharge = 0;
 
       const orderedItems = cart.items.map(item => {
 
@@ -213,6 +214,10 @@ console.log("Max Offer:", maxOffer);
 
         subTotal += finalPrice * item.quantity;
 
+
+    if (subTotal < 2500) {
+  shippingCharge = 50;
+}
         offerDiscount += (variant.price - finalPrice) * item.quantity;
 
         return {
@@ -225,12 +230,26 @@ console.log("Max Offer:", maxOffer);
       });
 
       const tax = Math.round(subTotal * 0.05);
-      let discount = 0;
-      if (req.session.appliedCoupon) {
-        discount = Number(req.session.appliedCoupon.discount) || 0;
-      }
+     let discount = 0;
 
-      const totalAmount = subTotal + tax - discount;
+if (req.session.appliedCoupon && req.session.appliedCoupon.couponId) {
+
+  const coupon = await Coupon.findById(req.session.appliedCoupon.couponId);
+
+  if (
+    coupon &&
+    coupon.isActive &&
+    new Date(coupon.expiryDate) > new Date()
+  ) {
+    discount = Number(req.session.appliedCoupon.discount) || 0;
+  } else {
+    req.session.appliedCoupon = null; // invalid coupon remove
+  }
+}
+    console.log("discount:",discount)
+    console.log("subTotal:",subTotal)
+
+      const totalAmount = subTotal + tax - discount+shippingCharge;
 
       const addressDoc = await Address.findOne({ userId });
       if (!addressDoc) {
@@ -250,7 +269,7 @@ console.log("Max Offer:", maxOffer);
         tax,
         couponDiscount: discount,
         offerDiscount: offerDiscount,
-        shippingCharge: 0,
+        shippingCharge,
         totalAmount,
         paymentMethod: "ONLINE",
         paymentStatus: "pending",
@@ -569,9 +588,10 @@ const markPaymentFailed = async (req, res) => {
 //     res.json({ success: false });
 //   }
 // };
-module.exports = {
+ const paymentController= {
   createRazorpayOrder,
   verifyRazorpayPayment,
   markPaymentFailed,
 
 };
+ export default paymentController

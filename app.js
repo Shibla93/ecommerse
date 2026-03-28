@@ -1,19 +1,21 @@
 
-const express=require("express");
-const app=express();
-const path=require("path")
-const env=require("dotenv").config();
-const session=require("express-session")
-const MongoStore = require('connect-mongo');
-const dbConnect=require("./config/db")
-const userRouter = require("./routes/userRouter");
-const adminRouter=require("./routes/adminRouter")
-const passport = require("passport");
-const Messages = require("./constants/messages");
-require("./config/passport")
-const flash = require("connect-flash");
-const setLocals = require('./middlewares/setLocals');
-const errorHandler = require("./middlewares/errorHandler");
+import express from "express";
+const app = express();
+
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+dotenv.config();
+
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import dbConnect from "./config/db.js";
+import userRouter from "./routes/userRouter.js";
+import adminRouter from "./routes/adminRouter.js";
+import passport from "passport";
+import "./config/passport.js"; // side-effect import for passport config
+import setLocals from "./middlewares/setLocals.js";
+import errorHandler from "./middlewares/errorHandler.js";
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 
@@ -36,7 +38,14 @@ app.use(passport.session())
 
 app.use(setLocals);
 app.set("view engine", "ejs");
-app.set("views",[ path.join(__dirname, "views/user"),path.join(__dirname,'views/')]);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+app.set("views", [
+  path.join(__dirname, "views/user"),
+  path.join(__dirname, "views/")
+]);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -56,4 +65,4 @@ dbConnect().then(() => {
   });
 });
 
-module.exports=app;
+export default app;

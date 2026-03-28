@@ -1,14 +1,14 @@
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
-const Brand = require("../../model/brandSchema");
-const Category = require("../../model/categorySchema");
-const Product = require("../../model/productSchema")
-const Wallet = require('../../model/walletSchema');
-const Coupon = require('../../model/coupenSchema');
-const mongoose = require("mongoose");
-const cloudinary = require('../../helpers/cloudinary');
-const Order = require('../../model/orderSchema');
-const { getDisplayStatus } = require("../../helpers/displayStatus");
+import Messages from '../../constants/messages.js';
+import StatusCodes from '../../constants/StatusCodes.js';
+import Brand from '../../model/brandSchema.js';
+import Category from '../../model/categorySchema.js';
+import Product from '../../model/productSchema.js';
+import Wallet from '../../model/walletSchema.js';
+import Coupon from '../../model/coupenSchema.js';
+import mongoose from 'mongoose';
+import cloudinary from '../../helpers/cloudinary.js';
+import Order from '../../model/orderSchema.js';
+import { getDisplayStatus } from '../../helpers/displayStatus.js';
 
 
 const listOrders = async (req, res) => {
@@ -220,7 +220,7 @@ const updateOrderStatus = async (req, res) => {
           const itemTotal = item.purchasedPrice * item.quantity;
 
           const itemTaxShare = (itemTotal / order.subTotal) * order.tax;
-
+                 
           const itemCouponShare =
             (itemTotal / order.subTotal) *
             (order.couponDiscount );
@@ -440,10 +440,12 @@ const rejectItem = async (req, res) => {
 
 
 
-module.exports = {
+const orderController= {
   listOrders,
   updateOrderStatus,
   viewOrder,
   approveItem,
   rejectItem
 };
+
+export default orderController

@@ -1,6 +1,6 @@
 
-const Coupon = require("../../model/coupenSchema");
-const User =require("../../model/userSchema")
+import Coupon from "../../model/coupenSchema.js";
+import User from "../../model/userSchema.js";
 
 const getCoupens=async(req,res)=>{
     try {
@@ -27,6 +27,7 @@ const getCoupens=async(req,res)=>{
 };
 
 
-module.exports={
+const couponController={
     getCoupens
 }
+export default couponController

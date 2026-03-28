@@ -1,7 +1,7 @@
-const Wallet = require("../../model/walletSchema");
-const User = require("../../model/userSchema");
-const Messages = require("../../constants/messages");
-const StatusCodes = require("../../constants/StatusCodes")
+import Wallet from "../../model/walletSchema.js";
+import User from "../../model/userSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
 
 const getWallet = async (req, res) => {
   try {
@@ -46,4 +46,5 @@ const getWallet = async (req, res) => {
 };
 
 
-module.exports = { getWallet };
+const walletController={ getWallet };
+export default walletController

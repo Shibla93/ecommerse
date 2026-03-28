@@ -1,8 +1,9 @@
+import Category from "../../model/categorySchema.js";
+import Product from "../../model/productSchema.js";
 
-const mongoose = require("mongoose");
-const Offer = require("../../model/offerSchema");
-const Product = require("../../model/productSchema");
-const Category = require("../../model/categorySchema");
+import mongoose from "mongoose";
+import Offer from "../../model/offerSchema.js";
+
 
 
 const getOffersPage = async (req, res) => {
@@ -188,9 +189,12 @@ const deleteOffer = async (req, res) => {
   }
 };
 
-module.exports = {
+const offerController={
   getOffersPage,
   createOffer,
   updateOffer,
   deleteOffer
 };
+
+
+export default offerController

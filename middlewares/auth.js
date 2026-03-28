@@ -1,7 +1,6 @@
-const Messages = require("../constants/messages");
-const StatusCodes = require("../constants/StatusCodes");
-const User = require("../model/userSchema");
-
+import Messages from "../constants/messages.js";
+import StatusCodes from "../constants/StatusCodes.js";
+import User from "../model/userSchema.js";
 const userAuth = async (req, res, next) => {
   try {
     if (!req.session.user) {
@@ -51,7 +50,7 @@ const adminAuth = (req, res, next) => {
 
 
 
-module.exports={
+export{
     userAuth,
     adminAuth,
     

@@ -1,18 +1,21 @@
-const User=require("../../model/userSchema")
-const env=require("dotenv").config()
-const nodemailer=require("nodemailer")
+import User from "../../model/userSchema.js";
+import dotenv from "dotenv";
+dotenv.config();
+import nodemailer from "nodemailer";
 
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
-const bcrypt = require("bcrypt");
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+import bcrypt from "bcrypt";
 
-const Cart = require('../../model/cartSchema');
-const Brand = require("../../model/brandSchema");
-const Category = require("../../model/categorySchema");
-const Product = require("../../model/productSchema");
-const mongoose = require("mongoose");
-const cloudinary = require('../../helpers/cloudinary');
-const { max } = require("moment/moment");
+import Cart from "../../model/cartSchema.js";
+import Brand from "../../model/brandSchema.js";
+import Category from "../../model/categorySchema.js";
+import Product from "../../model/productSchema.js";
+import mongoose from "mongoose";
+import cloudinary from "../../helpers/cloudinary.js";
+import moment from "moment/moment.js";
+
+const { max } = moment;
 
 
 const loadShoppingPage = async (req, res) => {
@@ -71,7 +74,9 @@ const loadShoppingPage = async (req, res) => {
       "variants.price": { $gte: minPrice, $lte: maxPrice },
       ...(search && { product: { $regex: search, $options: "i" } }),
      ...(selectedCategory && { category: new mongoose.Types.ObjectId(selectedCategory) }),
-      ...(selectedCategory && { category: new mongoose.Types.ObjectId(selectedCategory) }),
+     ...(selectedBrand && { 
+      brand: new mongoose.Types.ObjectId(selectedBrand) 
+    })
     } 
   },
   // join brand
@@ -282,8 +287,9 @@ const addReview=async(req,res)=>{
 
 
 
-module.exports={
+ const productController={
     loadShoppingPage,
     loadProductDetail,
     addReview
 }
+export default  productController

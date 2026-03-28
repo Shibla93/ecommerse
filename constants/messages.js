@@ -63,4 +63,4 @@ ORDER_ALREADY_RETURNED:"This order has already been returned.",
     INSUFFICIENT_STOCK: "Insufficient stock available for the selected product",
 };
 
-module.exports = Messages;
+export default Messages;

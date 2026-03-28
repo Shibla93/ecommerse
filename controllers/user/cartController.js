@@ -1,12 +1,11 @@
-const User = require("../../model/userSchema");
-const Product = require("../../model/productSchema");
-const Category = require("../../model/categorySchema");
-const Wishlist=require("../../model/wishlistSchema");
-const mongodb = require("mongodb");
-const Cart = require('../../model/cartSchema');
-const Messages = require("../../constants/messages");
-const StatusCodes = require("../../constants/StatusCodes");
-
+import User from "../../model/userSchema.js";
+import Product from "../../model/productSchema.js";
+import Category from "../../model/categorySchema.js";
+import Wishlist from "../../model/wishlistSchema.js";
+import mongodb from "mongodb";
+import Cart from "../../model/cartSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
 const getCartPage = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -24,6 +23,7 @@ const cart = await Cart.findOne({ userId }).populate({
 });
 
 let grandTotal = 0;
+   let shipping = 0;
 
 if (cart && cart.items.length > 0) {
 
@@ -49,16 +49,25 @@ if (cart && cart.items.length > 0) {
         item.price = finalPrice;
         item.totalPrice = finalPrice * item.quantity;
 
+    
+  
         grandTotal += item.totalPrice;
 
-
+   
   });
+  if (grandTotal < 2500) {
+    shipping = 50;
+  }
+
+  
+  grandTotal += shipping;
 }
 
 res.render('cart', {
   user,
   cart,
-  grandTotal
+  grandTotal,
+  shipping
 });
 
   } catch (error) {
@@ -306,9 +315,10 @@ const removeProduct = async (req, res) => {
 
 
 
-module.exports={
+const cartController={
     getCartPage,
     addToCart,
     changeQuantity,
     removeProduct
 }
+export default cartController

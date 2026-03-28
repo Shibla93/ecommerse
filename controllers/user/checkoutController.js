@@ -1,17 +1,17 @@
-const User = require("../../model/userSchema");
-const Address = require("../../model/addressSchema");
-const Cart = require("../../model/cartSchema");
-const Product = require("../../model/productSchema");
-const Category= require("../../model/categorySchema");
-const Order = require("../../model/orderSchema");
-const Wallet = require("../../model/walletSchema");
-const Coupon = require("../../model/coupenSchema");
-const Messages = require("../../constants/messages");
-const StatusCodes = require("../../constants/StatusCodes");
-const razorpay = require("../../config/razorpay");
-const crypto = require("crypto");
-const { error } = require("console");
-const mongoose = require("mongoose");
+import User from "../../model/userSchema.js";
+import Address from "../../model/addressSchema.js";
+import Cart from "../../model/cartSchema.js";
+import Product from "../../model/productSchema.js";
+import Category from "../../model/categorySchema.js";
+import Order from "../../model/orderSchema.js";
+import Wallet from "../../model/walletSchema.js";
+import Coupon from "../../model/coupenSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+import razorpay from "../../config/razorpay.js";
+import crypto from "crypto";
+import { error } from "console";
+import mongoose from "mongoose";
 
 
 const validateCheckout = async (req, res) => {
@@ -24,7 +24,10 @@ const validateCheckout = async (req, res) => {
     }
 
     const user = await User.findById(userId);
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+     const cart = await Cart.findOne({ userId }).populate({
+      path: "items.productId",
+      populate: ["brand", "category"]
+    });
 
     if (!cart || cart.items.length === 0) {
       return res.redirect("/cart");
@@ -53,7 +56,7 @@ const getCheckoutPage = async (req, res) => {
   try {
     const userId = req.session.user;
     if (!userId) return res.redirect("/login");
-    //req.session.appliedCoupon = null;
+    req.session.appliedCoupon = null;
     const user = await User.findById(userId);
     const cart = await Cart.findOne({ userId }).populate({
   path: "items.productId",
@@ -93,16 +96,20 @@ cart.items.forEach(item => {
 
 });
 
-    const taxes = subtotal * 0.05;
+    const taxes =Math.round( subtotal * 0.05);
   
   let discount=0
 
 
 
-    const shipping = 0;
+    let shipping = 0;
+        if (subtotal <2500) {
+  shipping = 50;
+}
     
-const total = subtotal + taxes - discount;
-
+const total = subtotal + taxes - discount+shipping;
+console.log("discount:",discount)
+    console.log("subTotal:",subtotal)
     const userAddress = await Address.findOne({ userId });
 
     res.render("checkout", {
@@ -113,7 +120,7 @@ const total = subtotal + taxes - discount;
       subtotal,
       taxes,
       discount,
-      shipping,
+      shippingCharge:shipping,
       total,
       razorpayKey: process.env.RAZORPAY_KEY_ID
 
@@ -235,14 +242,25 @@ if (req.session.appliedCoupon) {
       discount = coupon.discountValue;
     }
 
-    
+    console.log("discount:",discount)
+    console.log("subTotal:",subTotal)
     coupon.usedBy.push(userId);
     await coupon.save();
   }
 }
 
-    const shippingCharge = 0;
+    let shippingCharge = 0;
+
+    if (subTotal < 2500) {
+  shippingCharge = 50;
+}
     const totalAmount = subTotal + tax - discount + shippingCharge;
+    if (paymentMethod === "COD" && totalAmount > 5000) {
+  return res.json({
+    success: false,
+    message: "Cash on Delivery not available for orders above ₹5000"
+  });
+}
 
     let finalPaymentStatus = "pending";
 
@@ -391,7 +409,7 @@ const removeCoupon = (req, res) => {
     message: "Coupon removed successfully"
   });
 };
-module.exports = {
+const  checkoutController= {
   validateCheckout,
   getCheckoutPage,
   placeOrder,
@@ -400,3 +418,4 @@ module.exports = {
  
 
 };
+export default  checkoutController

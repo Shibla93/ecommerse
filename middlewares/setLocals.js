@@ -1,8 +1,8 @@
-const Cart = require("../model/cartSchema");
-const User = require("../model/userSchema");
-const Wishlist = require("../model/wishlistSchema"); 
+import Cart from "../model/cartSchema.js";
+import User from "../model/userSchema.js";
+import Wishlist from "../model/wishlistSchema.js";
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
   try {
     res.locals.user = null;
     res.locals.cartCount = 0;

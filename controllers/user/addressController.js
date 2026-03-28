@@ -1,7 +1,7 @@
-const User = require("../../model/userSchema");
-const Address=require("../../model/addressSchema");
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+import User from "../../model/userSchema.js";
+import Address from "../../model/addressSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
 
 
 const getAddress = async (req, res) => {
@@ -321,12 +321,13 @@ try {
 };
 
 
-module.exports={
+const addressController = {
     getAddress,
     addAddress,
     postAddAddress,
     editAddress,
     postEditAddress,
     deleteAddress
+};
 
-}
+export default addressController;

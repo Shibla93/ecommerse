@@ -1,7 +1,7 @@
-const Order = require("../../model/orderSchema");
-const PDFDocument = require("pdfkit");
-const ExcelJS = require("exceljs");
-const moment = require("moment");
+import Order from "../../model/orderSchema.js";
+import PDFDocument from "pdfkit";
+import ExcelJS from "exceljs";
+import moment from "moment";
 
 
 
@@ -82,7 +82,7 @@ try{
 
 const filter = req.query.filter || "daily";
 const page = parseInt(req.query.page) || 1;
-const limit = 5;
+const limit = 20;
 
 const {startDate,endDate} = getDateRange(filter,req.query.startDate,req.query.endDate);
 
@@ -135,8 +135,8 @@ overallOrderAmount,
 overallDiscount,
 couponDeductions,
 filter,
-startDate:req.query.startDate || "",
-endDate:req.query.endDate || "",
+startDate: moment(startDate).format("YYYY-MM-DD"), 
+  endDate: moment(endDate).format("YYYY-MM-DD"), 
 currentPage:page,
 totalPages
 
@@ -344,8 +344,9 @@ const downloadPDF = async (req, res) => {
 };
 
 
-module.exports = {
+const salesController = {
 getSalesReport,
 downloadExcel,
 downloadPDF
 };
+export default salesController

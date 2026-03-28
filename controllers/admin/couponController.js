@@ -1,5 +1,5 @@
-const Coupon = require("../../model/coupenSchema");
 
+import Coupon from "../../model/coupenSchema.js";
 const loadCouponList = async (req, res) => {
   try {
     const page=parseInt(req.query.page)||1
@@ -185,10 +185,11 @@ const deleteCoupon = async (req, res) => {
   }
 };
 
-module.exports={
+const coupenController={
     loadCouponList,
     loadCreateCoupon,
     createCoupon,
     updateCoupon,
     deleteCoupon
 }
+export default coupenController

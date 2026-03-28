@@ -1,19 +1,18 @@
+import User from "../../model/userSchema.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-const User=require("../../model/userSchema")
-const env=require("dotenv").config()
-const nodemailer=require("nodemailer")
+import nodemailer from "nodemailer";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+import bcrypt from "bcrypt";
 
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
-const bcrypt = require("bcrypt");
-
-
-const Brand = require("../../model/brandSchema");
-const Category = require("../../model/categorySchema");
-const Wallet = require("../../model/walletSchema"); 
-const Product = require("../../model/productSchema");
-const mongoose = require("mongoose");
-const cloudinary = require('../../helpers/cloudinary');
+import Brand from "../../model/brandSchema.js";
+import Category from "../../model/categorySchema.js";
+import Wallet from "../../model/walletSchema.js";
+import Product from "../../model/productSchema.js";
+import mongoose from "mongoose";
+import cloudinary from "../../helpers/cloudinary.js";
 
 
 const pageNotFound=async(req,res)=>{
@@ -27,11 +26,20 @@ const pageNotFound=async(req,res)=>{
 
 
 
+const generateReferralCode = async (name) => {
+  let code;
+  let exists = true;
 
-function generateReferralCode(name) {
+  while (exists) {
     const random = Math.floor(1000 + Math.random() * 9000);
-    return name.slice(0,2).toUpperCase() + random; 
-}
+    code = name.slice(0,2).toUpperCase() + random;
+
+    const user = await User.findOne({ referralCode: code });
+    if (!user) exists = false;
+  }
+
+  return code;
+};
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
@@ -253,17 +261,20 @@ const postOtp=async(req,res)=>{
     }
 
     if(!req.session.otpExpiry || Date.now() > req.session.otpExpiry){
-      return res.render("verify-otp", { error: Messages.OTP_EXPIRED});
+      req.session.errorMessage = Messages.OTP_EXPIRED;
+  return res.redirect("/verify-otp");;
     }
 
     if(otp!==req.session.userOtp){
-      return res.render("verify-otp", { error:Messages.OTP_INVALID });
+        req.session.errorMessage = Messages.OTP_INVALID;
+  return res.redirect("/verify-otp");
     }
 
     const { name, phone, email, password ,referredBy} = req.session.userData;
 
     if(!password){
-      return res.render("verify-otp",{error:"Password missing"});
+       req.session.errorMessage = "Password missing";
+  return res.redirect("/verify-otp");
     }
 
     const hashedPassword = await securePassword(password);
@@ -273,14 +284,16 @@ const postOtp=async(req,res)=>{
       phone,
       email,
       password:hashedPassword,
-      referralCode: generateReferralCode(name),
+      referralCode:await generateReferralCode(name),
       referredBy: referredBy || null
     });
 
     try {
       await newUser.save();
-      if (referredBy) {
+   if (referredBy) {
   const refUser = await User.findById(referredBy);
+
+  if (!refUser) return;
 
   if (refUser ) {
 
@@ -317,7 +330,9 @@ const postOtp=async(req,res)=>{
     req.session.otpExpiry = null;
     req.session.userData = null;
 
-    return res.render("login",{success:Messages.ACCOUNT_CREATED});
+    // return res.render("login",{success:Messages.ACCOUNT_CREATED});
+    req.session.successMessage = Messages.ACCOUNT_CREATED;
+return res.redirect("/login");
 
   } catch (error) {
     console.log("postOtp error:", error);
@@ -357,62 +372,125 @@ res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
 
 
 
-const loadLogin=async(req,res)=>{
-    try {
-      if (req.isAuthenticated()) {
-    return res.redirect("/home");
-  }
-  res.render("login");
-    } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
+// const loadLogin=async(req,res)=>{
+//     try {
+//       if (req.isAuthenticated()) {
+//     return res.redirect("/home");
+//   }
+//   res.render("login");
+//     } catch (error) {
+//         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
+//     }
+// }
+const loadLogin = async (req, res) => {
+  try {
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      return res.redirect("/home");
     }
-}
+
+    const error = req.session.errorMessage;
+    const email = req.session.oldEmail;
+
+    
+    req.session.errorMessage = null;
+    req.session.oldEmail = null;
+
+    res.render("login", { error, email });
+
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: Messages.INTERNAL_SERVER_ERROR
+    });
+  }
+};
+
+// const login=async(req,res)=>{
+//     try {
+//         const {email,password}=req.body;
+//         const findUser=await User.findOne({email})
+//          if (!findUser) {
+//         return res.render("login", { error: Messages.USER_NOT_FOUND ,
+//           email:email
+//         });
 
 
-const login=async(req,res)=>{
-    try {
-        const {email,password}=req.body;
-        const findUser=await User.findOne({email})
-         if (!findUser) {
-        return res.render("login", { error: Messages.USER_NOT_FOUND ,
-          email:email
-        });
+//     }
 
+//     if (findUser.isBlocked) {
+//       return res.render("login", { error: Messages.USER_BLOCKED,
+//         email:email
+//        });
+//     }
 
+//     if (!password || !findUser.password) {
+//       return res.status(StatusCodes.BAD_REQUEST).render("login", {
+//         error: Messages.INVALID_CREDENTIALS ,
+//         email:email
+//       });
+//     }
+
+//     const passwordMatch = await bcrypt.compare(password, findUser.password);
+//     if (!passwordMatch) {
+//       return res.status(StatusCodes.UNAUTHORIZED).render("login", {
+//         error: Messages.INVALID_PASSWORD,
+//         email:email
+//     })
+
+//     } 
+//     req.session.user = findUser._id;
+//     return res.redirect("/home");
+
+// }catch (error) {
+//          console.error("Login error", error);
+//     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("login", {
+//       error: Messages.INTERNAL_SERVER_ERROR,
+//   })
+
+//     }
+// }
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const findUser = await User.findOne({ email });
+
+    if (!findUser) {
+      req.session.errorMessage = Messages.USER_NOT_FOUND;
+      req.session.oldEmail = email;
+      return res.redirect("/login");
     }
 
     if (findUser.isBlocked) {
-      return res.render("login", { error: Messages.USER_BLOCKED,
-        email:email
-       });
+      req.session.errorMessage = Messages.USER_BLOCKED;
+      req.session.oldEmail = email;
+      return res.redirect("/login");
     }
 
     if (!password || !findUser.password) {
-      return res.status(StatusCodes.BAD_REQUEST).render("login", {
-        error: Messages.INVALID_CREDENTIALS ,
-        email:email
-      });
+      req.session.errorMessage = Messages.INVALID_CREDENTIALS;
+      req.session.oldEmail = email;
+      return res.redirect("/login");
     }
 
     const passwordMatch = await bcrypt.compare(password, findUser.password);
-    if (!passwordMatch) {
-      return res.status(StatusCodes.UNAUTHORIZED).render("login", {
-        error: Messages.INVALID_PASSWORD,
-        email:email
-    })
 
-    } 
+    if (!passwordMatch) {
+      req.session.errorMessage = Messages.INVALID_PASSWORD;
+      req.session.oldEmail = email;
+      return res.redirect("/login");
+    }
+
     req.session.user = findUser._id;
+
     return res.redirect("/home");
 
-}catch (error) {
-         console.error("Login error", error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("login", {
-      error: Messages.INTERNAL_SERVER_ERROR,
-  })
+  } catch (error) {
+    console.error("Login error", error);
 
-    }
-}
+    req.session.errorMessage = Messages.INTERNAL_SERVER_ERROR;
+    return res.redirect("/login");
+  }
+};
 const logout=async (req,res)=>{
   try {
     req.session.destroy((err)=>{
@@ -492,7 +570,7 @@ const postform=async(req,res)=>{
 
 
 
-module.exports={
+const userController={
     home,
     pageNotFound,
     signup,
@@ -508,3 +586,4 @@ module.exports={
     
     
 }
+export default userController

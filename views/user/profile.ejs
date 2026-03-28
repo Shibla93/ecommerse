@@ -589,7 +589,7 @@
     
     <input 
       type="text" 
-      value="<%= user.referralCode %>" 
+   value="<%= user.referralCode || '' %>"
       readonly 
       class="form-input"
       style="flex:1; font-weight:bold; letter-spacing:2px;"
@@ -606,9 +606,9 @@
   </small>
 </div>
 <div class="form-group">
-  <label>Total Rewards</label>
+  <!-- <label>Total Rewards</label>
   <p>₹<%= user.referralRewards.length * 100 %></p>
-</div>
+</div> -->
                 <!-- Password -->
 
                 <div class="form-footer">

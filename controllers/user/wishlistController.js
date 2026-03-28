@@ -1,13 +1,11 @@
-const User = require("../../model/userSchema");
-const Address=require("../../model/addressSchema");
-const Cart = require("../../model/cartSchema");
-const Product = require("../../model/productSchema");
-const Order = require("../../model/orderSchema");
-const Messages = require("../../constants/messages");
-const StatusCodes = require("../../constants/StatusCodes");
-
-
-const Wishlist = require("../../model/wishlistSchema");
+import User from "../../model/userSchema.js";
+import Address from "../../model/addressSchema.js";
+import Cart from "../../model/cartSchema.js";
+import Product from "../../model/productSchema.js";
+import Order from "../../model/orderSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+import Wishlist from "../../model/wishlistSchema.js";
 
 const getWishlist = async (req, res) => {
   try {
@@ -163,9 +161,10 @@ const moveWishlistToCart = async (req, res) => {
 };
 
 
-module.exports = {
+const wishlistController= {
   getWishlist,
   addToWishlist,
 removeFromWishlist,
  moveWishlistToCart
-};  
+}; 
+export default wishlistController 

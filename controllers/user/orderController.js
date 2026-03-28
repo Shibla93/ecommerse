@@ -1,16 +1,15 @@
-const User = require("../../model/userSchema");
-const Address = require("../../model/addressSchema");
-const Cart = require("../../model/cartSchema");
-const Product = require("../../model/productSchema");
-const Category = require("../../model/categorySchema");
-const Order = require("../../model/orderSchema");
-const Messages = require("../../constants/messages");
-const StatusCodes = require("../../constants/StatusCodes");
-const Wallet = require("../../model/walletSchema");
-const { getDisplayStatus } = require("../../helpers/displayStatus");
-const mongoose = require("mongoose");
-
-const PDFDocument = require('pdfkit');
+import User from "../../model/userSchema.js";
+import Address from "../../model/addressSchema.js";
+import Cart from "../../model/cartSchema.js";
+import Product from "../../model/productSchema.js";
+import Category from "../../model/categorySchema.js";
+import Order from "../../model/orderSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+import Wallet from "../../model/walletSchema.js";
+import { getDisplayStatus } from "../../helpers/displayStatus.js";
+import mongoose from "mongoose";
+import PDFDocument from "pdfkit";
 
 // const getOrder = async (req, res) => {
 //   try {
@@ -540,7 +539,7 @@ const orderSuccessPage = async (req, res) => {
 
 
 
-module.exports = {
+const orderController ={
   getOrder,
   getOrderDetails,
   cancelOrder,
@@ -549,7 +548,7 @@ module.exports = {
   orderSuccessPage,
   orderFailurePage
 }
-
+ export default orderController 
 
 
 

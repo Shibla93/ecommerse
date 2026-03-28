@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 
@@ -58,7 +58,7 @@ const productSchema = new Schema(
    strapMaterial:{
     type: String,
     trim: true,
-    enum: ["leather", "rubber", "metal", "ceramics","silicon","steel"], 
+    enum: ["leather", "rubber", "metal", "ceramics","silicon","steel","multicolored"], 
     required: true
    },
   
@@ -96,4 +96,4 @@ const productSchema = new Schema(
 );
 
 const Product = mongoose.model("Product", productSchema);
-module.exports = Product;
+export default Product;

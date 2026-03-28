@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const orderItemSchema = new Schema({
@@ -77,7 +77,10 @@ const orderSchema = new Schema(
     tax: Number,
     couponDiscount: Number,
 offerDiscount: Number,
- shippingCharge: Number,
+shippingCharge: {
+  type: Number,
+  default: 0
+},
     totalAmount: Number,
 
  
@@ -123,4 +126,4 @@ offerDiscount: Number,
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+export default mongoose.model("Order", orderSchema);
