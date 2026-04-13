@@ -38,9 +38,9 @@ try {
     return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: "Invalid variants format" });
 }
 
-if (!parsedVariants.length) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: Messages.VARIENT_REQUIRED });
-}
+// if (!parsedVariants.length) {
+//     return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: Messages.VARIENT_REQUIRED });
+// }
 
 
 
@@ -89,7 +89,7 @@ if (isNaN(productOfferVal) || productOfferVal < 0 || productOfferVal > 100) {
     if (!v.price || v.price <= 0) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Price must be greater than 0` });
     }
-    if (!v.stock || v.stock < 0) {
+   if (v.stock === undefined || v.stock < 0) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Stock must be 0 or more` });
     }
     if (!v.images || v.images.length < 4) {
@@ -167,13 +167,17 @@ if (search) {
 
     
     const totalProductsArr = await Product.aggregate([
-      { $unwind: "$variants" },
-      { $match: matchStage },
-      { $group: { _id: "$_id" } } // unique products
-    ]);
+  { $unwind: "$variants" },
+  { $match: matchStage },
+  { $group: { _id: "$_id" } },
+  { $count: "total" }
+]);
 
-   const totalProducts = await Product.countDocuments(baseMatch);
+const totalProducts = totalProductsArr[0]?.total || 0;
 const totalPages = Math.ceil(totalProducts / limit);
+
+//    const totalProducts = await Product.countDocuments(baseMatch);
+// const totalPages = Math.ceil(totalProducts / limit);
 
 
   

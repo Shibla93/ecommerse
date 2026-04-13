@@ -38,9 +38,13 @@ const login = async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, admin.password);
 
       if (passwordMatch) {
+            req.session.user = null; 
         req.session.admin = admin._id;
-        req.session.adminId = admin._id;
-        return res.redirect("/admin/dashboard");
+    
+      
+      req.session.save(() => {
+  return res.redirect("/admin/dashboard");
+});
       } else {
         return res.render("admin/login", { error: Messages.INCORRECT_PASSWORD, email: email });
       }
@@ -57,182 +61,7 @@ const login = async (req, res) => {
 };
 
 
-//   try {
-//     const { filter = 'yearly', startDate, endDate } = req.query;
 
-//     // Date range logic
-//     let dateFilter = {};
-//     const now = new Date();
-
-//     switch (filter) {
-//       case 'daily':
-//         dateFilter = { createdAt: { $gte: new Date(now.setHours(0,0,0,0)) } };
-//         break;
-//       case 'weekly':
-//         const weekAgo = new Date(now.setDate(now.getDate() - 7));
-//         dateFilter = { createdAt: { $gte: weekAgo } };
-//         break;
-//       case 'monthly':
-//         dateFilter = { 
-//           createdAt: { 
-//             $gte: new Date(now.getFullYear(), now.getMonth(), 1) 
-//           } 
-//         };
-//         break;
-//       case 'yearly':
-//         dateFilter = { 
-//           createdAt: { 
-//             $gte: new Date(now.getFullYear(), 0, 1) 
-//           } 
-//         };
-//         break;
-//       case 'custom':
-//         if (startDate && endDate) {
-//           dateFilter = { 
-//             createdAt: { 
-//               $gte: new Date(startDate), 
-//               $lte: new Date(endDate) 
-//             } 
-//           };
-//         }
-//         break;
-//     }
-
-//     // 1. Main Aggregates (for stats)
-//     const overallStats = await Order.aggregate([
-//       { $match: { ...dateFilter, orderStatus: { $ne: 'Cancelled' } } },
-//       {
-//         $group: {
-//           _id: null,
-//           totalOrders: { $sum: 1 },
-//           totalRevenue: { $sum: '$totalAmount' },
-//           totalDiscount: { $sum: { $ifNull: ['$discount', 0] } },
-//           totalCouponDeduction: { $sum: { $ifNull: ['$couponDiscount', 0] } }
-//         }
-//       }
-//     ]);
-
-//     const stats = overallStats[0] || { totalOrders: 0, totalRevenue: 0, totalDiscount: 0, totalCouponDeduction: 0 };
-
-//     // 2. Top 10 Best Selling Products
-//     const topProducts = await Order.aggregate([
-//       { $match: dateFilter },
-//       { $unwind: '$items' },
-//       {
-//         $group: {
-//           _id: '$items.product',
-//           totalSold: { $sum: '$items.quantity' },
-//           totalRevenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
-//         }
-//       },
-//       { $sort: { totalSold: -1 } },
-//       { $limit: 10 },
-//       {
-//         $lookup: {
-//           from: 'products',
-//           localField: '_id',
-//           foreignField: '_id',
-//           as: 'productInfo'
-//         }
-//       },
-//       { $unwind: '$productInfo' },
-//       {
-//         $project: {
-//           name: '$productInfo.product',
-//           totalSold: 1,
-//           totalRevenue: 1
-//         }
-//       }
-//     ]);
-
-//     // 3. Top 10 Best Selling Categories
-//     const topCategories = await Order.aggregate([
-//       { $match: dateFilter },
-//       { $unwind: '$items' },
-//       {
-//         $lookup: {
-//           from: 'products',
-//           localField: 'items.product',
-//           foreignField: '_id',
-//           as: 'product'
-//         }
-//       },
-//       { $unwind: '$product' },
-//       {
-//         $group: {
-//           _id: '$product.category',
-//           totalSold: { $sum: '$items.quantity' }
-//         }
-//       },
-//       { $sort: { totalSold: -1 } },
-//       { $limit: 10 },
-//       {
-//         $lookup: {
-//           from: 'categories',
-//           localField: '_id',
-//           foreignField: '_id',
-//           as: 'categoryInfo'
-//         }
-//       },
-//       { $unwind: '$categoryInfo' },
-//       {
-//         $project: {
-//           name: '$categoryInfo.name',
-//           totalSold: 1
-//         }
-//       }
-//     ]);
-
-//     // 4. Top 10 Best Selling Brands
-//     const topBrands = await Order.aggregate([
-//       { $match: dateFilter },
-//       { $unwind: '$items' },
-//       {
-//         $lookup: {
-//           from: 'products',
-//           localField: 'items.product',
-//           foreignField: '_id',
-//           as: 'product'
-//         }
-//       },
-//       { $unwind: '$product' },
-//       {
-//         $group: {
-//           _id: '$product.brand',
-//           totalSold: { $sum: '$items.quantity' }
-//         }
-//       },
-//       { $sort: { totalSold: -1 } },
-//       { $limit: 10 },
-//       {
-//         $lookup: {
-//           from: 'brands',
-//           localField: '_id',
-//           foreignField: '_id',
-//           as: 'brandInfo'
-//         }
-//       },
-//       { $unwind: '$brandInfo' },
-//       {
-//         $project: {
-//           name: '$brandInfo.name',
-//           totalSold: 1
-//         }
-//       }
-//     ]);
-
-//     res.render('admin/dashboard', {
-//       overallSalesCount: stats.totalOrders,
-//       overallOrderAmount: stats.totalRevenue || 0,
-//       overallDiscount: stats.totalDiscount || 0,
-//       couponDeductions: stats.totalCouponDeduction || 0,
-//       topProducts,
-//       topCategories,
-//       topBrands,
-//       filter,
-//       startDate: startDate || '',
-//       endDate: endDate || ''
-//     });
 
 
 const getDateRange = (filter, startDate, endDate) => {
@@ -559,6 +388,7 @@ console.log(labels, salesData);
 const logout = async (req, res) => {
   try {
     req.session.destroy(err => {
+      
       if (err) {
         console.log("Error destroying session", err)
         return res.redirect("/pageError")

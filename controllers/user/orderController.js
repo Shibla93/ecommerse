@@ -11,104 +11,7 @@ import { getDisplayStatus } from "../../helpers/displayStatus.js";
 import mongoose from "mongoose";
 import PDFDocument from "pdfkit";
 
-// const getOrder = async (req, res) => {
-//   try {
-//     const userId = req.session.user;
-// console.log("USER", userId);
 
-//     if (!userId) 
-//       return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: Messages.USER_NOT_FOUND });
-//    const user = await User.findById(userId);
-//    const page = parseInt(req.query.page) || 1;
-//     const limit = 5;
-//     const skip = (page - 1) * limit;
-//     let filter = {};
-//     const search= req.query.search || "";
-//     const statusFilter = req.query.status || '';
-//     const sortBy = req.query.sortBy || 'createdAt';
-//     const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
-//     if(search) {
-//       filter.orderNumber = { $regex: search, $options: 'i' };
-//     }
-
-//     if (statusFilter) {
-//   filter.orderStatus= statusFilter;
-// }
-
-// const orders = await Order.find({
-//   userId,
-//   ...(search && { orderNumber: { $regex: search, $options: "i" } }),
-//   ...(statusFilter && { orderStatus: statusFilter })
-// })
-// .sort({ [sortBy]: sortOrder })
-// .skip(skip)
-// .limit(limit);
-
-// // orders.forEach(order => {
-// //   order.displayStatus = getDisplayStatus(order);
-
-// //   let subTotal = 0;
-// //   order.orderedItems.forEach(item => {
-// //     if (!["cancelled", "returned"].includes(item.itemStatus)) {
-// //       subTotal += item.purchasedPrice * item.quantity;
-// //     }
-// //   });
-
-// //  const tax = Math.round(subTotal * 0.05); // 5% tax example
-// //   const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
-
-// //   const discount = Number(order.couponDiscount) || 0;
-// //   const totalAmount = subTotal + tax + shipping - discount;
-
-// //   order.subTotal = subTotal;
-// //   order.tax = tax;
-// //   order.totalAmount = totalAmount;
-// // });
-// orders.forEach(order => {
-//   order.displayStatus = getDisplayStatus(order);
-
-//   let subTotal = 0;
-//   order.orderedItems.forEach(item => {
-//     if (!["cancelled", "returned"].includes(item.itemStatus)) {
-//       subTotal += item.purchasedPrice * item.quantity;
-//     }
-//   });
-
-//   const tax = Math.round(subTotal * 0.05);
-//   const shipping = subTotal > 0 ? (order.shippingCharge || 0) : 0;
-//   const discount = Number(order.couponDiscount) || 0;
-//   const totalAmount = subTotal + tax + shipping - discount;
-
-//   order.subTotal = subTotal;
-//   order.tax = tax;
-//   order.totalAmount = totalAmount;
-// });
-
-//         const totalOrders =  await Order.countDocuments({
-//   userId,
-//   ...(search && { orderNumber: { $regex: search, $options: "i" } }),
-//   ...(statusFilter && { orderStatus: statusFilter })
-// });
-
-//         const totalPages = Math.ceil(totalOrders / limit);
-
-
-//     res.render("user/orders", {
-//       user,      
-//       orders,
-//        currentPage: page,
-//       totalPages,
-//       search,
-//        statusFilter,
-//        sortBy,
-//       sortOrder,
-//       activePage: "orders"     
-//     });
-
-//   } catch (error) {
-//     res.redirect("/pageNotFound");
-//   }
-// };
 
 const getOrder = async (req, res) => {
   try {
@@ -271,13 +174,13 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    // ✅ Restore Stock
+    
     const product = await Product.findById(item.productId._id);
     const variant = product.variants.id(item.variantId);
     variant.stock += item.quantity;
     await product.save();
 
-    // ✅ Update item status
+
     item.itemStatus = "cancelled";
     item.cancellation = {
       isCancelled: true,
@@ -285,12 +188,12 @@ const cancelOrder = async (req, res) => {
       cancelledAt: new Date()
     };
 
-    // ✅ Check active items
+  
     const activeItems = order.orderedItems.filter(
       i => !["cancelled", "returned"].includes(i.itemStatus)
     );
 
-    // ✅ Wallet Refund (Only if Paid)
+    
     if (order.paymentStatus === "paid") {
 
       const itemTotal = item.purchasedPrice * item.quantity;
@@ -437,10 +340,17 @@ const order = await Order.findOne({
       return res.redirect("/orders");
     }
 
+
+
+        const validItems = order.orderedItems.filter(
+      (item) => item.itemStatus !== "cancelled"
+    );
+
     const orderItems = order.orderedItems.map(item => ({
       productName: item.productId.product,
       price: item.purchasedPrice,
-      quantity: item.quantity
+      quantity: item.quantity,
+      status: item.itemStatus,
     }));
 
     res.render("user/invoice", {
@@ -535,7 +445,89 @@ const orderSuccessPage = async (req, res) => {
   res.render("user/order-succes", { user, orderId });
 };
 
+const cancelFullOrder = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const { orderNumber } = req.params;
+    const { reason } = req.body;
 
+    const order = await Order.findOne({ orderNumber, userId })
+      .populate("orderedItems.productId");
+
+    if (!order) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+
+    // ❌ already cancelled check
+    if (order.orderStatus === "cancelled") {
+      return res.json({ success: false, message: "Already cancelled" });
+    }
+
+    let totalRefund = 0;
+
+    // 🟢 loop items
+    for (let item of order.orderedItems) {
+
+      if (["cancelled", "returned"].includes(item.itemStatus)) continue;
+
+      // stock return
+      const product = await Product.findById(item.productId._id);
+      const variant = product.variants.id(item.variantId);
+
+      if (variant) {
+        variant.stock += item.quantity;
+      }
+
+      await product.save();
+
+      const itemTotal = item.purchasedPrice * item.quantity;
+      totalRefund += itemTotal;
+
+      item.itemStatus = "cancelled";
+      item.cancellation = {
+        isCancelled: true,
+        reason,
+        cancelledAt: new Date()
+      };
+    }
+
+    // 🟢 coupon/tax ignore safe refund (simple version)
+    if (order.paymentStatus === "paid") {
+      let wallet = await Wallet.findOne({ userId });
+
+      if (!wallet) {
+        wallet = new Wallet({ userId, balance: 0, transactions: [] });
+      }
+
+      wallet.balance += totalRefund;
+
+      wallet.transactions.push({
+        type: "credit",
+        amount: totalRefund,
+        reason: "Full order cancellation refund",
+        createdAt: new Date()
+      });
+
+      await wallet.save();
+
+      order.paymentStatus = "refunded";
+    }
+
+    // 🟢 final status
+    order.orderStatus = "cancelled";
+
+    await order.save();
+
+    res.json({
+      success: true,
+      message: "Order cancelled successfully"
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 
 
 
@@ -544,6 +536,7 @@ const orderController ={
   getOrderDetails,
   cancelOrder,
   returnOrder,
+  cancelFullOrder,
   generateInvoice,
   orderSuccessPage,
   orderFailurePage

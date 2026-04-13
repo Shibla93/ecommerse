@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import cloudinary from '../../helpers/cloudinary.js';
 import Order from '../../model/orderSchema.js';
 import { getDisplayStatus } from '../../helpers/displayStatus.js';
+import { calculateItemRefund } from "../../helpers/refundCalculator.js";
 
 
 const listOrders = async (req, res) => {
@@ -217,18 +218,42 @@ const updateOrderStatus = async (req, res) => {
         if (order.paymentStatus === "paid" && order.paymentMethod !== "COD") {
 
 
-          const itemTotal = item.purchasedPrice * item.quantity;
+//           const itemTotal = item.purchasedPrice * item.quantity;
 
-          const itemTaxShare = (itemTotal / order.subTotal) * order.tax;
+//           const itemTaxShare = (itemTotal / order.subTotal) * order.tax;
                  
-          const itemCouponShare =
-            (itemTotal / order.subTotal) *
-            (order.couponDiscount );
+//           const itemCouponShare =
+//             (itemTotal / order.subTotal) *
+//             (order.couponDiscount );
 
-          const refundAmount = Math.round(
-            itemTotal + itemTaxShare - itemCouponShare
-          );
+//           // const refundAmount = Math.round(
+//           //   itemTotal + itemTaxShare - itemCouponShare
+//           // );
+        
+// let remainingSubtotal = 0;
 
+// order.orderedItems.forEach(i => {
+//   if (
+//     i.itemStatus !== "cancelled" &&
+//     i.itemStatus !== "returned" &&
+//     i._id.toString() !== item._id.toString()
+//   ) {
+//     remainingSubtotal += i.purchasedPrice * i.quantity;
+//   }
+// });
+
+// let refundAmount;
+
+// if (remainingSubtotal < order.couponMinPurchase) {
+  
+//   refundAmount = Math.round(itemTotal + itemTaxShare);
+// } else {
+
+//   refundAmount = Math.round(
+//     itemTotal + itemTaxShare - itemCouponShare
+//   );
+// }
+    const refundAmount = calculateItemRefund(item, order);
           await Wallet.updateOne(
             { userId: order.userId },
             {
@@ -374,18 +399,39 @@ const approveItem = async (req, res) => {
       if (order.paymentStatus === "paid" && order.paymentMethod !== "COD") {
 
 
-        const itemTotal = item.purchasedPrice * item.quantity;
+//         const itemTotal = item.purchasedPrice * item.quantity;
 
-        const itemTaxShare = (itemTotal / order.subTotal) * order.tax;
+//         const itemTaxShare = (itemTotal / order.subTotal) * order.tax;
 
-        const itemCouponShare =
-          (itemTotal / order.subTotal) *
-          (order.couponDiscount );
+//         const itemCouponShare =
+//           (itemTotal / order.subTotal) *
+//           (order.couponDiscount );
 
-        const refundAmount = Math.round(
-          itemTotal + itemTaxShare - itemCouponShare
-        );
+//         // const refundAmount = Math.round(
+//         //   itemTotal + itemTaxShare - itemCouponShare
+//         // );
+// let remainingSubtotal = 0;
 
+// order.orderedItems.forEach(i => {
+//   if (
+//     i.itemStatus !== "cancelled" &&
+//     i.itemStatus !== "returned" &&
+//     i._id.toString() !== item._id.toString()
+//   ) {
+//     remainingSubtotal += i.purchasedPrice * i.quantity;
+//   }
+// });
+
+// let refundAmount;
+
+// if (remainingSubtotal < order.couponMinPurchase) {
+//   refundAmount = Math.round(itemTotal + itemTaxShare);
+// } else {
+//   refundAmount = Math.round(
+//     itemTotal + itemTaxShare - itemCouponShare
+//   );
+// }
+    const refundAmount = calculateItemRefund(item, order);
         await Wallet.updateOne(
           { userId: order.userId },
           {
@@ -396,6 +442,22 @@ const approveItem = async (req, res) => {
         );
       }
 
+
+const allReturned = order.orderedItems.every(
+  item => item.itemStatus === "returned"
+);
+
+
+const allCancelled = order.orderedItems.every(
+  item => item.itemStatus === "cancelled"
+);
+
+
+if (allReturned) {
+  order.orderStatus = "returned";
+} else if (allCancelled) {
+  order.orderStatus = "cancelled";
+}
       await product.save();
       await order.save();
 

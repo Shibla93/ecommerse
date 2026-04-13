@@ -222,7 +222,21 @@
         <div class="stat-title">Coupon Deduction</div>
         <div class="stat-value">₹<%= couponDeductions %></div>
       </div>
+      <div class="stat-card">
+      <div class="stat-title">Total Refund</div>
+      <div class="stat-value" style="color:red;">
+    ₹<%= overallRefund %>
+  </div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-title">Net Revenue</div>
+  <div class="stat-value" style="color:green;">
+    ₹<%= (overallOrderAmount - overallRefund) %>
+  </div>
+</div>
     </div>
+    
 
     <!-- Orders Table -->
     <div class="table-card">
@@ -246,6 +260,8 @@
               <th>Total Amount</th>
               <th>Offer Discount</th>
               <th>Coupon Deduction</th>
+              <th>Refund</th>
+           
             </tr>
           </thead>
           <tbody>
@@ -260,6 +276,8 @@
                 <td>₹<%= order.totalAmount.toFixed(2) %></td>
                 <td>₹<%= (order.discount || 0).toFixed(2) %></td>
                 <td>₹<%= (order.couponDiscount || 0).toFixed(2) %></td>
+                <td>₹<%= (order.refundAmount || 0).toFixed(2) %></td>
+   
               </tr>
             <% }) %>
           </tbody>

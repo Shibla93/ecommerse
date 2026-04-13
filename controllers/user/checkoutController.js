@@ -8,11 +8,6 @@ import Wallet from "../../model/walletSchema.js";
 import Coupon from "../../model/coupenSchema.js";
 import Messages from "../../constants/messages.js";
 import StatusCodes from "../../constants/StatusCodes.js";
-import razorpay from "../../config/razorpay.js";
-import crypto from "crypto";
-import { error } from "console";
-import mongoose from "mongoose";
-
 
 const validateCheckout = async (req, res) => {
 
@@ -23,24 +18,49 @@ const validateCheckout = async (req, res) => {
 
     }
 
-    const user = await User.findById(userId);
+
      const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
       populate: ["brand", "category"]
     });
-
-    if (!cart || cart.items.length === 0) {
+     if (!cart || cart.items.length === 0) {
       return res.redirect("/cart");
     }
-    for (let item of cart.items) {
-      const product = await Product.findById(item.productId._id);
-      const variant = product.variants.id(item.variantId);
 
-      if (!variant || variant.stock < item.quantity) {
+//     cart.items = cart.items.filter(item => {
+//   const product = item.productId;
+
+//   if (!product) return false;
+//   const variant = product.variants.find(
+//     v => v._id.toString() === item.variantId.toString()
+//   );
+
+//   return variant && variant.isListed && !variant.isDeleted;
+// });
+   
+    for (let item of cart.items) {
+     
+
+  const product = item.productId;
+
+
+      
+      const variant = product.variants.find(
+        v => v._id.toString() === item.variantId.toString()
+      );
+
+      
+      if (!variant || !variant.isListed || variant.isDeleted) {
         return res.json({
           success: false,
-          message: `${Messages.INSUFFICIENT_STOCK} for ${product.product}`
+          message: `${product.product} is unavailable`
+        });
+      }
 
+      if (variant.stock < item.quantity) {
+        return res.json({
+          success: false,
+          message: `Only ${variant.stock} items available for ${product.product}`
         });
       }
     }
@@ -66,6 +86,15 @@ const getCheckoutPage = async (req, res) => {
     if (!cart || cart.items.length === 0) {
       return res.redirect("/cart");
     }
+//     cart.items = cart.items.filter(item => {
+//   const product = item.productId;
+
+//   const variant = product.variants.find(
+//     v => v._id.toString() === item.variantId.toString()
+//   );
+
+//   return variant && variant.isListed && !variant.isDeleted;
+// });
 
     let subtotal = 0;
   let offerDiscount = 0;
@@ -110,11 +139,23 @@ cart.items.forEach(item => {
 const total = subtotal + taxes - discount+shipping;
 console.log("discount:",discount)
     console.log("subTotal:",subtotal)
+    const coupons = await Coupon.find({
+  isActive: true,
+  expiryDate: { $gt: new Date() },
+  $expr: { $lt: [{ $size: "$usedBy" }, "$usageLimit"] }
+});
     const userAddress = await Address.findOne({ userId });
+    let addresses = userAddress ? userAddress.address : [];
+
+
+if (addresses.length > 0 && !addresses.some(a => a.isDefault)) {
+  addresses[0].isDefault = true;
+  await userAddress.save();
+}
 
     res.render("checkout", {
       user,
-      addresses: userAddress ? userAddress.address : [],
+addresses: addresses,
       cart,
         offerDiscount,
       subtotal,
@@ -122,6 +163,7 @@ console.log("discount:",discount)
       discount,
       shippingCharge:shipping,
       total,
+       coupons,
       razorpayKey: process.env.RAZORPAY_KEY_ID
 
     });
@@ -168,15 +210,24 @@ const placeOrder = async (req, res) => {
     }
 
     for (let item of cart.items) {
-      const product = await Product.findById(item.productId._id);
-      const variant = product.variants.id(item.variantId);
+   const product = item.productId;
+        const variant = product.variants.find(
+    v => v._id.toString() === item.variantId.toString()
+  );
 
-      if (!variant || variant.stock < item.quantity) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          success: false,
-          message: Messages.OUT_OF_STOCK
-        });
-      }
+  if (!variant || !variant.isListed || variant.isDeleted) {
+    return res.json({
+      success: false,
+      message: `${product.product} is unavailable`
+    });
+  }
+
+  if (variant.stock < item.quantity) {
+    return res.json({
+      success: false,
+      message: `Only ${variant.stock} items available`
+    });
+  }
     }
 
 
@@ -217,12 +268,15 @@ cart.items.forEach(item => {
 });
     const tax = Math.round(subTotal * 0.05);
     let discount = 0;
+      
+    let couponCode = null;
+    let couponMinPurchase = 0;
 console.log("Session coupon:", req.session.appliedCoupon);
 console.log("Discount calculated:", discount)
 if (req.session.appliedCoupon) {
 
-  const coupon = await Coupon.findById(req.session.appliedCoupon.couponId);
-
+  const coupon = await Coupon.findById(req.session.appliedCoupon.couponId)
+  
   if (
     coupon &&
     coupon.isActive &&
@@ -230,9 +284,12 @@ if (req.session.appliedCoupon) {
    !coupon.usedBy.some(id => id.toString() === userId.toString()) &&
     subTotal >= coupon.minPurchase
   ) {
-
+couponCode = coupon.code;
+couponMinPurchase = coupon.minPurchase;
+    // order.couponMinPurchase = coupon.minPurchase;
+    // order.couponCode = coupon.code;
     if (coupon.discountType === "percentage") {
-      discount = Math.round(subTotal * coupon.discountValue) / 100;
+discount = Math.round((subTotal * coupon.discountValue) / 100);
 
       if (coupon.maxDiscount && discount > coupon.maxDiscount) {
         discount = coupon.maxDiscount;
@@ -302,6 +359,8 @@ if (paymentMethod === "WALLET") {
   offerDiscount: offerDiscount,   
    couponDiscount: discount,  
   
+couponMinPurchase: couponMinPurchase,
+couponCode: couponCode,
   shippingCharge,
   totalAmount,
   paymentMethod: paymentMethod,   
@@ -319,8 +378,17 @@ if (paymentMethod === "WALLET") {
     });
 
     for (let item of cart.items) {
-      const product = await Product.findById(item.productId._id);
-      const variant = product.variants.id(item.variantId);
+     const product = item.productId;
+
+const variant = product.variants.find(
+  v => v._id.toString() === item.variantId.toString()
+);
+      if (variant.stock < item.quantity) {
+  return res.json({
+    success: false,
+    message: "Stock changed, please try again"
+  });
+}
 
       variant.stock -= item.quantity;
       await product.save();
@@ -378,19 +446,19 @@ if (coupon.usedBy.some(id => id.toString() === userId.toString())) {
 
     let discount = 0;
     if (coupon.discountType === "percentage") {
-      discount = (subTotal * coupon.discountValue) / 100;
+     discount = Math.round((subTotal * coupon.discountValue) / 100);
       if (coupon.maxDiscount && discount > coupon.maxDiscount) discount = coupon.maxDiscount;
     } else {
       discount = coupon.discountValue;
     }
 
-    // Save applied coupon in session
+  
     req.session.appliedCoupon = {
       couponId: coupon._id,
       code: coupon.code,
       discount
     };
-
+   
     return res.json({ success: true, discount, message: `Coupon applied successfully! You saved ₹${discount}` });
     
 

@@ -286,9 +286,11 @@
                 No Image
               </div>
             <% } %>
-            <a href="#" class="wishlist-btn" 
-onclick="addToWishlist('<%= product._id %>', '<%= product.variants[0]._id %>', this)">
-   <i class="fa fa-heart"></i>
+       <a 
+  href="#" 
+  class="wishlist-btn <%= wishlistItems.includes(String(product._id)) ? 'active' : '' %>"
+  onclick="addToWishlist('<%= product._id %>', '<%= product.variants[0]._id %>', this)">
+  <i class="fa fa-heart"></i>
 </a>
           </div>
           <div class="product-info">

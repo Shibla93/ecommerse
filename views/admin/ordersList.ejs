@@ -300,6 +300,7 @@ background:#44ccee;
 </span>
 
 <br><br>
+<% if(order.paymentStatus !== 'failed') { %>
 <select class="status-select"
 onchange="changeStatus('<%= order._id %>', this.value)"
 <%= order.orderStatus === 'cancelled' || order.orderStatus === 'delivered' ? 'disabled' : '' %>>
@@ -326,6 +327,7 @@ Delivered
 Cancelled
 </option>
 </select>
+<% } %>
 </td>
                 <td style="font-weight:600;color:#1a1a1a">
 ₹<%= order.totalAmount.toFixed(2) %>

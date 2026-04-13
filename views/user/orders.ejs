@@ -97,15 +97,34 @@
 
          
 
-    <% if (order.displayStatus === "payment_failed") { %>
-  <button onclick="retryPayment('<%= order._id %>')" 
-          class="action-btn btn-retry">
+   <% if (order.orderStatus === "cancelled") { %>
+
+  <span class="status cancelled">Cancelled</span>
+
+<% } else if (order.displayStatus === "payment_failed") { %>
+
+  <button onclick="retryPayment('<%= order._id %>')" class="action-btn btn-retry">
     Retry Payment
   </button>
 
-  <% } else if(order.orderStatus==="delivered"){ %>
-    <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">Invoice</a>
-  <% } %>
+  <button onclick="cancelFullOrder('<%= order.orderNumber %>')" class="action-btn btn-cancel">
+    Cancel Order
+  </button>
+
+<% } else if (order.orderStatus === "delivered") { %>
+
+  <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">
+    Invoice
+  </a>
+
+<% } else { %>
+
+  <!-- default: allow cancel for processing/shipped -->
+  <button onclick="cancelFullOrder('<%= order.orderNumber %>')" class="action-btn btn-cancel">
+    Cancel Order
+  </button>
+
+<% } %>
 </td>
 
                     <!-- <% if(["processing","shipped"].includes(order.displayStatus)) { %>
@@ -285,5 +304,30 @@ async function retryPayment(orderId) {
     alert("Something went wrong");
   }
 }
-
+function cancelFullOrder(orderNumber) {
+  Swal.fire({
+    title: "Cancel full order?",
+    input: "text",
+    inputPlaceholder: "Reason",
+    showCancelButton: true,
+    confirmButtonText: "Yes Cancel"
+  }).then(result => {
+    if (result.isConfirmed) {
+      fetch(`/order/cancel-full/${orderNumber}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: result.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire("Success", data.message, "success")
+            .then(() => location.reload());
+        } else {
+          Swal.fire("Error", data.message, "error");
+        }
+      });
+    }
+  });
+}
 </script>

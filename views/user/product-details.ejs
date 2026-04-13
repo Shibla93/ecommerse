@@ -578,6 +578,10 @@ async function addToCart(productId, variantId) {
     });
 
     const data = await res.json();
+if (data.redirect) {
+  window.location.href = data.redirect;
+  return;
+}
 
     if (data.success) {
       
@@ -597,6 +601,36 @@ async function addToCart(productId, variantId) {
     Swal.fire('Error', 'Something went wrong', 'error');
   }
 }
+
+const productId = "<%= product._id %>";
+const variantId = "<%= activeVariant._id %>";
+
+setInterval(async () => {
+  try {
+    const res = await fetch("/check-variant-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ productId, variantId })
+    });
+
+    const data = await res.json();
+
+    if (data.status === "unavailable") {
+      Swal.fire({
+        icon: "warning",
+        title: "Unavailable",
+        text: "This variant is no longer available"
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+}, 5000); 
 </script>
 
 </body>

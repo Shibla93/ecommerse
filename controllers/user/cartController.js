@@ -6,6 +6,75 @@ import mongodb from "mongodb";
 import Cart from "../../model/cartSchema.js";
 import Messages from "../../constants/messages.js";
 import StatusCodes from "../../constants/StatusCodes.js";
+// const getCartPage = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+
+//     if (!userId) {
+//       return res.redirect('/login');
+//     }
+// const user = await User.findById(userId);
+    
+// const cart = await Cart.findOne({ userId }).populate({
+//   path: "items.productId",
+//   populate: {
+//     path: "category"
+//   }
+// });
+
+// let grandTotal = 0;
+//    let shipping = 0;
+
+// if (cart && cart.items.length > 0) {
+
+//   cart.items = cart.items.filter(item => item.productId);
+
+//   cart.items.forEach(item => {
+//             const product = item.productId;
+
+//         const variant = product.variants.find(
+//           v => v._id.toString() === item.variantId.toString()
+//         );
+
+//         if (!variant) return;
+
+//         const maxOffer = Math.max(
+//           product.productOffer || 0,
+//           product.category?.categoryOffer || 0
+//         );
+
+//         const discount = variant.price * (maxOffer / 100);
+//         const finalPrice = Math.round(variant.price - discount);
+
+//         item.price = finalPrice;
+//         item.totalPrice = finalPrice * item.quantity;
+
+    
+  
+//         grandTotal += item.totalPrice;
+
+   
+//   });
+//   if (grandTotal < 2500) {
+//     shipping = 50;
+//   }
+
+  
+//   grandTotal += shipping;
+// }
+
+// res.render('cart', {
+//   user,
+//   cart,
+//   grandTotal,
+//   shipping
+// });
+
+//   } catch (error) {
+//     console.error("Cart Page Error:", error);
+//     res.redirect('/pageNotFound');
+//   }
+// };
 const getCartPage = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -13,62 +82,75 @@ const getCartPage = async (req, res) => {
     if (!userId) {
       return res.redirect('/login');
     }
-const user = await User.findById(userId);
-    
-const cart = await Cart.findOne({ userId }).populate({
-  path: "items.productId",
-  populate: {
-    path: "category"
-  }
-});
 
-let grandTotal = 0;
-   let shipping = 0;
+    const user = await User.findById(userId);
 
-if (cart && cart.items.length > 0) {
+    let cart = await Cart.findOne({ userId }).populate({
+      path: "items.productId",
+      populate: {
+        path: "category"
+      }
+    });
 
-  cart.items = cart.items.filter(item => item.productId);
+    let grandTotal = 0;
+    let shipping = 0;
+    let messages = [];
 
-  cart.items.forEach(item => {
-            const product = item.productId;
+    if (cart && cart.items.length > 0) {
 
-        const variant = product.variants.find(
-          v => v._id.toString() === item.variantId.toString()
-        );
+      
+      cart.items.forEach(item => {
+  const product = item.productId;
 
-        if (!variant) return;
-
-        const maxOffer = Math.max(
-          product.productOffer || 0,
-          product.category?.categoryOffer || 0
-        );
-
-        const discount = variant.price * (maxOffer / 100);
-        const finalPrice = Math.round(variant.price - discount);
-
-        item.price = finalPrice;
-        item.totalPrice = finalPrice * item.quantity;
-
-    
-  
-        grandTotal += item.totalPrice;
-
-   
-  });
-  if (grandTotal < 2500) {
-    shipping = 50;
+  if (!product) {
+    item.isUnavailable = true;
+    messages.push("Some products are no longer available");
+    return;
   }
 
-  
-  grandTotal += shipping;
-}
+  const variant = product.variants.find(
+    v => v._id.toString() === item.variantId.toString()
+  );
 
-res.render('cart', {
-  user,
-  cart,
-  grandTotal,
-  shipping
+  if (!variant || !variant.isListed || variant.isDeleted) {
+    item.isUnavailable = true;
+    messages.push(`${product.product} is currently unavailable`);
+    return;
+  }
+
+  item.isUnavailable = false;
+
+  const maxOffer = Math.max(
+    product.productOffer || 0,
+    product.category?.categoryOffer || 0
+  );
+
+  const discount = variant.price * (maxOffer / 100);
+  const finalPrice = Math.round(variant.price - discount);
+
+  item.price = finalPrice;
+
+  if (item.quantity > variant.stock) {
+    item.quantity = variant.stock;
+    messages.push(`${product.product} quantity reduced due to stock limit`);
+  }
+
+  item.totalPrice = item.price * item.quantity;
+
+  grandTotal += item.totalPrice;
 });
+
+    
+      
+    }
+
+    res.render('cart', {
+      user,
+      cart,
+      grandTotal,
+      shipping,
+      messages
+    });
 
   } catch (error) {
     console.error("Cart Page Error:", error);
@@ -76,12 +158,12 @@ res.render('cart', {
   }
 };
 
+
 const addToCart=async(req,res)=>{
     try {
     const userId = req.session.user;
     const { productId, variantId } = req.body;
-const user = await User.findById(userId);
-    
+ 
     const product = await Product.findById(productId)
       .populate('category');
 
@@ -103,6 +185,12 @@ return res.status(StatusCodes.CONFLICT).json({
   message: Messages.VARIANT_UNAVAILABLE
 });
 
+}
+if (product.isBlocked) {
+  return res.status(StatusCodes.CONFLICT).json({
+    success: false,
+    message: "This product is currently unavailable"
+  });
 }
 const maxOffer = Math.max(
   product.productOffer || 0,
@@ -254,7 +342,7 @@ const changeQuantity = async (req, res) => {
     
     if (action === "decrement") {
       if (item.quantity <= 1) {
-        return res.status(StatusCodes.CONFLICT).json({ success: false,message:"minimum 1 product should added " });
+        return res.status(StatusCodes.CONFLICT).json({ success: false,message:"Minimum quantity is 1 " });
       }
       item.quantity -= 1;
     }

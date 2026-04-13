@@ -2,234 +2,239 @@ import Order from "../../model/orderSchema.js";
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
 import moment from "moment";
+import { calculateItemRefund } from "../../helpers/refundCalculator.js";
 
 
-
+// -------------------- DATE RANGE --------------------
 const getDateRange = (filter, startDate, endDate) => {
-
   let start, end;
 
   switch (filter) {
-
     case "daily":
-
       start = new Date();
-      start.setHours(0,0,0,0);
-
+      start.setHours(0, 0, 0, 0);
       end = new Date();
-      end.setHours(23,59,59,999);
-
-    break;
-
+      end.setHours(23, 59, 59, 999);
+      break;
 
     case "weekly":
-  const today = new Date();
-  start = new Date(today);
-  start.setDate(today.getDate() - today.getDay()); // start of week (Sunday)
-  start.setHours(0,0,0,0);
-  end = new Date(today);
-  end.setHours(23,59,59,999);
-  break;
+      const today = new Date();
+      start = new Date(today);
+      start.setDate(today.getDate() - today.getDay());
+      start.setHours(0, 0, 0, 0);
+      end = new Date(today);
+      end.setHours(23, 59, 59, 999);
+      break;
 
-case "monthly":
-  const now = new Date();
-  start = new Date(now.getFullYear(), now.getMonth(), 1); 
-  end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23,59,59,999); 
-  break;
-
+    case "monthly":
+      const now = new Date();
+      start = new Date(now.getFullYear(), now.getMonth(), 1);
+      end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      break;
 
     case "yearly":
-
       start = new Date(new Date().getFullYear(), 0, 1);
-
       end = new Date();
-      end.setHours(23,59,59,999);
-
-    break;
-
+      end.setHours(23, 59, 59, 999);
+      break;
 
     case "custom":
-
       start = startDate ? new Date(startDate) : new Date();
       end = endDate ? new Date(endDate) : new Date();
-
-      start.setHours(0,0,0,0);
-      end.setHours(23,59,59,999);
-
-    break;
-
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      break;
 
     default:
-
       start = new Date();
-      start.setHours(0,0,0,0);
-
+      start.setHours(0, 0, 0, 0);
       end = new Date();
-      end.setHours(23,59,59,999);
-
+      end.setHours(23, 59, 59, 999);
   }
 
   return { startDate: start, endDate: end };
-
 };
 
 
+// -------------------- SALES REPORT --------------------
+const getSalesReport = async (req, res) => {
+  try {
+    const filter = req.query.filter || "daily";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 20;
 
+    const { startDate, endDate } = getDateRange(
+      filter,
+      req.query.startDate,
+      req.query.endDate
+    );
 
-const getSalesReport = async (req,res)=>{
+    const query = {
+      createdAt: { $gte: startDate, $lte: endDate },
+    };
 
-try{
+    const totalOrders = await Order.countDocuments(query);
 
-const filter = req.query.filter || "daily";
-const page = parseInt(req.query.page) || 1;
-const limit = 20;
+    const orders = await Order.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
 
-const {startDate,endDate} = getDateRange(filter,req.query.startDate,req.query.endDate);
+    // -------------------- STATS --------------------
+    let overallSalesCount = 0;
+    let overallOrderAmount = 0;
+    let overallRefund = 0;
+    let overallDiscount = 0;
+    let couponDeductions = 0;
 
-const query = {
-  createdAt:{ $gte:startDate , $lte:endDate }
+    orders.forEach((order) => {
+      let subTotal = 0;
+      let refundAmount = 0;
+
+      // ACTIVE ITEMS subtotal
+      order.orderedItems.forEach((item) => {
+        const itemTotal = item.purchasedPrice * item.quantity;
+
+        if (!["cancelled", "returned"].includes(item.itemStatus)) {
+          subTotal += itemTotal;
+        }
+      });
+
+      const tax = Math.round(subTotal * 0.05);
+
+      // ORDER AMOUNT (what system expects)
+      const totalAmount = subTotal + tax;
+
+      // REFUND CALCULATION (ONLY returned items)
+      order.orderedItems.forEach((item) => {
+        if (item.itemStatus === "returned") {
+          refundAmount += calculateItemRefund(order, item);
+        }
+      });
+
+      overallSalesCount++;
+      overallOrderAmount += totalAmount;
+      overallRefund += refundAmount;
+
+      overallDiscount += order.offerDiscount || 0;
+      couponDeductions += order.couponDiscount || 0;
+
+      order.totalAmount = totalAmount;
+      order.refundAmount = refundAmount;
+    });
+
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.render("admin/saleS", {
+      orders,
+      overallSalesCount,
+      overallOrderAmount,
+      overallDiscount,
+      couponDeductions,
+      overallRefund,
+      netRevenue: overallOrderAmount - overallRefund,
+      filter,
+      startDate: moment(startDate).format("YYYY-MM-DD"),
+      endDate: moment(endDate).format("YYYY-MM-DD"),
+      currentPage: page,
+      totalPages,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal server error");
+  }
 };
 
-const totalOrders = await Order.countDocuments(query);
 
-const orders = await Order.find(query)
-.sort({createdAt:-1})
-.skip((page-1)*limit)
-.limit(limit)
-.lean();
+// -------------------- EXCEL DOWNLOAD --------------------
+const downloadExcel = async (req, res) => {
+  try {
+    const filter = req.query.filter || "daily";
 
+    const { startDate, endDate } = getDateRange(
+      filter,
+      req.query.startDate,
+      req.query.endDate
+    );
 
-let overallSalesCount = 0;
-let overallOrderAmount = 0;
-let overallDiscount = 0;
-let couponDeductions = 0;
+    const orders = await Order.find({
+      createdAt: { $gte: startDate, $lte: endDate },
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Sales Report");
 
-orders.forEach(order=>{
+    sheet.columns = [
+      { header: "Order #", key: "orderNumber", width: 25 },
+      { header: "Date", key: "date", width: 18 },
+      { header: "Status", key: "status", width: 15 },
+      { header: "Payment", key: "payment", width: 15 },
+      { header: "Amount", key: "totalAmount", width: 18 },
+      { header: "Refund", key: "refund", width: 15 },
+    ];
 
-const subTotal = order.subTotal || 0;
-const tax = order.tax || 0;
-const offerDiscount = order.offerDiscount || 0;
-const coupon = order.couponDiscount || 0;
+    let totalAmount = 0;
+    let totalRefund = 0;
 
-const totalAmount = subTotal + tax - coupon;
+    orders.forEach((order) => {
+      let subTotal = 0;
+      let refund = 0;
 
-overallSalesCount++;
-overallOrderAmount += totalAmount;
-overallDiscount += offerDiscount;
-couponDeductions += coupon;
+      order.orderedItems.forEach((item) => {
+        const itemTotal = item.purchasedPrice * item.quantity;
 
-order.totalAmount = totalAmount;
-order.discount = offerDiscount;
+        if (!["cancelled", "returned"].includes(item.itemStatus)) {
+          subTotal += itemTotal;
+        }
 
-});
+        if (item.itemStatus === "returned") {
+          refund += calculateItemRefund(order, item);
+        }
+      });
 
+      const tax = Math.round(subTotal * 0.05);
+      const amount = subTotal + tax;
 
-const totalPages = Math.ceil(totalOrders/limit);
+      sheet.addRow({
+        orderNumber: order.orderNumber,
+        date: moment(order.createdAt).format("DD-MM-YYYY"),
+        status: order.orderStatus,
+        payment: order.paymentMethod,
+        totalAmount: amount,
+        refund: refund,
+      });
 
-res.render("admin/saleS",{
+      totalAmount += amount;
+      totalRefund += refund;
+    });
 
-orders,
-overallSalesCount,
-overallOrderAmount,
-overallDiscount,
-couponDeductions,
-filter,
-startDate: moment(startDate).format("YYYY-MM-DD"), 
-  endDate: moment(endDate).format("YYYY-MM-DD"), 
-currentPage:page,
-totalPages
+    sheet.getRow(1).font = { bold: true };
 
-});
+    sheet.addRow([]);
+    sheet.addRow(["Total Orders", orders.length]);
+    sheet.addRow(["Total Amount", totalAmount]);
+    sheet.addRow(["Total Refund", totalRefund]);
 
-}catch(error){
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
 
-console.log(error);
-res.status(500).send("Internal server error");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales-report.xlsx"
+    );
 
-}
-
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Excel generation error");
+  }
 };
-
-
-
-// EXCEL DOWNLOAD
-const downloadExcel = async (req,res)=>{
-
-try{
-
-const filter = req.query.filter || "daily";
-
-const {startDate,endDate} = getDateRange(filter,req.query.startDate,req.query.endDate);
-
-const orders = await Order.find({
-createdAt:{ $gte:startDate , $lte:endDate }
-}).lean();
-
-
-const workbook = new ExcelJS.Workbook();
-const sheet = workbook.addWorksheet("Sales Report");
-
-
-sheet.columns = [
-
-{header:"Order #",key:"orderNumber",width:25},
-{header:"Date",key:"date",width:18},
-{header:"Total Amount",key:"totalAmount",width:18},
-{header:"Discount",key:"discount",width:15},
-{header:"Coupon Deduction",key:"coupon",width:18}
-
-];
-
-
-let totalAmount = 0;
-let totalDiscount = 0;
-let totalCoupon = 0;
-
-
-orders.forEach(o=>{
-
-const amount = (o.subTotal || 0) + (o.tax || 0) - (o.offerDiscount || 0) - (o.couponDiscount || 0);
-
-sheet.addRow({
-
-orderNumber:o.orderNumber,
-date:moment(o.createdAt).format("DD-MM-YYYY"),
-totalAmount:amount,
-discount:o.offerDiscount || 0,
-coupon:o.couponDiscount || 0
-
-});
-
-totalAmount += amount;
-totalDiscount += o.offerDiscount || 0;
-totalCoupon += o.couponDiscount || 0;
-
-});
-
-
-sheet.addRow([]);
-sheet.addRow(["Overall Sales Count",orders.length]);
-sheet.addRow(["Total Amount",totalAmount]);
-sheet.addRow(["Total Discount",totalDiscount]);
-sheet.addRow(["Coupon Deductions",totalCoupon]);
-
-
-res.setHeader("Content-Type","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-res.setHeader("Content-Disposition","attachment; filename=sales-report.xlsx");
-
-await workbook.xlsx.write(res);
-res.end();
-
-}catch(error){
-
-console.log(error);
-res.status(500).send("Excel generation error");
-
-}
-
-};
-
 
 
 const downloadPDF = async (req, res) => {
@@ -244,97 +249,144 @@ const downloadPDF = async (req, res) => {
 
     const orders = await Order.find({
       createdAt: { $gte: startDate, $lte: endDate },
-      paymentStatus: "paid"
-    }).lean();
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const doc = new PDFDocument({ margin: 40, size: "A4" });
+    // 👉 LANDSCAPE avoids overlap (IMPORTANT FIX)
+    const doc = new PDFDocument({
+      margin: 30,
+      size: "A4",
+      layout: "landscape",
+    });
 
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=sales-report.pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=sales-report.pdf"
+    );
 
     doc.pipe(res);
 
-    // 🟢 TITLE
-    doc.fontSize(18).font("Helvetica-Bold").text("SALES REPORT", { align: "center" });
+    // ================= TITLE =================
+    doc.fontSize(18).font("Helvetica-Bold").text("SALES REPORT", {
+      align: "center",
+    });
 
     doc.moveDown();
-    doc.fontSize(11).font("Helvetica").text(
-      `Date: ${moment(startDate).format("YYYY-MM-DD")} to ${moment(endDate).format("YYYY-MM-DD")}`
-    );
+
+    doc
+      .fontSize(10)
+      .font("Helvetica")
+      .text(
+        `From: ${moment(startDate).format("YYYY-MM-DD")} To: ${moment(endDate).format("YYYY-MM-DD")}`,
+        { align: "center" }
+      );
 
     doc.moveDown(2);
 
-    // 🟢 COLUMN POSITIONS (WIDTH FIXED)
-    const startX = 40;
+    // ================= TABLE HEADER =================
+    const tableTop = 80;
+
     const col = {
-      order: startX,
-      date: startX + 140,        // 🔥 increased spacing
-      payment: startX + 240,
-      status: startX + 330,
-      amount: startX + 420
+      order: 40,
+      date: 170,
+      payment: 260,
+      status: 350,
+      amount: 460,
+      refund: 560,
     };
 
-    const tableTop = doc.y;
-
-    // 🟢 HEADER
     doc.font("Helvetica-Bold").fontSize(10);
 
-    doc.text("Order ID", col.order, tableTop, { width: 130 });
-    doc.text("Date", col.date, tableTop, { width: 90 });
-    doc.text("Payment", col.payment, tableTop, { width: 80 });
-    doc.text("Status", col.status, tableTop, { width: 80 });
-    doc.text("Amount", col.amount, tableTop, { width: 80 });
+    doc.text("Order#", col.order, tableTop);
+    doc.text("Date", col.date, tableTop);
+    doc.text("Payment", col.payment, tableTop);
+    doc.text("Status", col.status, tableTop);
+    doc.text("Amount", col.amount, tableTop, { width: 80, align: "right" });
+    doc.text("Refund", col.refund, tableTop, { width: 80, align: "right" });
 
-    doc.moveTo(startX, tableTop + 15).lineTo(550, tableTop + 15).stroke();
+    doc
+      .moveTo(30, tableTop + 15)
+      .lineTo(820, tableTop + 15)
+      .stroke();
 
+    // ================= ROWS =================
     let y = tableTop + 25;
+
+    let totalAmount = 0;
+    let totalRefund = 0;
 
     doc.font("Helvetica").fontSize(9);
 
-    let totalAmount = 0;
-    let totalDiscount = 0;
-    let totalCoupon = 0;
-
     orders.forEach((order) => {
-      const amount =
-        (order.subTotal || 0) +
-        (order.tax || 0) -
-        (order.offerDiscount || 0) -
-        (order.couponDiscount || 0);
+      let subTotal = 0;
+      let refund = 0;
 
-      // 🟢 Page break
-      if (y > 750) {
-        doc.addPage();
+      order.orderedItems.forEach((item) => {
+        const itemTotal = item.purchasedPrice * item.quantity;
+
+        if (!["cancelled", "returned"].includes(item.itemStatus)) {
+          subTotal += itemTotal;
+        }
+
+        if (item.itemStatus === "returned") {
+          refund += calculateItemRefund(order, item);
+        }
+      });
+
+      const tax = Math.round(subTotal * 0.05);
+      const amount = subTotal + tax;
+
+      // ================= PAGE BREAK =================
+      if (y > 500) {
+        doc.addPage({ layout: "landscape" });
         y = 50;
       }
 
-      // 🟢 ROW DATA (NO OVERLAP NOW)
-      doc.text(order.orderNumber || "-", col.order, y, { width: 130 });
-      doc.text(moment(order.createdAt).format("YYYY-MM-DD"), col.date, y, { width: 90 });
-      doc.text(order.paymentMethod || "-", col.payment, y, { width: 80 });
-      doc.text(order.paymentStatus || "-", col.status, y, { width: 80 }); // ✅ NEW
-      doc.text(`₹${amount.toFixed(2)}`, col.amount, y, { width: 80 });
+      // ================= ROW DATA =================
+      doc.text(order.orderNumber, col.order, y, {
+        width: 120,
+        ellipsis: true,
+      });
+
+      doc.text(moment(order.createdAt).format("YYYY-MM-DD"), col.date, y);
+      doc.text(order.paymentMethod, col.payment, y);
+      doc.text(order.orderStatus, col.status, y);
+
+      doc.text(`₹${amount.toFixed(2)}`, col.amount, y, {
+        width: 80,
+        align: "right",
+      });
+
+      doc.text(`₹${refund.toFixed(2)}`, col.refund, y, {
+        width: 80,
+        align: "right",
+      });
 
       y += 20;
 
       totalAmount += amount;
-      totalDiscount += order.offerDiscount || 0;
-      totalCoupon += order.couponDiscount || 0;
+      totalRefund += refund;
     });
 
-    // 🟢 FOOTER
-    doc.moveTo(startX, y).lineTo(550, y).stroke();
-    y += 15;
+    // ================= FOOTER =================
+    doc
+      .moveTo(30, y)
+      .lineTo(820, y)
+      .stroke();
+
+    y += 20;
 
     doc.font("Helvetica-Bold").fontSize(11);
 
-    doc.text(`Total Orders: ${orders.length}`, startX, y);
-    y += 20;
-    doc.text(`Total Amount: ₹${totalAmount.toFixed(2)}`, startX, y);
-    y += 20;
-    doc.text(`Total Discount: ₹${totalDiscount.toFixed(2)}`, startX, y);
-    y += 20;
-    doc.text(`Coupon Deduction: ₹${totalCoupon.toFixed(2)}`, startX, y);
+    doc.text(`Total Orders: ${orders.length}`, 40, y);
+    y += 15;
+
+    doc.text(`Total Sales: ₹${totalAmount.toFixed(2)}`, 40, y);
+    y += 15;
+
+    doc.text(`Total Refund: ₹${totalRefund.toFixed(2)}`, 40, y);
 
     doc.end();
   } catch (error) {
@@ -344,9 +396,11 @@ const downloadPDF = async (req, res) => {
 };
 
 
-const salesController = {
-getSalesReport,
-downloadExcel,
-downloadPDF
+
+
+
+export default {
+  getSalesReport,
+  downloadExcel,
+  downloadPDF,
 };
-export default salesController

@@ -190,40 +190,60 @@
 
     <% if (wishlist && wishlist.items.length > 0) { %>
       <div class="wishlist-grid">
-        <% wishlist.items.forEach(item => { %>
-         <%
+       <% wishlist.items.forEach(item => { %>
+
+<%
   const variant = item.productId.variants.find(
     v => v._id.toString() === item.variantId.toString()
   );
+
+  const isUnavailable = !variant || !variant.isListed || variant.isDeleted;
 %>
 
-          <div class="wishlist-card">
-            <a href="/product/<%= item.productId._id %>">
-  <img src="<%= variant.images[0]?.originalUrl || '/images/placeholder.jpg' %>" 
-       alt="<%= item.productId.product %>" 
-       class="wishlist-image">
-</a>
+<div class="wishlist-card" style="<%= isUnavailable ? 'opacity:0.5;' : '' %>">
 
-            <div class="wishlist-content">
-              <div>
-               <a href="/product/<%= item.productId._id %>" style="text-decoration:none;">
-  <h4 class="wishlist-product-name"><%= item.productId.product %></h4>
-</a>
+  <% if(isUnavailable) { %>
+    <p style="color:red;font-weight:600; padding:10px;">
+      ⚠ Product unavailable
+    </p>
+  <% } %>
 
-                <p class="wishlist-price">₹<%= variant.price %></p>
-              </div>
-              <button class="cart-btn"
-  onclick="moveToCart('<%= item._id %>', '<%= item.productId._id %>', '<%= item.variantId %>', 1)">
-  🛒 Move to Cart
-</button>
+  <a href="/product/<%= item.productId._id %>">
+    <img src="<%= variant?.images[0]?.originalUrl || '/images/placeholder.jpg' %>" 
+         alt="<%= item.productId.product %>" 
+         class="wishlist-image">
+  </a>
 
+  <div class="wishlist-content">
+    <div>
+      <a href="/product/<%= item.productId._id %>" style="text-decoration:none;">
+        <h4 class="wishlist-product-name"><%= item.productId.product %></h4>
+      </a>
 
-              <button class="remove-btn" onclick="removeWishlist('<%= item._id %>')">
-                Remove from Wishlist
-              </button>
-            </div>
-          </div>
-        <% }) %>
+      <p class="wishlist-price">₹<%= variant?.price || 0 %></p>
+    </div>
+
+    <% if(!isUnavailable) { %>
+      <button class="cart-btn"
+        onclick="moveToCart('<%= item._id %>', '<%= item.productId._id %>', '<%= item.variantId %>', 1)">
+        🛒 Move to Cart
+      </button>
+    <% } else { %>
+      <button class="cart-btn" disabled style="background:gray;cursor:not-allowed;">
+        Unavailable
+      </button>
+    <% } %>
+
+    <button class="remove-btn" onclick="removeWishlist('<%= item._id %>')">
+      Remove from Wishlist
+    </button>
+  </div>
+
+</div>
+
+<% }) %>
+
+            
       </div>
     <% } else { %>
       <div class="empty-wishlist">

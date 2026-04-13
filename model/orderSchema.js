@@ -20,7 +20,7 @@ const orderItemSchema = new Schema({
     required: true
   },
 
-  // 🔥 PRODUCT LEVEL STATUS
+  
   itemStatus: {
     type: String,
     enum: [
@@ -76,6 +76,14 @@ const orderSchema = new Schema(
     subTotal: Number,
     tax: Number,
     couponDiscount: Number,
+    couponMinPurchase: {
+  type: Number,
+  default: 0
+},
+couponCode: {
+  type: String,
+  default: null
+},
 offerDiscount: Number,
 shippingCharge: {
   type: Number,
@@ -97,7 +105,7 @@ shippingCharge: {
       default: "pending"
     },
 
-    // 🔥 DERIVED ORDER STATUS (summary)
+    
   orderStatus: {
   type: String,
   enum: [

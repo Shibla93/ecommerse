@@ -503,9 +503,12 @@ transform:none;
             <% products.forEach(p=> { %>
               <div class="product-card">
                 <div class="product-img">
-                  <button type="button" class="wishlist-btn"
-                    onclick="addToWishlist('<%= p.productId %>', '<%= p.variantId %>', this)"
-                    aria-label="Add to wishlist">
+                <button 
+  type="button" 
+  class="wishlist-btn <%= wishlistItems.includes(String(p.productId)) ? 'active' : '' %>"
+  onclick="addToWishlist('<%= p.productId %>', '<%= p.variantId %>', this)"
+  aria-label="Add to wishlist">
+                   
                     <i class="fa fa-heart"></i>
                   </button>
                  <% if(p.stock <= 0){ %>

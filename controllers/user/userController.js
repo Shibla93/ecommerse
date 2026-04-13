@@ -6,7 +6,7 @@ import nodemailer from "nodemailer";
 import Messages from "../../constants/messages.js";
 import StatusCodes from "../../constants/StatusCodes.js";
 import bcrypt from "bcrypt";
-
+import Wishlist from "../../model/wishlistSchema.js";
 import Brand from "../../model/brandSchema.js";
 import Category from "../../model/categorySchema.js";
 import Wallet from "../../model/walletSchema.js";
@@ -84,7 +84,14 @@ const home = async (req, res) => {
     if (userId) {
       userData = await User.findById(userId).lean();
     }
+let wishlistItems = [];
 
+if (userId) {
+  const wishlist = await Wishlist.findOne({ userId });
+  if (wishlist) {
+    wishlistItems = wishlist.items.map(item => String(item.productId));
+  }
+}
     const categories = await Category.find({ isListed: true }).lean();
     const brands = await Brand.find({ isBlocked: false }).lean();
 
@@ -122,7 +129,7 @@ const home = async (req, res) => {
       products: productLimit,
       categories,
       brands,
-    
+    wishlistItems
     });
   } catch (error) {
     console.error("Home controller error:", error);
@@ -203,7 +210,13 @@ const securePassword=async(password)=>{
 
 const verifyOtp=async(req,res)=>{
     try {
-        return res.render("verify-otp");
+       const error = req.session.errorMessage;
+  const success = req.session.successMessage;
+
+  req.session.errorMessage = null;
+  req.session.successMessage = null;
+      
+        return res.render("verify-otp", { error ,success});
 
     } catch (error) {
          res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
@@ -262,19 +275,19 @@ const postOtp=async(req,res)=>{
 
     if(!req.session.otpExpiry || Date.now() > req.session.otpExpiry){
       req.session.errorMessage = Messages.OTP_EXPIRED;
-  return res.redirect("/verify-otp");;
+  return res.redirect("/verifyOtp");;
     }
 
     if(otp!==req.session.userOtp){
         req.session.errorMessage = Messages.OTP_INVALID;
-  return res.redirect("/verify-otp");
+  return res.redirect("/verifyOtp");
     }
 
     const { name, phone, email, password ,referredBy} = req.session.userData;
 
     if(!password){
        req.session.errorMessage = "Password missing";
-  return res.redirect("/verify-otp");
+  return res.redirect("/verifyOtp");
     }
 
     const hashedPassword = await securePassword(password);
@@ -389,13 +402,15 @@ const loadLogin = async (req, res) => {
     }
 
     const error = req.session.errorMessage;
+     const success = req.session.successMessage;
     const email = req.session.oldEmail;
 
     
     req.session.errorMessage = null;
+   req.session.successMessage = null;
     req.session.oldEmail = null;
 
-    res.render("login", { error, email });
+    res.render("login", { error,success, email });
 
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -479,10 +494,10 @@ const login = async (req, res) => {
       req.session.oldEmail = email;
       return res.redirect("/login");
     }
-
+req.session.admin = null; 
     req.session.user = findUser._id;
 
-    return res.redirect("/home");
+      return req.session.save(() => res.redirect("/home"));
 
   } catch (error) {
     console.error("Login error", error);
@@ -494,6 +509,7 @@ const login = async (req, res) => {
 const logout=async (req,res)=>{
   try {
     req.session.destroy((err)=>{
+      
       if(err){
         console.log("session destruction error",err.message)
         return res.status(500).send("Logout Error")

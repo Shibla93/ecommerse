@@ -321,6 +321,10 @@
     <div class="position-relative">
       <i class="bi bi-search search-icon"></i>
       <input type="text" id="searchInput" placeholder="Search products..." value="<%= search %>">
+       <button id="clearSearch" 
+          style="position:absolute; right:5px; top:50%; transform:translateY(-50%); border:none; background:none;">
+    ❌
+  </button>
     </div>
   </div>
 
@@ -443,7 +447,21 @@
       window.location.href = `/admin/product?search=${encodeURIComponent(value)}`;
     }
   });
+  document.getElementById("clearSearch").addEventListener("click",function(e){
+    window.location.href='/admin/product'
+  })
+const searchInput = document.getElementById("searchInput");
+const clearBtn = document.getElementById("clearSearch");
 
+searchInput.addEventListener("input", () => {
+  clearBtn.style.display = searchInput.value ? "block" : "none";
+});
+searchInput.addEventListener("input", function () {
+  const value = this.value.trim();
+  if (value.length === 0) {
+    window.location.href = "/admin/product";
+  }
+});
   document.querySelectorAll('.view-variants-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       const productId = this.dataset.productid;
@@ -514,6 +532,7 @@
               this.classList.remove("btn-success"); 
               this.classList.add("btn-danger");
             }
+             
           } else {
             Swal.fire("Error", data.message, "error");
           }

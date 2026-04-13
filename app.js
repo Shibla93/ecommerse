@@ -19,24 +19,41 @@ import errorHandler from "./middlewares/errorHandler.js";
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 
-app.use(
-  session({
-    secret:process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl:process.env.MONGO_URI
-    }),
-    cookie: {
-      maxAge: 72 * 60 * 60 * 1000,
-    },
-  })
-);
+// 👉 USER SESSION
+const userSession = session({
+  name: "userSession", 
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: "userSessions"
+  }),
+  cookie: {
+    maxAge: 72 * 60 * 60 * 1000,
+        path: "/"
+  },
+});
 
-app.use(passport.initialize())
-app.use(passport.session())
+// 👉 ADMIN SESSION
+const adminSession = session({
+  name: "adminSession", 
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: "adminSessions"
+  }),
+  cookie: {
+    maxAge: 72 * 60 * 60 * 1000,
+        path: "/admin"
+  },
+});
+// app.use(passport.initialize())
+// app.use(passport.session())
 
-app.use(setLocals);
+
 app.set("view engine", "ejs");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,9 +71,9 @@ app.use((req,res,next)=>{
   next()
 })
 
+app.use("/admin",adminSession,adminRouter)
+app.use("/",userSession,setLocals,userRouter);
 
-app.use("/",userRouter);
-app.use("/admin",adminRouter)
 app.use(errorHandler);
 
 dbConnect().then(() => {

@@ -1,32 +1,34 @@
 <%- include("../../views/partials/user/header") %>
 
-<style>
-  /* ✅ UI SAME – NO CHANGE */
-  :root {
-    --color-gold: #d4af37;
-    --color-gold-hover: #c19a2e;
-    --color-dark: #1a1a1a;
-    --color-muted: #6b7280;
-    --color-border: #e5e7eb;
-    --color-card-bg: #ffffff;
-    --color-light-bg: #f9fafb;
-    --radius-lg: 1rem;
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-  
+  <style>
+    /* ✅ UI SAME – NO CHANGE */
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
 
-  /* Your existing :root variables are already perfect */
-  body {
-    font-family: 'Montserrat', sans-serif;
-    background: var(--color-light-bg);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-/* ===== SIDEBAR & MAIN LAYOUT ===== */
+
+    /* Your existing :root variables are already perfect */
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== SIDEBAR & MAIN LAYOUT ===== */
     .app-wrapper {
-      margin-left: 100px; /* Space for fixed sidebar */
+      margin-left: 100px;
+      /* Space for fixed sidebar */
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -51,7 +53,8 @@
     /* ===== MAIN CONTENT ===== */
     .main-content {
       flex: 1;
-      padding: 40px 20px 60px; /* Extra bottom padding for footer */
+      padding: 40px 20px 60px;
+      /* Extra bottom padding for footer */
     }
 
     .container {
@@ -59,452 +62,526 @@
       margin: 0 auto;
     }
 
-  .main {
-    flex: 1;
-    padding: 120px 0 60px; /* Extra top padding to clear fixed header */
-  }
-
-  .page-header {
-    background: #fff;
-    border-bottom: 1px solid var(--color-border);
-    padding: 20px 0;
-    margin-bottom: 40px;
-  }
-
-  .breadcrumb {
-    font-size: 1rem;
-    color: var(--color-muted);
-  }
-
-  .breadcrumb a {
-    color: var(--color-gold);
-    text-decoration: none;
-  }
-
-  .breadcrumb span {
-    margin: 0 10px;
-    color: var(--color-muted);
-  }
-
-  .cart-container {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-
-  .cart-table {
-    background: var(--color-card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-    width: 100%;
-  }
-
-  .cart-table thead {
-    background: var(--color-dark);
-    color: white;
-  }
-
-  .cart-table th,
-  .cart-table td {
-    padding: 1.2rem;
-    vertical-align: middle;
-    text-align: center;
-  }
-
-  .cart-table img {
-    width: 90px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-  }
-
-  .product-name {
-    font-weight: 600;
-    color: var(--color-dark);
-  }
-
-  .price {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--color-gold);
-  }
-
-  .small-price {
-    font-size: 0.9rem;
-    color: var(--color-muted);
-  }
-
-  .quantity-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border: 1px solid var(--color-border);
-    border-radius: 50px;
-    padding: 6px 12px;
-    background: #fff;
-  }
-
-  .quantity-input {
-    width: 50px;
-    text-align: center;
-    border: none;
-    background: transparent;
-    font-weight: 600;
-  }
-
-  .increment-button,
-  .decrement-button {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: var(--color-gold);
-    transition: transform 0.2s;
-  }
-
-  .increment-button:hover,
-  .decrement-button:hover {
-    transform: scale(1.2);
-  }
-
-  .remove-btn {
-    color: #dc2626;
-    font-size: 1.3rem;
-    transition: color 0.3s;
-  }
-
-  .remove-btn:hover {
-    color: #b91c1c;
-  }
-
-  .cart-totals {
-    background: var(--color-card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    padding: 2rem;
-    height: fit-content;
-    margin-top: 20px; /* Space from table on mobile */
-  }
-
-  .cart-totals h4 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--color-dark);
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--color-gold);
-    padding-bottom: 0.5rem;
-  }
-
-  .cart-total-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-  }
-
-  .cart-total-amount {
-    font-weight: 700;
-    color: var(--color-gold);
-  }
-
-  .checkout-btn {
-    background: var(--color-gold);
-    color: white;
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 0.75rem;
-    width: 100%;
-    margin-top: 1.5rem;
-    transition: all 0.3s ease;
-  }
-
-  .checkout-btn:hover {
-    background: var(--color-gold-hover);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .empty-cart {
-    text-align: center;
-    padding: 6rem 2rem;
-    background: var(--color-card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-  }
-/* ===== MOBILE RESPONSIVE CART ===== */
-@media (max-width: 768px) {
-
-  .cart-table table,
-  .cart-table thead,
-  .cart-table tbody,
-  .cart-table th,
-  .cart-table td,
-  .cart-table tr {
-    display: block;
-    width: 100%;
-  }
-
-  .cart-table thead {
-    display: none; /* hide table header */
-  }
-
-  .cart-table tr {
-    background: #fff;
-    margin-bottom: 1.5rem;
-    border-radius: 1rem;
-    box-shadow: var(--shadow-md);
-    padding: 1rem;
-  }
-
-  .cart-table td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.7rem 0;
-    border: none;
-    text-align: right;
-    font-size: 0.95rem;
-  }
-
-  .cart-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--color-muted);
-    text-align: left;
-  }
-
-  .cart-table img {
-    width: 70px;
-    height: 70px;
-  }
-
-  .quantity-control {
-    justify-content: flex-end;
-  }
-
-  .remove-btn {
-    font-size: 1.4rem;
-  }
-
-  .cart-totals {
-    margin-top: 2rem;
-  }
-}
-
-  @media (max-width: 992px) {
-    .row {
-      flex-direction: column;
+    .main {
+      flex: 1;
+      padding: 120px 0 60px;
+      /* Extra top padding to clear fixed header */
     }
-    .col-9, .col-3 {
+
+    .page-header {
+      background: #fff;
+      border-bottom: 1px solid var(--color-border);
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+
+    .breadcrumb {
+      font-size: 1rem;
+      color: var(--color-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--color-gold);
+      text-decoration: none;
+    }
+
+    .breadcrumb span {
+      margin: 0 10px;
+      color: var(--color-muted);
+    }
+
+    .cart-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .cart-table {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
       width: 100%;
     }
-    .cart-totals {
-      margin-top: 2rem;
+
+    .cart-table thead {
+      background: var(--color-dark);
+      color: white;
     }
-  }
-</style>
 
-<main class="main">
-  <div class="page-header breadcrumb-wrap">
-    <div class="cart-container">
-      <div class="breadcrumb">
-        <a href="/">Home</a>
-        <span>></span> Cart
-      </div>
-    </div>
-  </div>
+    .cart-table th,
+    .cart-table td {
+      padding: 1.2rem;
+      vertical-align: middle;
+      text-align: center;
+    }
 
-  <section>
-    <div class="cart-container">
-      <% if (cart && cart.items.length > 0) { %>
-        <div class="row">
-          <!-- Cart Items Table -->
-          <div class="col-9">
-            <div class="cart-table table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Remove</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% cart.items.forEach(item => { %>
-                    <tr>
-                 <td data-label="Image">
+    .cart-table img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
 
-                        
-  <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()) %>
-  <img src="<%= variant.images[0].originalUrl %>" alt="<%= item.productId.product %>">
+    .product-name {
+      font-weight: 600;
+      color: var(--color-dark);
+    }
+
+    .price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-gold);
+    }
+
+    .small-price {
+      font-size: 0.9rem;
+      color: var(--color-muted);
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--color-border);
+      border-radius: 50px;
+      padding: 6px 12px;
+      background: #fff;
+    }
+
+    .quantity-input {
+      width: 50px;
+      text-align: center;
+      border: none;
+      background: transparent;
+      font-weight: 600;
+    }
+
+    .increment-button,
+    .decrement-button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--color-gold);
+      transition: transform 0.2s;
+    }
+
+    .increment-button:hover,
+    .decrement-button:hover {
+      transform: scale(1.2);
+    }
+
+    .remove-btn {
+      color: #dc2626;
+      font-size: 1.3rem;
+      transition: color 0.3s;
+    }
+
+    .remove-btn:hover {
+      color: #b91c1c;
+    }
+
+    .cart-totals {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+      height: fit-content;
+      margin-top: 20px;
+      /* Space from table on mobile */
+    }
+
+    .cart-totals h4 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-dark);
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--color-gold);
+      padding-bottom: 0.5rem;
+    }
+
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .cart-total-amount {
+      font-weight: 700;
+      color: var(--color-gold);
+    }
+
+    .checkout-btn {
+      background: var(--color-gold);
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.75rem;
+      width: 100%;
+      margin-top: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .checkout-btn:hover {
+      background: var(--color-gold-hover);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* ===== MOBILE RESPONSIVE CART ===== */
+    @media (max-width: 768px) {
+
+      .cart-table table,
+      .cart-table thead,
+      .cart-table tbody,
+      .cart-table th,
+      .cart-table td,
+      .cart-table tr {
+        display: block;
+        width: 100%;
+      }
+
+      .cart-table thead {
+        display: none;
+        /* hide table header */
+      }
+
+      .cart-table tr {
+        background: #fff;
+        margin-bottom: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-md);
+        padding: 1rem;
+      }
+
+      .cart-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem 0;
+        border: none;
+        text-align: right;
+        font-size: 0.95rem;
+      }
+
+      .cart-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--color-muted);
+        text-align: left;
+      }
+
+      .cart-table img {
+        width: 70px;
+        height: 70px;
+      }
+
+      .quantity-control {
+        justify-content: flex-end;
+      }
+
+      .remove-btn {
+        font-size: 1.4rem;
+      }
+
+      .cart-totals {
+        margin-top: 2rem;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .row {
+        flex-direction: column;
+      }
+
+      .col-9,
+      .col-3 {
+        width: 100%;
+      }
+
+      .cart-totals {
+        margin-top: 2rem;
+      }
+    }
+  </style>
 
 
-                      </td>
-                      <td data-label="product-name">
-                        <%= item.productId.product %>
-                      </td>
-             <td data-label="price">
-
-<span style="font-weight:700;color:#d4af37;">
-₹<%= item.totalPrice %>
-</span>
-
-<br>
-
-<small class="small-price">
-₹<%= item.price %> / item
-</small>
-
-<% if(item.price < variant.price){ %>
-<br>
-<small style="text-decoration:line-through;color:#999;">
-₹<%= variant.price %>
-</small>
-<% } %>
-
-</td>
-                      
-<td data-label="Quantity">
-                        <div class="quantity-control">
-                          <button class="decrement-button"
-                            onclick="changeQuantity('<%= item._id %>', -1)">-</button>
-                          <input class="quantity-input" value="<%= item.quantity %>" readonly>
-                          <button class="increment-button"
-                            onclick="changeQuantity('<%= item._id %>', 1)">+</button>
-                        </div>
-                      </td>
-                      <td data-label="Remove">
-                        <a href="javascript:void(0);" class="remove-btn" onclick="removeCartItem('<%= item._id %>')">
-  🗑
-</a>
-
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Cart Totals (Sticky on large screens) -->
-          <div class="col-lg-3 col-md-12">
-    <div class="cart-totals sticky-totals">
-      <h4>PRICE DETAILS</h4>
-      <div class="d-flex justify-content-between mb-3">
-        <span>Subtotal</span>
-        <span class="fw-bold">₹<%= grandTotal %></span>
-      </div>
-      <div class="d-flex justify-content-between mb-3">
-        <span>Shipping</span>
-        <span class="text-success fw-bold"><%=shipping %></span>
-      </div>
-      <hr class="my-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="mb-0">Total</h5>
-        <h3 class="mb-0 text-gold">₹<span id="total"><%= grandTotal %></span></h3>
-      </div>
-   <button class="checkout-btn" onclick="proceedCheckout()">
-  Proceed To Checkout
-</button>
-
-
-    </div>
-  </div>
-</div>
-      <% } else { %>
-        <div class="empty-cart">
-          <h3>Your Cart is Empty</h3>
-          <p class="mb-4">Add some luxury watches to your cart!</p>
-          <a href="/shop" class="btn btn-outline-dark">Start Shopping</a>
+  <main class="main">
+    <div class="page-header breadcrumb-wrap">
+      <div class="cart-container">
+        <div class="breadcrumb">
+          <a href="/">Home</a>
+          <span>></span> Cart
         </div>
-      <% } %>
+      </div>
     </div>
-  </section>
-</main>
+    <section>
+      <div class="cart-container">
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
+        <% if(messages && messages.length> 0) { %>
+          <div style="
+        background:#fee2e2;
+        color:#991b1b;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:20px;
+        font-weight:500;
+      ">
+            <% messages.forEach(msg=> { %>
+              <p style="margin:0;">
+                <%= msg %>
+              </p>
+              <% }) %>
+          </div>
+          <% } %>
+
+            <section>
+              <div class="cart-container">
+                <% if (cart && cart.items.length> 0) { %>
+                  <div class="row">
+                    <!-- Cart Items Table -->
+                    <div class="col-9">
+                      <div class="cart-table table-responsive">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Image</th>
+                              <th>Name</th>
+                              <th>Price</th>
+                              <th>Quantity</th>
+                              <th>Remove</th>
+                            </tr>
+                          </thead>
+<tbody>
+  <% cart.items.forEach(item => { %>
+
+    <% if(item.isUnavailable) { %>
+
+  <tr style="opacity:0.5;">
+
+    <td data-label="Image">
+      <% if(item.productId && item.productId.variants.length > 0){ %>
+        <img src="<%= item.productId.variants[0].images[0].originalUrl %>">
+      <% } else { %>
+        <span>No Image</span>
+      <% } %>
+    </td>
+
+    <td>
+      <%= item.productId?.product || "Product" %>
+      <br>
+      <small style="color:red;">Unavailable</small>
+    </td>
+
+    <td>—</td>
+
+    <td>
+      <span style="color:#999;">Not available</span>
+    </td>
+
+    <td>
+      <a href="javascript:void(0);" 
+         onclick="removeCartItem('<%= item._id %>')" 
+         style="color:red;">
+        Remove
+      </a>
+    </td>
+
+  </tr>
+
+
+
+    <% } else { %>
+
+      <% const variant = item.productId.variants.find(
+        v => v._id.toString() === item.variantId.toString()
+      ) %>
+
+      <tr>
+        <td data-label="Image">
+          <img src="<%= variant.images[0].originalUrl %>" alt="<%= item.productId.product %>">
+        </td>
+
+        <td data-label="product-name">
+          <%= item.productId.product %>
+        </td>
+
+        <td data-label="price">
+          <span style="font-weight:700;color:#d4af37;">
+            ₹<%= item.totalPrice %>
+          </span>
+          <br>
+
+          <small class="small-price">
+            ₹<%= item.price %> / item
+          </small>
+
+          <% if(item.price < variant.price){ %>
+            <br>
+            <small style="text-decoration:line-through;color:#999;">
+              ₹<%= variant.price %>
+            </small>
+          <% } %>
+        </td>
+
+        <td data-label="Quantity">
+          <div class="quantity-control">
+            <button class="decrement-button"
+              onclick="changeQuantity('<%= item._id %>', -1)">-</button>
+
+            <input class="quantity-input" value="<%= item.quantity %>" readonly>
+
+            <button class="increment-button"
+              onclick="changeQuantity('<%= item._id %>', 1)">+</button>
+          </div>
+        </td>
+
+        <td data-label="Remove">
+          <a href="javascript:void(0);" class="remove-btn"
+            onclick="removeCartItem('<%= item._id %>')">
+            🗑
+          </a>
+        </td>
+      </tr>
+
+    <% } %>
+
+  <% }) %>
+</tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <!-- Cart Totals (Sticky on large screens) -->
+                    <div class="col-lg-3 col-md-12">
+                      <div class="cart-totals sticky-totals">
+                        <h4>PRICE DETAILS</h4>
+                        <div class="d-flex justify-content-between mb-3">
+                          <span>Subtotal</span>
+                          <span class="fw-bold">₹<%= grandTotal %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                          <span>Shipping</span>
+                          <span class="text-success fw-bold">
+                            <%=shipping %>
+                          </span>
+                        </div>
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                          <h5 class="mb-0">Total</h5>
+                          <h3 class="mb-0 text-gold">₹<span id="total">
+                              <%= grandTotal %>
+                            </span></h3>
+                        </div>
+                        <button class="checkout-btn" onclick="proceedCheckout()">
+                          Proceed To Checkout
+                        </button>
+
+
+                      </div>
+                    </div>
+                  </div>
+                  <% } else { %>
+                    <div class="empty-cart">
+                      <h3>Your Cart is Empty</h3>
+                      <p class="mb-4">Add some luxury watches to your cart!</p>
+                      <a href="/shop" class="btn btn-outline-dark">Start Shopping</a>
+                    </div>
+                    <% } %>
+              </div>
+            </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
 
     function changeQuantity(cartItemId, value) {
-  const action = value === 1 ? "increment" : "decrement";
+      const action = value === 1 ? "increment" : "decrement";
 
-  fetch("/changeQuantity", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      cartItemId,
-      action
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      location.reload();
-    } else {
-      Swal.fire("Error", data.message || "Something went wrong", "error");
-    }
-  });
-}
-  function removeCartItem(cartItemId) {
-  Swal.fire({
-    title: "Remove item?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes"
-  }).then(result => {
-    if (result.isConfirmed) {
-      fetch("/cart/remove", {
+      fetch("/changeQuantity", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ cartItemId })
+        body: JSON.stringify({
+          cartItemId,
+          action
+        })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire("Removed!", data.message, "success").then(() => {
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
             location.reload();
-          });
-        } else {
-          Swal.fire("Error", data.message, "error");
+          } else {
+            Swal.fire("Error", data.message || "Something went wrong", "error");
+          }
+        });
+    }
+    function removeCartItem(cartItemId) {
+      Swal.fire({
+        title: "Remove item?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes"
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch("/cart/remove", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ cartItemId })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire("Removed!", data.message, "success").then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire("Error", data.message, "error");
+              }
+            });
         }
       });
     }
-  });
-}
 
-function proceedCheckout() {
-  fetch("/checkout/validate", {
-    method: "GET",
-    credentials: "include"
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (!data.success) {
-      Swal.fire({
-        icon: "error",
-        title: "Checkout Error",
-        text: data.message
-      });
-    } else {
-      window.location.href = "/checkout";
+    function proceedCheckout() {
+      fetch("/checkout/validate", {
+        method: "GET",
+        credentials: "include"
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success) {
+            Swal.fire({
+              icon: "error",
+              title: "Checkout Error",
+              text: data.message
+            });
+          } else {
+            window.location.href = "/checkout";
+          }
+        })
+        .catch(() => {
+          Swal.fire("Error", "Something went wrong", "error");
+        });
     }
-  })
-  .catch(() => {
-    Swal.fire("Error", "Something went wrong", "error");
-  });
-}
 
-</script>
+  </script>
 
-<%- include("../../views/partials/user/footer") %>
+  <%- include("../../views/partials/user/footer") %>

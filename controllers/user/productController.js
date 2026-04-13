@@ -6,7 +6,7 @@ import nodemailer from "nodemailer";
 import Messages from "../../constants/messages.js";
 import StatusCodes from "../../constants/StatusCodes.js";
 import bcrypt from "bcrypt";
-
+import Wishlist from "../../model/wishlistSchema.js";
 import Cart from "../../model/cartSchema.js";
 import Brand from "../../model/brandSchema.js";
 import Category from "../../model/categorySchema.js";
@@ -34,7 +34,14 @@ const loadShoppingPage = async (req, res) => {
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    
+    let wishlistItems = [];
+
+if (userId) {
+  const wishlist = await Wishlist.findOne({ userId });
+  if (wishlist) {
+    wishlistItems = wishlist.items.map(item => String(item.productId));
+  }
+}
     let minPrice = 0;
     let maxPrice = Number.MAX_SAFE_INTEGER;
     if (req.query.price) {
@@ -164,6 +171,7 @@ const loadShoppingPage = async (req, res) => {
       brands,
       currentPage: page,
       totalPages,
+        wishlistItems
     });
   } catch (error) {
     console.error("Error loading shop page:", error);
@@ -179,7 +187,7 @@ const loadProductDetail = async (req, res) => {
 
     const product = await Product.findById(id)
      .populate('brand', 'name')
-     .populate('category', 'name')
+     .populate('category')
     .lean();
 
    if (!product) {
@@ -189,25 +197,39 @@ const loadProductDetail = async (req, res) => {
     
     const listedVariants = product.variants.filter(v => v.isListed===true && v.isDeleted===false);
 
-    
     if (listedVariants.length === 0) {
-      return res.render('product-detail', {
-        product,
-        message:Messages.SOLD_OUT
-      });
-    }
+  return res.render("product-unavailable", {
+    message: "This product is currently unavailable"
+  });
+}
+   
 
 
     const variantId = req.query.variant;
-    let activeVariant = listedVariants[0];
-    if (variantId) {
-      const found = listedVariants.find(v => String(v._id) === String(variantId));
-      if (found) activeVariant = found;
-    }
+ let activeVariant = null;
 
-    const maxOffer = Math.max(
+if (variantId) {
+  activeVariant = listedVariants.find(
+    v => String(v._id) === String(variantId)
+  );
+
+
+  if (!activeVariant) {
+    return res.render("product-unavailable", {
+      message: "This selected variant is no longer available",
+      product
+    });
+  }
+}
+
+
+if (!activeVariant) {
+  activeVariant = listedVariants[0];
+}
+
+  const maxOffer = Math.max(
   product.productOffer || 0,
-  product.category.categoryOffer || 0
+  product.category?.categoryOffer || 0
 );
 
 const discount = activeVariant.price * (maxOffer / 100);
@@ -281,7 +303,28 @@ const addReview=async(req,res)=>{
     }
 }
 
-  
+  const checkVariantStatus = async (req, res) => {
+  try {
+    const { productId, variantId } = req.body;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.json({ status: "product_deleted" });
+    }
+
+    const variant = product.variants.id(variantId);
+
+    if (!variant || variant.isDeleted || !variant.isListed) {
+      return res.json({ status: "unavailable" });
+    }
+
+    return res.json({ status: "available" });
+
+  } catch (error) {
+    return res.status(500).json({ status: "error" });
+  }
+};
 
   
 
@@ -290,6 +333,7 @@ const addReview=async(req,res)=>{
  const productController={
     loadShoppingPage,
     loadProductDetail,
-    addReview
+    addReview,
+    checkVariantStatus
 }
 export default  productController

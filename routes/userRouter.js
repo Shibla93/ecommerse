@@ -30,7 +30,7 @@ router.get("/verifyOtp",userController.verifyOtp)
 router.post("/verifyOtp",userController.postOtp)
 router.post("/resendotp",userController.resendOtp)
 
-import { preventLogin } from '../middlewares/preventLogin.js';
+import { preventLogin } from '../middlewares/preventLogin.js'
 
 router.get('/login', preventLogin, userController.loadLogin);
 
@@ -50,7 +50,7 @@ router.get("/auth/google/callback",
 
 // router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
-router.get("/home",userAuth, userController.home);
+router.get("/home", userController.home);
 router.get("/logout",userController.logout)
 router.post("/logout",userController.logout)
 
@@ -78,9 +78,10 @@ router.get("/address",userAuth,addressController.getAddress)
  router.patch("/editAddress/:id",userAuth,addressController.postEditAddress)
 router.delete("/deleteAddress/:id",userAuth,addressController.deleteAddress)
 
-router.get("/shop",userAuth,productController.loadShoppingPage)
-router.get("/product/:id",userAuth,productController.loadProductDetail)
+router.get("/shop",productController.loadShoppingPage)
+router.get("/product/:id",productController.loadProductDetail)
 router.post("/product/:id/review",userAuth,productController.addReview)
+router.post("/check-variant-status",userAuth,productController.checkVariantStatus);
 
 router.get("/wishlist", userAuth, wishlistController.getWishlist);
  router.post("/wishlist/add", userAuth, wishlistController.addToWishlist);
@@ -102,7 +103,7 @@ router.post("/payment/razorpay/verify",userAuth,paymentController.verifyRazorpay
 router.get("/order/failure/:orderId",userAuth,orderController.orderFailurePage)
 router.get("/order/success/:orderId", userAuth, orderController.orderSuccessPage);
 router.post("/payment/razorpay/failed",userAuth,paymentController.markPaymentFailed);
-//router.post("/payment/razorpay/retry/:orderId",userAuth,paymentController.retryPayment);
+router.patch("/order/cancel-full/:orderNumber",userAuth, orderController.cancelFullOrder);
 
 router.get("/orders",userAuth,orderController.getOrder)
 router.get("/orders/:orderId",userAuth,orderController.getOrderDetails)

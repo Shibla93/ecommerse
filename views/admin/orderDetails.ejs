@@ -223,7 +223,17 @@
           <td><%= item.productId.product %></td>
           <td><%= item.quantity %></td>
           <td>₹<%= item.purchasedPrice %></td>
-          <td><span class="status-badge status-<%= item.itemStatus %>"><%= item.itemStatus %></span></td>
+          <td>
+  <% if(order.paymentStatus === 'failed') { %>
+    <span class="status-badge status-payment_failed">
+      Payment Failed
+    </span>
+  <% } else { %>
+    <span class="status-badge status-<%= item.itemStatus %>">
+      <%= item.itemStatus %>
+    </span>
+  <% } %>
+</td>
           <td>
   <%= item.return?.status || "none" %>
 </td>

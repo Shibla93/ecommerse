@@ -62,7 +62,8 @@ const postAddAddress = async (req, res) => {
       state,
       pincode,
       phone,
-      altphone
+      altphone,
+    
     } = req.body;
 
     const errors = {};
@@ -132,10 +133,11 @@ const postAddAddress = async (req, res) => {
     if (!userAddress) {
       await Address.create({
         userId,
-        address: [{ addressType, name, city, landMark, state, pincode, phone, altphone }]
+        address: [{ addressType, name, city, landMark, state, pincode, phone, altphone,  isDefault: true }]
       });
     } else {
-      userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone, altphone });
+        const hasDefault = userAddress.address.some(addr => addr.isDefault);
+      userAddress.address.push({ addressType, name, city, landMark, state, pincode, phone, altphone,    isDefault: !hasDefault    });
       await userAddress.save();
     }
 

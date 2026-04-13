@@ -107,9 +107,20 @@ const moveWishlistToCart = async (req, res) => {
     }
 
     const variant = product.variants.id(variantId);
-    if (!variant) {
-      return res.json({ success: false, message: "Variant not found" });
-    }
+
+if (!variant || !variant.isListed || variant.isDeleted) {
+  return res.json({
+    success: false,
+    message: "This product is currently unavailable"
+  });
+}
+
+if (variant.stock <= 0) {
+  return res.json({
+    success: false,
+    message: "Out of stock"
+  });
+}
 
     const price = variant.price;
     const qty = quantity || 1;
