@@ -389,7 +389,9 @@
       <!-- Page Numbers -->
       <% for(let i = 1; i <= totalPages; i++) { %>
         <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+         <a class="page-link" href="?page=<%= i %>&search=<%= search %>">
+  <%= i %>
+</a>
         </li>
       <% } %>
 
@@ -532,6 +534,15 @@ searchInput.addEventListener("input", function () {
               this.classList.remove("btn-success"); 
               this.classList.add("btn-danger");
             }
+            const p = productsData.find(p=>p._id===productId);
+
+if(p){
+ let v = p.variants.find(v=>v._id===variantId);
+
+ if(v){
+   v.isListed=!v.isListed;
+ }
+}
              
           } else {
             Swal.fire("Error", data.message, "error");
@@ -565,7 +576,13 @@ searchInput.addEventListener("input", function () {
           if (data.success) {
             this.closest('.variant-card').remove();
             Swal.fire("Deleted!", data.message, "success");
-            setTimeout(() => location.reload(), 1500);
+         const p=productsData.find(p=>p._id===productId);
+
+if(p){
+p.variants=p.variants.filter(
+v=>v._id!==variantId
+);
+}
           } else {
             Swal.fire("Error", data.message, "error");
           }

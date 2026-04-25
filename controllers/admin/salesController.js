@@ -4,8 +4,6 @@ import ExcelJS from "exceljs";
 import moment from "moment";
 import { calculateItemRefund } from "../../helpers/refundCalculator.js";
 
-
-// -------------------- DATE RANGE --------------------
 const getDateRange = (filter, startDate, endDate) => {
   let start, end;
 
@@ -92,7 +90,7 @@ const getSalesReport = async (req, res) => {
       let subTotal = 0;
       let refundAmount = 0;
 
-      // ACTIVE ITEMS subtotal
+      
       order.orderedItems.forEach((item) => {
         const itemTotal = item.purchasedPrice * item.quantity;
 
@@ -103,12 +101,12 @@ const getSalesReport = async (req, res) => {
 
       const tax = Math.round(subTotal * 0.05);
 
-      // ORDER AMOUNT (what system expects)
-      const totalAmount = subTotal + tax;
+      
+      const totalAmount = order.totalAmount
 
-      // REFUND CALCULATION (ONLY returned items)
+  
       order.orderedItems.forEach((item) => {
-        if (item.itemStatus === "returned") {
+        if (item.itemStatus === "returned"||item.itemStatus=="cancelled") {
           refundAmount += calculateItemRefund(order, item);
         }
       });
@@ -133,6 +131,7 @@ const getSalesReport = async (req, res) => {
       overallDiscount,
       couponDeductions,
       overallRefund,
+  
       netRevenue: overallOrderAmount - overallRefund,
       filter,
       startDate: moment(startDate).format("YYYY-MM-DD"),
@@ -142,7 +141,7 @@ const getSalesReport = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send("Internal server error");
+   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.INTERNAL_SERVER_ERROR });
   }
 };
 
@@ -232,7 +231,7 @@ const downloadExcel = async (req, res) => {
     res.end();
   } catch (error) {
     console.log(error);
-    res.status(500).send("Excel generation error");
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.INTERNAL_SERVER_ERROR });
   }
 };
 
@@ -391,7 +390,7 @@ const downloadPDF = async (req, res) => {
     doc.end();
   } catch (error) {
     console.log(error);
-    res.status(500).send("PDF generation error");
+       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.INTERNAL_SERVER_ERROR });
   }
 };
 

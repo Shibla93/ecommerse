@@ -1,4 +1,5 @@
-
+import StatusCodes from "../../constants/StatusCodes.js";
+import Messages from "../../constants/messages.js";
 import Coupon from "../../model/coupenSchema.js";
 const loadCouponList = async (req, res) => {
   try {
@@ -37,13 +38,34 @@ const createCoupon = async (req, res) => {
       isActive
     } = req.body;
 
-    // ✅ FIXED VALIDATION
+    if(
+!code ||
+!discountType ||
+!discountValue ||
+!expiryDate
+){
+return res.json({
+success:false,
+message:Messages.ALL_FIELDS_REQUIERED
+})
+}
+
+if(
+new Date(expiryDate)
+<= new Date()
+){
+return res.json({
+success:false,
+message:
+Messages.COUPON_EXPIRY_INVALID
+})
+}
     if (discountType === "percentage") {
 
       if (discountValue <= 0 || discountValue > 100) {
         return res.json({
           success: false,
-          message: "Percentage must be between 1 and 100"
+          message:Messages.COUPON_PERCENTAGE_INVALID
         });
       }
 
@@ -52,7 +74,7 @@ const createCoupon = async (req, res) => {
       if (Number(discountValue) >= Number(minPurchase)) {
         return res.json({
           success: false,
-          message: "Flat discount must be less than minimum purchase"
+          message: Messages.COUPON_FLAT_INVALID
         });
       }
 
@@ -63,7 +85,7 @@ const createCoupon = async (req, res) => {
     if (existing) {
       return res.json({
         success: false,
-        message: "Coupon already exists"
+        message: Messages.COUPON_ALREADY_EXISTS
       });
     }
 
@@ -82,14 +104,15 @@ const createCoupon = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Coupon added successfully"
+      message: 
+Messages.COUPON_ADDED
     });
 
   } catch (error) {
     console.log(error);
     return res.json({
       success: false,
-      message: "Server error"
+      message: Messages.INTERNAL_SERVER_ERROR
     });
   }
 };
@@ -109,14 +132,23 @@ const updateCoupon = async (req, res) => {
 
     const couponId = req.params.id;
 
-    /* ✅ FIXED VALIDATION */
+    if(
+new Date(expiryDate)
+<= new Date()
+){
+return res.json({
+success:false,
+message:
+Messages.COUPON_EXPIRY_INVALID
+})
+}
 
     if (discountType === "percentage") {
 
       if (discountValue <= 0 || discountValue > 100) {
         return res.json({
           success: false,
-          message: "Percentage must be between 1 and 100"
+          message: Messages.COUPON_PERCENTAGE_INVALID
         });
       }
 
@@ -125,13 +157,13 @@ const updateCoupon = async (req, res) => {
       if (Number(discountValue) >= Number(minPurchase)) {
         return res.json({
           success: false,
-          message: "Flat discount must be less than minimum purchase"
+          message: Messages.COUPON_FLAT_INVALID
         });
       }
 
     }
 
-    /* ✅ EXISTING CHECK */
+  
 
     const existingCoupon = await Coupon.findOne({
       code: code.toUpperCase(),
@@ -141,11 +173,11 @@ const updateCoupon = async (req, res) => {
     if (existingCoupon) {
       return res.json({
         success: false,
-        message: "Coupon already exists"
+        message: Messages.COUPON_ALREADY_EXISTS
       });
     }
 
-    /* ✅ UPDATE */
+    
 
     await Coupon.findByIdAndUpdate(couponId, {
       code: code.toUpperCase(),
@@ -160,7 +192,7 @@ const updateCoupon = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Coupon updated successfully"
+      message: Messages.CATEGORY_UPDATED
     });
 
   } catch (error) {
@@ -180,7 +212,7 @@ const deleteCoupon = async (req, res) => {
     res.redirect("/admin/coupons");
 
   } catch (error) {
-    console.log(error);
+    
     res.redirect("/admin/coupons");
   }
 };

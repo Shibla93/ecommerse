@@ -162,6 +162,11 @@ const getCartPage = async (req, res) => {
 const addToCart=async(req,res)=>{
     try {
     const userId = req.session.user;
+    if(!userId){
+return res.status(401).json({
+redirect:"/login"
+})
+}
     const { productId, variantId } = req.body;
  
     const product = await Product.findById(productId)

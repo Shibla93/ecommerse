@@ -31,6 +31,8 @@ const Messages = {
    BRAND_EXIST:"brand already exist",
    BRAND_ADDED:"brand added",
    BRAND_DELETE:"are you sure want to delete",
+   BRAND_BLOCKED:"Brand blocked successfully",
+BRAND_UNBLOCKED:"Brand unblocked successfully",
    OTP_RESENT_SUCCESS:"OTP resended successfully",
    OTP_INVALID:"OTP invalid",
    OTP_EXPIRED:"OTP expired,please try again",
@@ -61,6 +63,39 @@ ORDER_CANCELLED_SUCCESS:"order cancellled successfully",
 ORDER_ALREADY_RETURNED:"This order has already been returned.",
   RETURN_NOT_ALLOWED : "Only delivered orders are eligible for return.",
     INSUFFICIENT_STOCK: "Insufficient stock available for the selected product",
+    COUPON_ALREADY_EXISTS:"Coupon already exists",
+COUPON_ADDED:"Coupon added successfully",
+COUPON_UPDATED:"Coupon updated successfully",
+
+COUPON_EXPIRY_INVALID:
+"Expiry date must be future date",
+
+COUPON_PERCENTAGE_INVALID:
+"Percentage must be between 1 and 100",
+
+COUPON_FLAT_INVALID:
+"Flat discount must be less than minimum purchase",
+
+
+
+COUPON_NOT_FOUND:"Coupon not found",
+OFFER_PERCENTAGE_INVALID:
+"Offer percentage must be between 1 and 90",
+
+OFFER_DATE_INVALID:
+"Expiry date must be after start date",
+
+OFFER_NOT_FOUND:
+"Offer not found",
+
+OFFER_ADDED:
+"Offer created successfully",
+
+OFFER_UPDATED:
+"Offer updated successfully",
+
+OFFER_DELETED:
+"Offer deleted successfully"
 };
 
 export default Messages;

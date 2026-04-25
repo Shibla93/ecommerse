@@ -49,26 +49,6 @@ const getCustomer = async (req, res) => {
   }
 };
 
-// const blockCustomer=async(req,res)=>{
-//         try{
-    
-//         let userId=req.params.id
-//          const user=await User.findById(userId)
-//         if(check.isBlocked){
-//             const update=await User.updateOne({_id:userId},{$set:{isBlocked:false}})
-//             console.log(update)
-//             return res.json({success:true,message:Messages.USER_UNBLOCKED})
-            
-
-//          } else{
-//              const update=await User.updateOne({_id:userId},{$set:{isBlocked:true}})
-             
-//          return res.json({success:true,message:Messages.USER_BLOCKED})
-//         }
-//     }catch(error){
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
-//     }
-// }
 
 const blockCustomer = async (req, res) => {
   try {

@@ -27,16 +27,6 @@ const validateCheckout = async (req, res) => {
       return res.redirect("/cart");
     }
 
-//     cart.items = cart.items.filter(item => {
-//   const product = item.productId;
-
-//   if (!product) return false;
-//   const variant = product.variants.find(
-//     v => v._id.toString() === item.variantId.toString()
-//   );
-
-//   return variant && variant.isListed && !variant.isDeleted;
-// });
    
     for (let item of cart.items) {
      
@@ -86,15 +76,6 @@ const getCheckoutPage = async (req, res) => {
     if (!cart || cart.items.length === 0) {
       return res.redirect("/cart");
     }
-//     cart.items = cart.items.filter(item => {
-//   const product = item.productId;
-
-//   const variant = product.variants.find(
-//     v => v._id.toString() === item.variantId.toString()
-//   );
-
-//   return variant && variant.isListed && !variant.isDeleted;
-// });
 
     let subtotal = 0;
   let offerDiscount = 0;
@@ -464,7 +445,7 @@ if (coupon.usedBy.some(id => id.toString() === userId.toString())) {
 
   } catch (error) {
     console.error("Apply Coupon Error:", error);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.INTERNAL_SERVER_ERROR });
   }
 };
 

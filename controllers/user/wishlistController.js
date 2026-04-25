@@ -97,13 +97,13 @@ const moveWishlistToCart = async (req, res) => {
     const { wishlistItemId, productId, variantId, quantity } = req.body;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: "Please login" });
+      return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: Messages.USER_NOT_FOUND });
     }
 
     // 🔍 Get product & variant
     const product = await Product.findById(productId);
     if (!product) {
-      return res.json({ success: false, message: "Product not found" });
+      return res.json({ success: false, message: Messages.PRODUCT_NOT_FOUND });
     }
 
     const variant = product.variants.id(variantId);

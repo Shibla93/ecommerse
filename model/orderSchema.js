@@ -29,18 +29,25 @@ const orderItemSchema = new Schema({
       "shipped",
       "delivered",
       "return_requested",
+      "cancel_requested",
       "cancelled",
       "returned"
     ],
     default: "processing"
   },
 
-  cancellation: {
-    isCancelled: { type: Boolean, default: false },
-    reason: String,
-    cancelledAt: Date
+  cancel: {
+  status: {
+    type: String,
+    enum: ["none", "requested", "approved", "rejected"],
+    default: "none"
   },
-
+  reason: String,
+  requestedAt: Date,
+  approvedAt: Date,
+  rejectedAt: Date,
+  adminRemark: { type: String, default: "" }
+},
   return: {
   status: {
     type: String,
@@ -115,7 +122,8 @@ shippingCharge: {
     "delivered",
     "cancelled",
     "returned",
-    "return_requested",   
+    "return_requested",  
+    "cancel_requested" 
 
   ],
   default:  "pending_payment",

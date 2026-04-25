@@ -51,6 +51,11 @@ router.get('/order', adminAuth, orderController.listOrders);
 router.post("/order/status/:orderId",adminAuth,orderController.updateOrderStatus);
 router.get('/order/:orderId', adminAuth, orderController.viewOrder);
 router.patch( "/order/item/approve/:orderId/:itemId", adminAuth,orderController.approveItem);
+router.patch(
+  "/order/item/cancel/approve/:orderId/:itemId",
+  adminAuth,
+  orderController.approveCancel
+);
 router.patch( "/order/item/reject/:orderId/:itemId", adminAuth, orderController.rejectItem);
 
 router.get("/coupons", adminAuth, couponController.loadCouponList);
@@ -67,8 +72,8 @@ router.post("/offers/create", adminAuth,offerController.createOffer);
 // Update Offer
 router.post("/offers/update/:offerId",adminAuth, offerController.updateOffer);
 
-// Delete Offer
-router.get("/offers/delete/:id",adminAuth, offerController.deleteOffer);
+
+router.delete("/offers/delete/:id",adminAuth, offerController.deleteOffer);
 
 router.get("/sales-report", adminAuth,salesController.getSalesReport)
 

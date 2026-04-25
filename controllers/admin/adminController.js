@@ -1,10 +1,5 @@
 import User from "../../model/userSchema.js";
 import Order from "../../model/orderSchema.js";
-import Brand from "../../model/brandSchema.js";
-import Category from "../../model/categorySchema.js";
-import Product from "../../model/productSchema.js";
-
-import mongoose from "mongoose";
 import Messages from "../../constants/messages.js";
 import StatusCodes from "../../constants/StatusCodes.js";
 import bcrypt from "bcrypt";
@@ -21,7 +16,7 @@ const loadLogin = async (req, res) => {
   try {
     res.render("admin/login")
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.INTERNAL_SERVER_ERROR })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.INTERNcxAL_SERVER_ERROR })
   }
 }
 
@@ -50,7 +45,7 @@ const login = async (req, res) => {
       }
     } else {
       return res.render("admin/login", {
-        error: "Admin not found",
+     error:Messages.ADMIN_NOT_FOUND,
         email: email
       });
     }
@@ -236,37 +231,12 @@ const loadDashboard = async (req, res) => {
       }
     ])
 
-    // let salesData = await Order.aggregate([
-    //   {
-    //     $match: {
-    //       paymentStatus: "paid"
-    //     }
-    //   },
-    //   {
-    //     $group: {
-    //       _id: { $month: "$createdAt" },
-    //       totalSales: { $sum: "$totalAmount" }
-    //     }
-    //   },
-    //   {
-    //     $sort: { _id: 1 } 
-    //   }
-    // ]);
-    // let monthlySales = new Array(12).fill(0);
-
-    // salesData.forEach(item => {
-    //   monthlySales[item._id - 1] = item.totalSales;
-    // });
-    // res.render("admin/dashboard",{
-    //     topProducts,
-    //       topCategories,
-    //       topBrands,
-    //        salesData: monthlySales
-    // })
+    
     let groupId;
     switch (filter) {
       case "daily": groupId = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }; break;
-      case "weekly": groupId = { $week: "$createdAt" }; break;
+      case "weekly": groupId = {  week:{$week:"$createdAt"},
+ year:{$year:"$createdAt"} }; break;
       case "monthly": groupId = { $month: "$createdAt" }; break;
       case "yearly": groupId = { $year: "$createdAt" }; break;
       case "custom": groupId = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }; break;
@@ -295,7 +265,9 @@ const loadDashboard = async (req, res) => {
       salesData = new Array(12).fill(0);
       salesAgg.forEach(item => { salesData[item._id - 1] = item.totalSales; });
     } else if (filter === "weekly") {
-      labels = salesAgg.map(s => `Week ${s._id}`);
+     labels = salesAgg.map(
+s=>`Week ${s._id.week}-${s._id.year}`
+);
       salesData = salesAgg.map(s => s.totalSales);
     } else {
   labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -317,15 +289,14 @@ const loadDashboard = async (req, res) => {
 
 
   } catch (err) {
-    console.error("Dashboard Error:", err);
-    res.status(500).send("Server Error");
+   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.INTERNAL_SERVER_ERROR })
   }
 }
 const getDashboardData = async (req, res) => {
   try {
     const { filter = "monthly", startDate: startDateQuery, endDate: endDateQuery } = req.query;
 
-    // Use your existing getDateRange function
+    
     const { startDate, endDate } = getDateRange(filter, startDateQuery, endDateQuery);
 
     const groupId =
@@ -364,7 +335,7 @@ const getDashboardData = async (req, res) => {
 
 } else {
 
-  // monthly
+
   labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   salesData = new Array(12).fill(0);
   salesAgg.forEach(item => {
@@ -372,12 +343,11 @@ const getDashboardData = async (req, res) => {
   });
 
 }
-console.log(labels, salesData);
+
     res.json({ labels, salesData });
 
   } catch (err) {
-    console.error("Dashboard Error:", err);
-    res.status(500).send("Server Error");
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.INTERNAL_SERVER_ERROR })
   }
 };
 
@@ -390,7 +360,7 @@ const logout = async (req, res) => {
     req.session.destroy(err => {
       
       if (err) {
-        console.log("Error destroying session", err)
+       
         return res.redirect("/pageError")
       }
       res.redirect("/admin/login")
