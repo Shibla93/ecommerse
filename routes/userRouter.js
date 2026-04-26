@@ -61,6 +61,7 @@ router.post("/forgotverify", profileController.postForgotOtp);
 router.post("/resendForgotOtp", profileController.resendForgotOtp);
 router.get("/reset-Newpass", profileController.getResetPassword);
 router.post("/reset-Newpass", profileController.newPass)
+console.log(profileController);
 router.get("/userProfile",userAuth,profileController.userProfile);
 router.post("/userProfile",userAuth,upload.single('profileImage'),profileController.updateProfile)
 router.get("/change-email",userAuth,profileController.changeEmail)
