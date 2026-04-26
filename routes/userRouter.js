@@ -7,7 +7,7 @@ import upload from "../helpers/multer.js";
 import passport from "passport";
 import { userAuth } from "../middlewares/auth.js";
 
-import profileController from "../controllers/user/profileController.js";
+import * as profileController from "../controllers/user/profileController.js";
 import productController from "../controllers/user/productController.js";
 import addressController from "../controllers/user/addressController.js";
 import cartController from "../controllers/user/cartController.js";

@@ -13,13 +13,13 @@ function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-const generateReferralCode = async (name) => {
+export const generateReferralCode = async (name) => {
   let code;
   let exists = true;
 
   while (exists) {
     const random = Math.floor(1000 + Math.random() * 9000);
-    code = name.slice(0, 2).toUpperCase() + random;
+    code = name.slice(0,2).toUpperCase() + random;
 
     const user = await User.findOne({ referralCode: code });
     if (!user) exists = false;
@@ -56,13 +56,13 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
-const securePassword = async (password) => {
+export const securePassword = async (password) => {
   return await bcrypt.hash(password, 10);
 };
 
 
 
-const getForgotPass = async (req, res) => {
+export const getForgotPass = async (req, res) => {
   try {
     res.render("user/forgot_pass");
   } catch (error) {
@@ -70,16 +70,16 @@ const getForgotPass = async (req, res) => {
   }
 };
 
-const postEmail = async (req, res) => {
+export const postEmail = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user)
+    if (!user) 
       return res.render("user/forgot_pass", { error: Messages.USER_NOT_FOUND });
 
     const otp = generateOtp();
     req.session.forgotOtp = otp;
-    req.session.forgotOtpExpiry = Date.now() + 1 * 60 * 1000;
+    req.session.forgotOtpExpiry = Date.now() + 1* 60 * 1000;
     req.session.resetEmail = email;
 
     const sent = await sendVerificationEmail(email, otp);
@@ -94,7 +94,7 @@ const postEmail = async (req, res) => {
 };
 
 
-const getForgotVerify = async (req, res) => {
+export const getForgotVerify = async (req, res) => {
   try {
     res.render("forgotverify_otp");
   } catch (error) {
@@ -102,7 +102,7 @@ const getForgotVerify = async (req, res) => {
   }
 };
 
-const postForgotOtp = async (req, res) => {
+export const postForgotOtp = async (req, res) => {
   try {
     const { otp } = req.body;
 
@@ -123,7 +123,7 @@ const postForgotOtp = async (req, res) => {
       });
     }
 
-
+    
 
     req.session.otpVerified = true;
 
@@ -142,7 +142,7 @@ const postForgotOtp = async (req, res) => {
 
 
 
-const resendForgotOtp = async (req, res) => {
+export const resendForgotOtp = async (req, res) => {
   try {
     const email = req.session.resetEmail;
     if (!email) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, error: Messages.EMAIL_NOT_FOUND });
@@ -163,7 +163,7 @@ const resendForgotOtp = async (req, res) => {
   }
 };
 
-const getResetPassword = async (req, res) => {
+export const getResetPassword = async (req, res) => {
   try {
     if (!req.session.otpVerified) {
       return res.redirect("/forgotpass");
@@ -175,20 +175,20 @@ const getResetPassword = async (req, res) => {
 };
 
 
-const newPass = async (req, res) => {
+export const newPass = async (req, res) => {
   try {
     const { p1, p2 } = req.body;
     const email = req.session.resetEmail;
 
     if (!email) return res.redirect("/forgotpass");
 
-    if (p1 !== p2)
-      return res.render("reset_pass", { error: Messages.PASSWORDS_DO_NOT_MATCH });
+    if (p1 !== p2) 
+      return res.render("reset_pass", { error: Messages.PASSWORDS_DO_NOT_MATCH});
 
     const user = await User.findOne({ email });
     const isSameAsOld = await bcrypt.compare(p1, user.password);
 
-    if (isSameAsOld) {
+    if (isSameAsOld){
       return res.render("reset_pass", { error: "This is your old password. Please choose a new one." });
     }
     const passwordHash = await securePassword(p1);
@@ -198,41 +198,41 @@ const newPass = async (req, res) => {
     res.render("login", { success: "New password created successfully! Redirecting to login..." });
 
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.INTERNAL_SERVER_ERROR });
+   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.INTERNAL_SERVER_ERROR });
   }
 };
 
 
-const userProfile = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const userData = await User.findById(userId);
-    if (!userData.referralCode) {
-      const code = await generateReferralCode(userData.name);
+export const userProfile=async(req,res)=>{
+    try{
+const userId=req.session.user;
+const userData=await User.findById(userId);
+if (!userData.referralCode) {
+  const code = await generateReferralCode(userData.name);
 
-      await User.findByIdAndUpdate(userId, {
-        referralCode: code
-      });
+  await User.findByIdAndUpdate(userId, {
+    referralCode: code
+  });
 
-      userData.referralCode = code;
-    }
-    res.render('profile', {
-      user: userData,
-      activePage: "profile",
-    });
-  } catch (error) {
-    console.error("Error for retreive profile data ", error);
-    res.redirect("/pageNotFound")
-  }
+  userData.referralCode = code; 
 }
-const updateProfile = async (req, res) => {
+res.render('profile',{
+  user:userData,
+    activePage: "profile",
+});
+    }catch(error){
+        console.error("Error for retreive profile data ",error);
+        res.redirect("/pageNotFound")
+    }
+}
+export const updateProfile = async (req, res) => {
   try {
     const userId = req.session.user;
     const { phone } = req.body;
 
     const updateData = {};
 
-
+    
     if (phone) {
       const phoneRegex = /^[6-9]\d{9}$/;
       if (!phoneRegex.test(phone)) {
@@ -242,8 +242,8 @@ const updateProfile = async (req, res) => {
     }
 
     console.log("BODY:", req.body);
-    console.log("FILE:", req.file);
-    console.log("SESSION USER:", req.session.user);
+console.log("FILE:", req.file);
+console.log("SESSION USER:", req.session.user);
 
     if (req.file) {
       const uploadFromBuffer = () => {
@@ -278,52 +278,52 @@ const updateProfile = async (req, res) => {
 };
 
 
-const changeEmail = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const userData = await User.findById(userId);
+ export const changeEmail = async(req, res) => {
+    try{
+      const userId=req.session.user;
+      const userData=await User.findById(userId);
 
-    res.render("user/change-email", {
-      user: userData
-    });
-  } catch (error) {
+     res.render("user/change-email",{
+         user:userData
+     });
+ }catch(error){
     res.redirect("/pageNotFound")
-  }
+ }
 }
 
 
-const changeEmailValid = async (req, res) => {
-  try {
-    const { email } = req.body;
+export const changeEmailValid=async(req,res)=>{
+try {
+    const {email}=req.body;
+    
 
+    const userExist=await User.findOne({email});
+    if(userExist){
+        const otp=generateOtp();
+        const emailSent=await sendVerificationEmail(email,otp);
+        if(emailSent){
+            req.session.userOtp=otp;
+            req.session.userData=req.body;
+            req.session.email=email;
+            res.render("change-email-otp");
+            console.log("email sent:",email);
+            console.log("otp:",otp);
+            
+            
 
-    const userExist = await User.findOne({ email });
-    if (userExist) {
-      const otp = generateOtp();
-      const emailSent = await sendVerificationEmail(email, otp);
-      if (emailSent) {
-        req.session.userOtp = otp;
-        req.session.userData = req.body;
-        req.session.email = email;
-        res.render("change-email-otp");
-        console.log("email sent:", email);
-        console.log("otp:", otp);
-
-
-
-      } else {
-        res.json("email-error")
-      }
-    } else {
-      return res.render("change-email", {
-        message: Messages.USER_NOT_FOUND
-      })
+        }else{
+            res.json("email-error")
+        }
+    }else{
+     return  res.render("change-email",{
+            message:Messages.USER_NOT_FOUND
+        })
     }
-  } catch (error) {
+} catch (error) {
     res.redirect("/pageNotFound")
-  }
 }
-const resendChangeEmailOtp = async (req, res) => {
+}
+export const resendChangeEmailOtp = async (req, res) => {
   try {
     const email = req.session.email;
 
@@ -342,17 +342,17 @@ const resendChangeEmailOtp = async (req, res) => {
 
     console.log("Resent Change Email OTP:", otp)
 
-
+    
     res.json({ success: true });
   } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR })
-  }
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR })
+}
 
 }
 
 
 
-const verifyEmailOtp = async (req, res) => {
+export const verifyEmailOtp = async (req, res) => {
   try {
     const enteredOtp = req.body.otp;
 
@@ -376,10 +376,10 @@ const verifyEmailOtp = async (req, res) => {
   }
 };
 
-const getNewEmailPage = async (req, res) => {
+export const getNewEmailPage = async (req, res) => {
   try {
     res.render("user/new-email");
-  } catch (error) {
+  } catch (error) {  
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: Messages.INTERNAL_SERVER_ERROR
@@ -388,21 +388,21 @@ const getNewEmailPage = async (req, res) => {
 };
 
 
-const updateEmail = async (req, res) => {
-  try {
-    const newEmail = req.body.newEmail;
+ export const updateEmail=async(req,res)=>{
+    try{
+    const newEmail=req.body.newEmail;
     const userId = req.session.user;
-    await User.findByIdAndUpdate(userId, { email: newEmail });
+    await User.findByIdAndUpdate(userId,{email:newEmail});
     req.session.successMessage = Messages.EMAIL_CHANGED;
     res.redirect("/userProfile")
-  } catch (error) {
-    res.redirect("/pageNotFound")
-  }
+}catch(error){
+res.redirect("/pageNotFound")
+}
 }
 
 
-const changePassword = async (req, res) => {
-  try {
+ export const changePassword=async(req,res)=>{
+     try {
     const userId = req.session.user;
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
@@ -410,7 +410,7 @@ const changePassword = async (req, res) => {
     if (!user) {
       return res.status(StatusCodes.NOT_FOUND).render("user/profile", {
         user: req.user,
-
+  
         success: false,
         message: Messages.USER_NOT_FOUND
       });
@@ -424,7 +424,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-
+    
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.render("user/profile", {
@@ -440,14 +440,14 @@ const changePassword = async (req, res) => {
         user,
         success: false,
         message: "New password must be at least 8 characters"
-
+        
       });
     }
 
     if (newPassword !== confirmPassword) {
       return res.render("user/profile", {
         user,
-        success: false,
+         success: false,
         message: Messages.PASSWORDS_DO_NOT_MATCH
       });
     }
@@ -460,35 +460,35 @@ const changePassword = async (req, res) => {
     res.render("user/profile", {
       user,
       success: true,
-      message: Messages.PASSWORD_CHANGE
+        message: Messages.PASSWORD_CHANGE
     });
 
   } catch (err) {
     console.error(err);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
-  };
-}
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
+    };
+  }
 
 
 
 
-const profileController = {
-  getForgotPass,
-  postEmail,
-  getForgotVerify,
-  postForgotOtp,
-  resendForgotOtp,
-  getResetPassword,
-  newPass,
-  userProfile,
-  updateProfile,
-  changeEmail,
-  changeEmailValid,
-  resendChangeEmailOtp,
-  verifyEmailOtp,
-  getNewEmailPage,
-  updateEmail,
-  changePassword,
-
-};
-export default profileController
+// const  profileController= {
+//   getForgotPass,
+//   postEmail,
+//   getForgotVerify,
+//   postForgotOtp,
+//   resendForgotOtp,
+//   getResetPassword,
+//   newPass,
+//   userProfile,
+//   updateProfile,
+//   changeEmail,
+//   changeEmailValid,
+//  resendChangeEmailOtp,
+//   verifyEmailOtp,
+//   getNewEmailPage,
+//   updateEmail,
+// changePassword,
+     
+// };
+// export default  profileController
