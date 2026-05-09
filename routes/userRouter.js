@@ -7,7 +7,7 @@ import upload from "../helpers/multer.js";
 import passport from "passport";
 import { userAuth } from "../middlewares/auth.js";
 
-import * as profileController from "../controllers/user/profileController.js";
+import profileController from "../controllers/user/profileController.js";
 import productController from "../controllers/user/productController.js";
 import addressController from "../controllers/user/addressController.js";
 import cartController from "../controllers/user/cartController.js";
@@ -61,12 +61,11 @@ router.post("/forgotverify", profileController.postForgotOtp);
 router.post("/resendForgotOtp", profileController.resendForgotOtp);
 router.get("/reset-Newpass", profileController.getResetPassword);
 router.post("/reset-Newpass", profileController.newPass)
-console.log(profileController);
 router.get("/userProfile",userAuth,profileController.userProfile);
 router.post("/userProfile",userAuth,upload.single('profileImage'),profileController.updateProfile)
-router.get("/change-email",userAuth,profileController.changeEmail)
-router.post("/change-email",userAuth,profileController.changeEmailValid)
-router.post("/verify-email-otp",userAuth,profileController.verifyEmailOtp);
+router.get("/change-email",profileController.changeEmail)
+router.post("/change-email",profileController.changeEmailValid)
+router.post("/verify-email-otp",profileController.verifyEmailOtp);
 router.post("/resend-change-email-otp", userAuth,profileController.resendChangeEmailOtp);
 router.get("/new-email", userAuth, profileController.getNewEmailPage);
 router.post("/update-email",userAuth,profileController.updateEmail)

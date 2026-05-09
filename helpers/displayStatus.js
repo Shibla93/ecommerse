@@ -5,7 +5,15 @@ function getDisplayStatus(order) {
   const hasReturnRequested = order.orderedItems.some(
     i => i.return && i.return.status === "requested"
   );
-  if (hasReturnRequested) return "request_pending"; // display "requested" status
+  if (hasReturnRequested) return "request_pending"; 
+    const hasCancelRequested = order.orderedItems.some(
+    i => i.cancel && i.cancel.status === "requested"
+  );
+
+  if (hasCancelRequested) {
+    return "request_pending";
+  }
+
 
   const allReturned = order.orderedItems.every(
     i => i.itemStatus === "returned"

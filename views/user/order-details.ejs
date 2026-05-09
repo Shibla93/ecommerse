@@ -394,53 +394,46 @@
 
 <td>
 
-  <!-- CANCEL -->
-  <% if (
-    item.itemStatus === "processing" ||
-    item.cancel?.status === "rejected"
-  ) { %>
+  <% if(item.itemStatus === "return_requested") { %>
 
-    <button class="action-btn btn-cancel"
-      onclick="cancelItem('<%= order.orderNumber %>', '<%= item._id %>')">
+    <span class="status-badge status-return_requested">
+      Return Requested
+    </span>
 
-      <% if (item.cancel?.status === "rejected") { %>
-        Cancel Again
-      <% } else { %>
-        Cancel
-      <% } %>
-
-    </button>
-
-  <% } else if (item.itemStatus === "cancel_requested") { %>
+  <% } else if(item.itemStatus === "cancel_requested") { %>
 
     <span class="status-badge status-cancel_requested">
       Cancel Requested
     </span>
 
-  <% } %>
+  <% } else if(item.return?.status === "rejected") { %>
 
+    <span class="status-badge" style="background:#ef4444;">
+      Return Rejected
+    </span>
 
-  <!-- RETURN -->
-  <% if (
-    item.itemStatus === "delivered" ||
-    item.return?.status === "rejected"
-  ) { %>
+    <br><br>
 
-    <button class="action-btn btn-return"
-      onclick="returnItem('<%= order.orderNumber %>', '<%= item._id %>')">
+    <div style="color:red; font-size:0.8rem;">
+      <%= item.return.adminRemark %>
+    </div>
 
-      <% if (item.return?.status === "rejected") { %>
-        Return Again
-      <% } else { %>
-        Return
-      <% } %>
+  <% } else if(item.cancel?.status === "rejected") { %>
 
-    </button>
+    <span class="status-badge" style="background:#ef4444;">
+      Cancel Rejected
+    </span>
 
-  <% } else if (item.itemStatus === "return_requested") { %>
+    <br><br>
 
-    <span class="status-badge status-return_requested">
-      Return Requested
+    <div style="color:red; font-size:0.8rem;">
+      <%= item.cancel.adminRemark %>
+    </div>
+
+  <% } else { %>
+
+    <span class="status-badge status-<%= item.itemStatus %>">
+      <%= item.itemStatus.replace(/_/g, " ") %>
     </span>
 
   <% } %>

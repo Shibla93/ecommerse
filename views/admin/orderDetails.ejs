@@ -189,8 +189,8 @@
     <div class="info-row"><span class="info-label">Date:</span><span class="info-value"><%= order.createdAt.toDateString() %></span></div>
     <div class="info-row"><span class="info-label">Payment Method:</span><span class="info-value"><%= order.paymentMethod %></span></div>
     <div class="info-row"><span class="info-label">Payment Status:</span><span class="info-value"><%= order.paymentStatus %></span></div>
-    <div class="info-row"><span class="status-badge status-<%= order.orderStatus %>">
-  <%= order.orderStatus %>
+    <div class="info-row"><span class="status-badge status-<%= order.displayStatus %>">
+  <%= order.displayStatus.replace('_', ' ') %>
 </span></div>
   <% if(order.couponDiscount && order.couponDiscount > 0){ %>
       <div class="info-row"><span class="info-label">Discount:</span><span class="info-value"> ₹<%= order.couponDiscount %> %></span></div>

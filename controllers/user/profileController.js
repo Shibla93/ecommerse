@@ -13,7 +13,7 @@ function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-export const generateReferralCode = async (name) => {
+const generateReferralCode = async (name) => {
   let code;
   let exists = true;
 
@@ -56,13 +56,13 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
-export const securePassword = async (password) => {
+const securePassword = async (password) => {
   return await bcrypt.hash(password, 10);
 };
 
 
 
-export const getForgotPass = async (req, res) => {
+const getForgotPass = async (req, res) => {
   try {
     res.render("user/forgot_pass");
   } catch (error) {
@@ -70,7 +70,7 @@ export const getForgotPass = async (req, res) => {
   }
 };
 
-export const postEmail = async (req, res) => {
+const postEmail = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -94,7 +94,7 @@ export const postEmail = async (req, res) => {
 };
 
 
-export const getForgotVerify = async (req, res) => {
+const getForgotVerify = async (req, res) => {
   try {
     res.render("forgotverify_otp");
   } catch (error) {
@@ -102,7 +102,7 @@ export const getForgotVerify = async (req, res) => {
   }
 };
 
-export const postForgotOtp = async (req, res) => {
+const postForgotOtp = async (req, res) => {
   try {
     const { otp } = req.body;
 
@@ -142,7 +142,7 @@ export const postForgotOtp = async (req, res) => {
 
 
 
-export const resendForgotOtp = async (req, res) => {
+const resendForgotOtp = async (req, res) => {
   try {
     const email = req.session.resetEmail;
     if (!email) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, error: Messages.EMAIL_NOT_FOUND });
@@ -163,7 +163,7 @@ export const resendForgotOtp = async (req, res) => {
   }
 };
 
-export const getResetPassword = async (req, res) => {
+const getResetPassword = async (req, res) => {
   try {
     if (!req.session.otpVerified) {
       return res.redirect("/forgotpass");
@@ -175,7 +175,7 @@ export const getResetPassword = async (req, res) => {
 };
 
 
-export const newPass = async (req, res) => {
+const newPass = async (req, res) => {
   try {
     const { p1, p2 } = req.body;
     const email = req.session.resetEmail;
@@ -203,7 +203,7 @@ export const newPass = async (req, res) => {
 };
 
 
-export const userProfile=async(req,res)=>{
+const userProfile=async(req,res)=>{
     try{
 const userId=req.session.user;
 const userData=await User.findById(userId);
@@ -225,7 +225,7 @@ res.render('profile',{
         res.redirect("/pageNotFound")
     }
 }
-export const updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     const userId = req.session.user;
     const { phone } = req.body;
@@ -278,7 +278,7 @@ console.log("SESSION USER:", req.session.user);
 };
 
 
- export const changeEmail = async(req, res) => {
+ const changeEmail = async(req, res) => {
     try{
       const userId=req.session.user;
       const userData=await User.findById(userId);
@@ -292,7 +292,7 @@ console.log("SESSION USER:", req.session.user);
 }
 
 
-export const changeEmailValid=async(req,res)=>{
+const changeEmailValid=async(req,res)=>{
 try {
     const {email}=req.body;
     
@@ -323,7 +323,7 @@ try {
     res.redirect("/pageNotFound")
 }
 }
-export const resendChangeEmailOtp = async (req, res) => {
+const resendChangeEmailOtp = async (req, res) => {
   try {
     const email = req.session.email;
 
@@ -352,7 +352,7 @@ export const resendChangeEmailOtp = async (req, res) => {
 
 
 
-export const verifyEmailOtp = async (req, res) => {
+const verifyEmailOtp = async (req, res) => {
   try {
     const enteredOtp = req.body.otp;
 
@@ -369,6 +369,7 @@ export const verifyEmailOtp = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error)
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: Messages.INTERNAL_SERVER_ERROR
@@ -376,7 +377,7 @@ export const verifyEmailOtp = async (req, res) => {
   }
 };
 
-export const getNewEmailPage = async (req, res) => {
+const getNewEmailPage = async (req, res) => {
   try {
     res.render("user/new-email");
   } catch (error) {  
@@ -388,7 +389,7 @@ export const getNewEmailPage = async (req, res) => {
 };
 
 
- export const updateEmail=async(req,res)=>{
+const updateEmail=async(req,res)=>{
     try{
     const newEmail=req.body.newEmail;
     const userId = req.session.user;
@@ -401,7 +402,7 @@ res.redirect("/pageNotFound")
 }
 
 
- export const changePassword=async(req,res)=>{
+const changePassword=async(req,res)=>{
      try {
     const userId = req.session.user;
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -472,23 +473,23 @@ res.redirect("/pageNotFound")
 
 
 
-// const  profileController= {
-//   getForgotPass,
-//   postEmail,
-//   getForgotVerify,
-//   postForgotOtp,
-//   resendForgotOtp,
-//   getResetPassword,
-//   newPass,
-//   userProfile,
-//   updateProfile,
-//   changeEmail,
-//   changeEmailValid,
-//  resendChangeEmailOtp,
-//   verifyEmailOtp,
-//   getNewEmailPage,
-//   updateEmail,
-// changePassword,
+const  profileController= {
+  getForgotPass,
+  postEmail,
+  getForgotVerify,
+  postForgotOtp,
+  resendForgotOtp,
+  getResetPassword,
+  newPass,
+  userProfile,
+  updateProfile,
+  changeEmail,
+  changeEmailValid,
+ resendChangeEmailOtp,
+  verifyEmailOtp,
+  getNewEmailPage,
+  updateEmail,
+changePassword,
      
-// };
-// export default  profileController
+};
+export default  profileController

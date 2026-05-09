@@ -38,9 +38,12 @@ const addAddress=async(req,res)=>{
     try {
        const userId=req.session.user;
         const user = await User.findById(userId);
+
+    const redirect = req.query.redirect || "";
        res.render("add-address",{
         user,
-        activePage: "address"
+        activePage: "address",
+         redirect
       }) 
     } catch (error) {
         res.redirect("/pageNotFound")
@@ -53,7 +56,7 @@ const postAddAddress = async (req, res) => {
     if (!userId) {
       return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: Messages.USER_NOT_FOUND });
     }
-
+const redirect = req.query.redirect;
     const {
       addressType,
       name,
@@ -142,9 +145,10 @@ const postAddAddress = async (req, res) => {
     }
 
     return res.status(StatusCodes.OK).json({
-      success: true,
-      message: Messages.ADDRESS_SAVED
-    });
+  success: true,
+  message: Messages.ADDRESS_SAVED,
+  redirectUrl: redirect === "checkout" ? "/checkout" : "/address"
+});
 
   } catch (error) {
     console.error(error);
@@ -158,7 +162,7 @@ const editAddress = async (req, res) => {
   try {
     const userId = req.session.user;
     const addressId = req.params.id;
-
+   const redirect = req.query.redirect || "";
     if (!addressId) {
       return res.redirect("/pageNotFound");
     }
@@ -177,7 +181,8 @@ const editAddress = async (req, res) => {
     res.render("edit-address", {
       user,
       address: addressDoc.address[0], 
-      activePage: "address"
+      activePage: "address",
+        redirect
     });
 
   } catch (error) {
@@ -194,7 +199,8 @@ const postEditAddress = async (req, res) => {
     const userId = req.session.user;
     const addressId = req.params.id;
 
-    
+   const redirect = req.query.redirect;
+
     if (!userId) {
       return res.status(StatusCodes.UNAUTHORIZED).json({ success: false, message: Messages.USER_NOT_FOUND });
     }
@@ -288,11 +294,13 @@ const postEditAddress = async (req, res) => {
       }
     );
 
-    return  res.json({
-      success: true,
-      message:Messages.ADDRESS_UPDATED
-    });
-
+   return res.json({
+  success: true,
+  message: Messages.ADDRESS_UPDATED,
+  redirectUrl: redirect === "checkout"
+    ? "/checkout"
+    : "/address"
+});
 
   } catch (error) {
     console.error(error);

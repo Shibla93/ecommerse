@@ -164,13 +164,40 @@ footer {
     }
 
     /* Product Grid - Exactly 3 per row on desktop */
+    
     .product-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      /* 3 columns */
-      gap: 40px;
-    }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  min-height: 400px; /* add this */
+}
+.no-products{
+  grid-column: 1 / -1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  min-height:400px;
+  color:#777;
+}
 
+.no-products i{
+  font-size:4rem;
+  color:var(--gold);
+  margin-bottom:20px;
+}
+
+.no-products h2{
+  font-size:2rem;
+  margin-bottom:10px;
+  color:#333;
+}
+
+.no-products p{
+  font-size:1rem;
+  color:#999;
+}
     .out-badge {
       position: absolute;
       top: 15px;
@@ -405,7 +432,9 @@ transform:none;
           <% categories.forEach(cat=> { %>
             <li class="filter-item <%= selectedCategory == cat._id ? 'active' : '' %>">
               <a
-                href="/shop?category=<%= cat._id %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceRange ? '&price=' + priceRange : '' %>">
+                href="/shop?category=<%= cat._id %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= priceRange ? '&price=' + priceRange : '' %>
+                <%= sort ? '&sort=' + sort : '' %>
+<%= search ? '&search=' + search : '' %>">
                 <%= cat.name %>
               </a>
             </li>
@@ -419,7 +448,9 @@ transform:none;
           <% brands.forEach(b=> { %>
             <li class="filter-item <%= selectedBrand == b._id ? 'active' : '' %>">
               <a
-                href="/shop?brand=<%= b._id %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= priceRange ? '&price=' + priceRange : '' %>">
+                href="/shop?brand=<%= b._id %><%= selectedCategory ? '&category=' + selectedCategory : '' %><%= priceRange ? '&price=' + priceRange : '' %>
+                <%= sort ? '&sort=' + sort : '' %>
+<%= search ? '&search=' + search : '' %>">
                 <%= b.name %>
               </a>
             </li>
@@ -432,34 +463,42 @@ transform:none;
         <div class="price-options">
 
           <a
-            href="/shop?price=0-1500<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+            href="/shop?price=0-1500<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>
+            <%= sort ? '&sort=' + sort : '' %>
+<%= search ? '&search=' + search : '' %>">
             <button class="price-button <%= priceRange === '0-1500' ? 'active' : '' %>">
               Under ₹1500
             </button>
           </a>
 
           <a
-            href="/shop?price=1500-3000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+            href="/shop?price=1500-3000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>
+                <%= sort ? '&sort=' + sort : '' %>
+<%= search ? '&search=' + search : '' %>">
             <button class="price-button <%= priceRange === '1500-3000' ? 'active' : '' %>">
+          
               ₹1500 - ₹3000
             </button>
           </a>
 
           <a
-            href="/shop?price=3000-6000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+            href="/shop?price=3000-6000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>
+            <%= sort ? '&sort=' + sort : '' %>
+<%= search ? '&search=' + search : '' %>">
             <button class="price-button <%= priceRange === '3000-6000' ? 'active' : '' %>">
               ₹3000 - ₹6000
             </button>
           </a>
 
           <a
-            href="/shop?price=6000-10000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+        href="/shop?price=6000-10000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>">
             <button class="price-button <%= priceRange === '6000-10000' ? 'active' : '' %>">
               ₹6000 - ₹10000
             </button>
           </a>
           <a
-            href="/shop?price=10000-100000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>">
+          
+  href="/shop?price=10000-100000<%= selectedCategory ? '&category=' + selectedCategory : '' %><%= selectedBrand ? '&brand=' + selectedBrand : '' %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>">
             <button class="price-button <%= priceRange === '10000-100000' ? 'active' : '' %>">
               Above ₹10000
             </button>
@@ -474,6 +513,14 @@ transform:none;
     <section class="right-content">
       <div class="shop-topbar">
         <form method="GET" action="/shop" class="search-form">
+
+  <input type="hidden" name="category" value="<%= selectedCategory || '' %>">
+
+  <input type="hidden" name="brand" value="<%= selectedBrand || '' %>">
+
+  <input type="hidden" name="price" value="<%= priceRange || '' %>">
+
+  <input type="hidden" name="sort" value="<%= sort || '' %>">
           <input type="text" id="searchInput" name="search" value="<%= search || '' %>" class="search-input"
             placeholder="Search products...">
           <button class="search-button">Search</button>
@@ -595,26 +642,13 @@ class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
         let debounceTimer;
 
         searchInput.addEventListener("input", function () {
-          const searchTerm = this.value.trim();
-          const params = new URLSearchParams(window.location.search);
+         clearTimeout(debounceTimer);
 
-          clearTimeout(debounceTimer);
+debounceTimer = setTimeout(() => {
 
-          debounceTimer = setTimeout(() => {
-            if (searchTerm === "") {
-              params.delete("search");
-            } else {
-              params.set("search", searchTerm);
-            }
+  document.querySelector(".search-form").submit();
 
-            params.delete("page");
-
-            const newUrl = `/shop?${params.toString()}`;
-
-
-            window.history.pushState({}, "", newUrl);
-            window.location.reload();
-          }, 400);
+}, 500);
         });
 
 

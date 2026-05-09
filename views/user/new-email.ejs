@@ -1,5 +1,5 @@
 
-<%- include("../../views/partials/user/header") %>
+ <%- include("../partials/user/header") %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -176,18 +176,9 @@
         }
     }
 </script>
-<!-- profile.ejs -->
-<% if (successMessage) { %>
-<script>
-  Swal.fire({
-    icon: "success",
-    title: "Success",
-    text: "<%= successMessage %>"
-  });
-</script>
-<% } %>
 
 
-<%- include("../../views/partials/user/footer") %>
+
+<%- include("../partials/user/footer") %>
 </body>
 </html>

@@ -426,34 +426,65 @@
 
     // Fill modal for edit
     function editOffer(offer) {
-      document.getElementById('offerModalLabel').textContent = 'Edit Offer';
-      document.getElementById('offerForm').action = `/admin/offers/update/${offer._id}`;
-      document.getElementById('offerId').value = offer._id;
-      document.getElementById('offerName').value = offer.offerName;
-      document.getElementById('offerType').value = offer.offerType;
-      document.getElementById('offerPercentage').value = offer.offerPercentage;
-      document.getElementById('startDate').value = new Date(offer.startDate).toISOString().split('T')[0];
-      document.getElementById('expiryDate').value = new Date(offer.expiryDate).toISOString().split('T')[0];
-      document.getElementById('offerDescription').value = offer.offerDescription || '';
 
-      const pField = document.getElementById('productField');
-      const cField = document.getElementById('categoryField');
-      pField.classList.add('hidden');
-      cField.classList.add('hidden');
+  document.getElementById('offerModalLabel').textContent = 'Edit Offer';
 
-      if (offer.offerType === 'product') {
-        pField.classList.remove('hidden');
-        const select = document.getElementById('products');
-        Array.from(select.options).forEach(opt => {
-          opt.selected = offer.products?.some(p => p._id.toString() === opt.value);
-        });
-      } else if (offer.offerType === 'category') {
-        cField.classList.remove('hidden');
-        document.getElementById('category').value = offer.category?._id || '';
-      }
+  document.getElementById('offerForm').action =
+    `/admin/offers/update/${offer._id}`;
 
-      new bootstrap.Modal(document.getElementById('offerModal')).show();
-    }
+  document.getElementById('offerId').value = offer._id;
+
+  document.getElementById('offerName').value = offer.offerName;
+
+  document.getElementById('offerType').value = offer.offerType;
+
+  document.getElementById('offerPercentage').value =
+    offer.offerPercentage;
+
+  document.getElementById('startDate').value =
+    new Date(offer.startDate).toISOString().split('T')[0];
+
+  document.getElementById('expiryDate').value =
+    new Date(offer.expiryDate).toISOString().split('T')[0];
+
+  document.getElementById('offerDescription').value =
+    offer.offerDescription || '';
+
+  const pField = document.getElementById('productField');
+  const cField = document.getElementById('categoryField');
+
+  pField.classList.add('hidden');
+  cField.classList.add('hidden');
+
+  if (offer.offerType === 'product') {
+
+    pField.classList.remove('hidden');
+
+    const select = document.getElementById('products');
+
+    Array.from(select.options).forEach(opt => {
+
+      opt.selected = offer.appliedProducts?.some(
+        p => p._id.toString() === opt.value
+      );
+
+    });
+
+  }
+
+  else if (offer.offerType === 'category') {
+
+    cField.classList.remove('hidden');
+
+    document.getElementById('category').value =
+      offer.appliedCategories?.[0]?._id || '';
+
+  }
+
+  new bootstrap.Modal(
+    document.getElementById('offerModal')
+  ).show();
+}
 
     // Real-time type change
     document.getElementById('offerType').addEventListener('change', function () {

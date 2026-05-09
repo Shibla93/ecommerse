@@ -215,7 +215,7 @@
             <div class="row">
               <div class="form-group">
                 <label class="form-label">Landmark (Optional)</label>
-                <input type="text" class="form-control"id="landMark"value="<%=address.landmark%>" name="landMark" placeholder="Near ABC Tower">
+                <input type="text" class="form-control"id="landMark"value="<%=address.landMark%>" name="landMark" placeholder="Near ABC Tower">
               </div>
               <div class="form-group">
                 <label class="form-label">State <span style="color: red;">*</span></label>
@@ -247,11 +247,11 @@
     </main>
 
     <!-- FOOTER (Always at bottom) -->
-    <%- include("../../views/partials/user/footer") %>
+  
 
   </div>
   <!-- End app-wrapper -->
-
+  <%- include("../../views/partials/user/footer") %>
   <!-- SweetAlert2 for validation -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -387,7 +387,7 @@
   };
 
   try {
-    const response = await fetch("/editAddress/<%= address._id %>", {
+   const response = await fetch(window.location.pathname + window.location.search, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json" 
@@ -404,7 +404,7 @@
         text: "Address updated successfully!",
         confirmButtonColor: "#d4af37"
       }).then(() => {
-        window.location.href = "/address";
+       window.location.href = result.redirectUrl;
       });
     } else {
       Swal.fire("Error", "Something went wrong", "error");
