@@ -512,78 +512,15 @@ const logout=async (req,res)=>{
       
       if(err){
         console.log("session destruction error",err.message)
-        return res.status(500).send("Logout Error")
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({success:false,message:Messages.INTERNAL_SERVER_ERROR})
       }
       return res.redirect("/login")
     })
   } catch (error) {
     console.log("logout error",error.message)
-    return res.status(500).send("Logout Error")
+ res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({success:false,message:Messages.INTERNAL_SERVER_ERROR})
   }
 }
-
-const getform=async(req,res)=>{
-  res.render("form")
-}
-
-
-const postform=async(req,res)=>{
- try {
-    console.log("BODY:", req.body);
-    console.log("FILES:", req.files);
-
-    // Step 1: Main product details
-    const product = {
-      name: req.body.name,
-      brand: req.body.brand,
-      description: req.body.description,
-      discount: req.body.discount,
-      productOffer: req.body.productOffer,
-      variants: []
-    };
-
-    // Step 2: Handle variants
-    const variants = req.body.variants; 
-    if (variants) {
-      if (Array.isArray(variants)) {
-        // multiple variants
-        variants.forEach((v, i) => {
-          product.variants.push({
-            dialColor: v.dialColor,
-            strapColor: v.strapColor,
-            price: v.price,
-            stock: v.stock,
-            images: req.files
-              .filter(f => f.fieldname === `variants[${i}][images]`)
-              .map(f => "/uploads/" + f.filename)
-          });
-        });
-      } else {
-      
-        product.variants.push({
-          dialColor: variants.dialColor,
-          strapColor: variants.strapColor,
-          price: variants.price,
-          stock: variants.stock,
-          images: req.files
-            .filter(f => f.fieldname === `variants[0][images]`)
-            .map(f => "/uploads/" + f.filename)
-        });
-      }
-    }
-
-    console.log("FINAL PRODUCT:", product);
-    res.json({ success: true, product });
-  } catch (err) {
-    console.error("Error in controller:", err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
-
-
-
-
-
 
 
 const userController={
@@ -597,8 +534,7 @@ const userController={
     loadLogin,
     login,
     logout,
-    getform,
-    postform,
+   
     
     
 }
