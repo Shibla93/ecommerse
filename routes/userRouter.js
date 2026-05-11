@@ -69,8 +69,7 @@ router.post("/change-password",userAuth,profileController.changePasswordValid);
 router.post("/verify-changepassword-otp",userAuth,profileController.verifyChangePassOtp)
 
 
-router.get("/form",userController.getform)
-router.post("/form", upload.any(), userController.postform);
+
 
 
 router.get("/shop",userAuth,productController.loadShoppingPage)
