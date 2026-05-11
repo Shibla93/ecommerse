@@ -4,4 +4,4 @@ const preventAdminLogin = (req, res, next) => {
   }
   next();
 };
-export {preventAdminLogin};
+export  {preventAdminLogin};

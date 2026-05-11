@@ -61,6 +61,7 @@ router.post("/forgotverify", profileController.postForgotOtp);
 router.post("/resendForgotOtp", profileController.resendForgotOtp);
 router.get("/reset-Newpass", profileController.getResetPassword);
 router.post("/reset-Newpass", profileController.newPass)
+console.log("userProfile:", profileController.userProfile);
 router.get("/userProfile",userAuth,profileController.userProfile);
 router.post("/userProfile",userAuth,upload.single('profileImage'),profileController.updateProfile)
 router.get("/change-email",profileController.changeEmail)
@@ -114,8 +115,7 @@ router.get('/order/invoice/:orderNumber', userAuth, orderController.generateInvo
 router.get("/wallet",userAuth,walletController.getWallet)
 router.get("/coupon",userAuth,couponController.getCoupens)
 
-router.get("/form",userController.getform)
-router.post("/form", upload.any(), userController.postform);
+
 
 
 
