@@ -1,13 +1,11 @@
 {
   "name": "watchstore",
   "version": "1.0.0",
-    "type": "module",
+  "type": "module",
   "main": "app.js",
-  
-    "scripts": {
-  "start": "nodemon app.js"
-}
-,
+  "scripts": {
+    "start": "nodemon app.js"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
