@@ -386,11 +386,31 @@
     <div class="details">
       <h2 id="title"><%= product.product %> <%= activeVariant.dialColor %> Dial with <%= activeVariant.strapColor %> Strap</h2>
       <p><%= product.description %></p>
-      <h3>₹<%= activeVariant.price.toLocaleString('en-IN') %></h3> 
+    <h3>
+
+₹<%= finalPrice.toLocaleString('en-IN') %>
+
+<% if(maxOffer > 0){ %>
+
+<span style="text-decoration:line-through;color:#999;font-size:18px;">
+₹<%= activeVariant.price.toLocaleString('en-IN') %>
+</span>
+
+<span style="color:green;font-size:18px;">
+(<%= maxOffer %>% OFF)
+</span>
+
+<% } %>
+
+</h3> 
 
       <% if(activeVariant.stock > 0) { %>
         <p class="in-stock">In Stock (<%= activeVariant.stock %> available)</p>
-        <button class="btn">Add to Cart</button>
+       <button class="btn"
+  onclick="addToCart('<%= product._id %>', '<%= activeVariant._id %>')">
+  Add to Cart
+</button>
+
       <% } else { %>
         <p class="out-of-stock">Sold Out</p>
         <button class="btn" onclick="notify()">Notify Me</button>
@@ -542,6 +562,75 @@ form.addEventListener("submit", async (e) => {
     form.reset();
   }
 });
+
+async function addToCart(productId, variantId) {
+  try {
+    const res = await fetch('/addToCart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        productId,
+        variantId,
+        quantity: 1
+      })
+    });
+
+    const data = await res.json();
+if (data.redirect) {
+  window.location.href = data.redirect;
+  return;
+}
+
+    if (data.success) {
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Added to Cart',
+        showConfirmButton: false,
+        timer: 1200
+      }).then(() => {
+        window.location.href = "/cart";
+      });
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+
+  } catch (err) {
+    Swal.fire('Error', 'Something went wrong', 'error');
+  }
+}
+
+const productId = "<%= product._id %>";
+const variantId = "<%= activeVariant._id %>";
+
+setInterval(async () => {
+  try {
+    const res = await fetch("/check-variant-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ productId, variantId })
+    });
+
+    const data = await res.json();
+
+    if (data.status === "unavailable") {
+      Swal.fire({
+        icon: "warning",
+        title: "Unavailable",
+        text: "This variant is no longer available"
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+}, 5000); 
 </script>
 
 </body>

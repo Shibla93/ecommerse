@@ -40,6 +40,21 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       padding: 18px 0;
     }
+.icon-btn {
+  position: relative;
+}
+
+.icon-btn .badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  font-weight: bold;
+}
 
     .header-container {
       max-width: 1300px;
@@ -258,20 +273,36 @@
 
       <!-- Right Side -->
       <div class="header-right">
-        <a href="/wishlist" class="icon-btn"><i class="bi bi-heart"></i></a>
-        <a href="/cart" class="icon-btn"><i class="bi bi-bag"></i></a>
+        
+<a href="/wishlist" class="icon-btn">
+  <i class="bi bi-heart"></i>
+  <% if (wishlistCount > 0) { %>
+    <span class="badge"><%= wishlistCount %></span>
+  <% } %>
+</a>
+
+<a href="/cart" class="icon-btn">
+  <i class="bi bi-bag"></i>
+  <% if (cartCount > 0) { %>
+    <span class="badge"><%= cartCount %></span>
+  <% } %>
+</a>
 
         <% if (locals.user) { %>
           <div class="user-menu">
             <div class="user-menu-trigger">
-              <% if (locals.user.profileImage && !locals.user.profileImage.includes('default-profile')) { %>
-                <img src="<%= locals.user.profileImage %>" alt="Profile" class="user-avatar">
-              <% } else { %>
-                <div class="user-initial">
-                  <%= locals.user.name ? locals.user.name.charAt(0).toUpperCase() : 'U' %>
-                </div>
-              <% } %>
-            </div>
+  <% if (locals.user.profileImage && !locals.user.profileImage.includes('default-profile')) { %>
+    <img src="<%= locals.user.profileImage %>" alt="Profile" class="user-avatar">
+  <% } else { %>
+    <div class="user-initial">
+      <%= locals.user.name.charAt(0).toUpperCase() %>
+    </div>
+  <% } %>
+  <span style="color:white; font-weight:600;">
+    <%= locals.user.name %> ▾
+  </span>
+</div>
+
             <div class="user-dropdown">
               <a href="/userProfile">My Profile</a>
               <a href="/logout">Logout</a>
@@ -293,8 +324,22 @@
     <div class="mobile-nav" id="mobileNav">
       <a href="/home">Home</a>
       <a href="/shop">Shop</a>
-      <a href="/wishlist">Wishlist</a>
-      <a href="/cart">Cart</a>
+      <!-- <a href="/wishlist" class="icon-btn">
+  <i class="bi bi-heart"></i>
+  <% if (wishlistCount > 0) { %>
+    <span class="badge"><%= wishlistCount %></span>
+  <% } %>
+</a>
+
+<a href="/cart" class="icon-btn">
+  <i class="bi bi-bag"></i>
+  <% if (cartCount > 0) { %>
+    <span class="badge"><%= cartCount %></span>
+  <% } %>
+</a>
+ -->
+
+      
       <% if (locals.user) { %>
         <a href="/userProfile">My Profile</a>
         <a href="/logout">Logout</a>
@@ -320,7 +365,7 @@
       });
     });
 
-    // Toggle user dropdown on click
+    
 const userMenuTrigger = document.querySelector('.user-menu-trigger');
 const userMenu = document.querySelector('.user-menu');
 
@@ -330,13 +375,54 @@ if (userMenuTrigger) {
   });
 }
 
-// Optional: close dropdown if click outside
 document.addEventListener('click', (e) => {
   if (!userMenu.contains(e.target)) {
     userMenu.classList.remove('active');
   }
 });
 
+  function updateCartBadge(count) {
+    const cartIcon = document.querySelector('.icon-btn[href="/cart"]');
+    if (!cartIcon) return;
+
+    let badge = cartIcon.querySelector('.badge');
+
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'badge';
+        cartIcon.appendChild(badge);
+      }
+      badge.textContent = count;
+    } else if (badge) {
+      badge.remove();
+    }
+  }
+
+  function updateWishlistBadge(count) {
+    const wishIcon = document.querySelector('.icon-btn[href="/wishlist"]');
+    if (!wishIcon) return;
+
+    let badge = wishIcon.querySelector('.badge');
+
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'badge';
+        wishIcon.appendChild(badge);
+      }
+      badge.textContent = count;
+    } else if (badge) {
+      badge.remove();
+    }
+  }
   </script>
+<script>
+  updateCartBadge(<%= cartCount %>);
+  updateWishlistBadge(<%= wishlistCount %>);
+</script>
+
+
+  
 </body>
 </html>

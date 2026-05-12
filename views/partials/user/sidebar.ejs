@@ -1,186 +1,265 @@
 <style>
-    /* ===== MODERN SIDEBAR BASE - UPDATED FOR LUXURY FEEL ===== */
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 300px; /* Slightly wider for elegance */
-      height: 100vh;
-      background: linear-gradient(180deg, #000000 0%, #1a1a1a 100%); /* Deep black gradient for premium luxury */
-      color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      padding: 30px 0;
-      box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5);
-      transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-      z-index: 1000;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; /* Cleaner, modern font */
-    }
 
-    .sidebar-header {
-      text-align: center;
-      margin-bottom: 60px;
-      padding: 0 30px;
-    }
+/* ===============================
+   GLOBAL VARIABLES
+================================ */
+:root {
+  --header-height: 90px;
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 90px;
+  --gold: #d4af37;
+}
 
-    .sidebar-header h3 {
-      font-size: 32px;
-      font-weight: 300; /* Lighter weight for sophistication */
-      color: #d4af37; /* Retained gold for Titan branding */
-      letter-spacing: 4px;
-      margin: 0;
-      text-transform: uppercase;
-    }
+/* ===============================
+   RESET
+================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    .tagline {
-      font-size: 14px;
-      color: #a0a0a0;
-      margin-top: 8px;
-      letter-spacing: 2px;
-      font-weight: 300;
-    }
-
-    .sidebar-menu {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 0 30px;
-    }
-
-    .sidebar-menu a {
-      color: #e0e0e0;
-      text-decoration: none;
-      font-size: 16px;
-      padding: 16px 20px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .sidebar-menu a::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 4px;
-      height: 100%;
-      background: #d4af37;
-      transform: translateX(-100%);
-      transition: transform 0.4s ease;
-    }
-
-    .sidebar-menu a i {
-      font-size: 20px;
-      width: 28px;
-      transition: color 0.4s ease;
-    }
-
-    .sidebar-menu a:hover {
-      background: rgba(212, 175, 55, 0.1);
-      color: #d4af37;
-      padding-left: 28px; /* Subtle indent on hover */
-    }
-
-    .sidebar-menu a:hover::before {
-      transform: translateX(0);
-    }
-
-    .sidebar-menu a:hover i {
-      color: #d4af37;
-    }
-
-    .active-link {
-      background: rgba(212, 175, 55, 0.2) !important;
-      color: #d4af37 !important;
-      font-weight: 500;
-      padding-left: 28px;
-    }
-
-    .active-link::before {
-      transform: translateX(0);
-    }
-
-    .active-link i {
-      color: #d4af37;
-    }
-
-    .logout-link {
-      color: #ff6b6b !important;
-      margin-top: auto;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 30px;
-    }
-
-    .logout-link:hover {
-      background: rgba(255, 107, 107, 0.1) !important;
-      color: #ff6b6b !important;
-      padding-left: 28px;
-    }
-
-    /* ===== SIDEBAR TOGGLE FOR MOBILE ===== */
-    .sidebar-toggle {
-      display: none;
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      font-size: 28px;
-      color: #ffffff;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      z-index: 1001;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar-toggle:hover {
-      background: #d4af37;
-      color: #000000;
-    }
-.main-content {
-  min-height: 100vh;
-  background-color: #f8f8f8;
-  margin-left: 300px;
-  transition: margin-left 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+body {
+  font-family: "Montserrat", sans-serif;
+  background: #f8f8f8;
+  padding-top: var(--header-height);
 }
 
 
-   @media (max-width: 991px) {
-  .main-content {
-    margin-left: 0;
+/* ===============================
+   SIDEBAR
+================================ */
+/* ===============================
+   SIDEBAR – FIXED & SAFE
+================================ */
+.sidebar {
+  position: fixed;
+  top: var(--header-height);        /* header kazhinju thudangum */
+  left: 0;
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--header-height)); /* footer-inu mukalil nirthum */
+  background: black;
+  color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0;
+  box-shadow: 8px 0 30px rgba(0,0,0,0.5);
+  transition: width 0.4s ease, transform 0.4s ease;
+  z-index: 1000;
+  overflow-y: auto; /* content koodiyal scroll */
+}
+
+
+/* ===============================
+   SIDEBAR HEADER
+================================ */
+.sidebar-header {
+  text-align: center;
+  margin-bottom: 60px;
+  padding: 0 30px;
+}
+
+.sidebar-header h3 {
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.tagline {
+  font-size: 14px;
+  color: #a0a0a0;
+  letter-spacing: 2px;
+}
+
+/* ===============================
+   SIDEBAR MENU
+================================ */
+.sidebar-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 30px;
+}
+
+.sidebar-menu a {
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.sidebar-menu a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gold);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+
+.sidebar-menu a i {
+  font-size: 20px;
+  width: 28px;
+}
+
+.sidebar-menu a:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--gold);
+  padding-left: 28px;
+}
+
+.sidebar-menu a:hover::before {
+  transform: translateX(0);
+}
+
+.active-link {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--gold);
+  font-weight: 500;
+  padding-left: 28px;
+}
+
+.active-link::before {
+  transform: translateX(0);
+}
+
+.logout-link {
+  margin-top: auto;
+  color: #ff6b6b;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 30px;
+}
+
+.logout-link:hover {
+  background: rgba(255, 107, 107, 0.1);
+}
+
+/* ===============================
+   MAIN CONTENT
+================================ */
+.main-content {
+  margin-left: var(--sidebar-width);
+  min-height: calc(100vh - var(--header-height));
+  padding: 25px 25px 80px;
+  transition: margin-left 0.4s ease;
+}
+footer {
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+@media (min-width: 992px) {
+  .sidebar.hide ~ .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+
+  .sidebar.hide ~ footer {
+    margin-left: var(--sidebar-collapsed-width);
   }
 }
 
 
-      .sidebar.show {
-        transform: translateX(0);
-      }
+/* ===============================
+   SIDEBAR TOGGLE
+================================ */
+.sidebar-toggle {
+  position: fixed;
+  top: calc(var(--header-height) + 15px);
+  left: 10px;
+  width: 45px;
+  height: 45px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1100;
+  transition: all 0.3s ease;
+}
 
-      .sidebar-toggle {
-        display: flex;
-      }
+.sidebar-toggle:hover {
+  background: var(--gold);
+  color: #000;
+}
 
-      .container {
-        margin-left: 0;
-      }
-    
+/* ===============================
+   DESKTOP COLLAPSE
+================================ */
+@media (min-width: 992px) {
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  .sidebar.hide {
+    width: var(--sidebar-collapsed-width);
+  }
+
+  .sidebar.hide .sidebar-menu a span {
+    display: none;
+  }
+
+  .sidebar.hide ~ .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+  }
+}
+
+/* ===============================
+   MOBILE VIEW
+================================ */
+@media (max-width: 991px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+}
+@media (max-width: 991px) {
+  footer {
+    margin-left: 0;
+  }
+}
+
+/* ===============================
+   IMAGES FIX
+================================ */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
 </style>
 
 <!-- Sidebar Navigation -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h3> WRISTON</h3>
-        <p class="tagline">Timeless Elegance</p>
+        <!-- <h3> WRISTON</h3>
+        <p class="tagline">Timeless Elegance</p> -->
     </div>
     
     <nav class="sidebar-menu">
@@ -196,20 +275,41 @@
         <a href="/wallet" class="<%= typeof activePage !== 'undefined' && activePage === 'wallet' ? 'active-link' : '' %>">
             <i class="fas fa-wallet"></i> Wallet
         </a>
+        <a href="/coupon" class="<%= typeof activePage !== 'undefined' && activePage === 'coupon' ? 'active-link' : '' %>">
+             <i class="fas fa-ticket-alt"></i> Coupon
+        </a>
         <a href="/logout" class="logout-link">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </nav>
 </div>
 
-<!-- Sidebar Toggle Button for Mobile -->
-<div class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('show')">
-    <i class="fas fa-bars"></i>
-</div>
+<div class="sidebar-toggle" id="sidebarToggle">
+<i class="fas fa-bars fa-sm"></i>
 
+</div>
 <script>
-    // Simple JS to toggle sidebar on mobile (since original didn't have it)
-    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
-        document.querySelector('.sidebar').classList.toggle('show');
-    });
+const sidebar = document.getElementById("sidebar");
+const toggleBtn = document.getElementById("sidebarToggle");
+const mainContent = document.querySelector(".main-content");
+
+toggleBtn.addEventListener("click", () => {
+  if (window.innerWidth >= 992) {
+    // Desktop toggle
+    sidebar.classList.toggle("hide");
+    mainContent.classList.toggle("full"); // adjust main content if needed
+  } else {
+    // Mobile toggle
+    sidebar.classList.toggle("show");
+  }
+});
+
+// Close sidebar on mobile if clicked outside
+document.addEventListener("click", (e) => {
+  if (window.innerWidth <= 991) {
+    if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+      sidebar.classList.remove("show");
+    }
+  }
+});
 </script>

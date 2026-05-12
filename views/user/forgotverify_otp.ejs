@@ -186,7 +186,7 @@
     <div class="form-body">
       
 
-      <form id="otpForm" action="/forgotverify" method="POST">
+      <form id="otpForm" >
         <div class="otp-container">
           <input type="text" maxlength="1" class="otp-input" >
           <input type="text" maxlength="1" class="otp-input" >
@@ -214,26 +214,6 @@
   </div>
    
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-
-  window.addEventListener("DOMContentLoaded", () => {
-    <% if (typeof error !== "undefined" && error.length > 0) { %>
-      Swal.fire({
-        icon: 'error',
-        title: 'error',
-        text: "<%- error %>",   // unescaped output
-        confirmButtonColor: '#d4af37'
-      });
-    <% } else if (typeof success !== "undefined" && success) { %>
-      Swal.fire({
-        icon: 'success',
-        title: 'Verified!',
-        text: "<%- success %>",  // unescaped output
-        confirmButtonColor: '#d4af37'
-      });
-    <% } %>
-  });
-</script>
 
 <script>
     const inputs=document.querySelectorAll(".otp-input")
@@ -286,6 +266,8 @@ function startTimer(){
 }
 
 
+
+
     startTimer();
    
     document.getElementById("resndotp").addEventListener("click", async (e) => {
@@ -311,25 +293,54 @@ function startTimer(){
 
 
  
-otpForm.addEventListener("submit", (e) => {
+otpForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
   let otpValue = "";
   inputs.forEach(input => otpValue += input.value);
-  if(otpValue.length<inputs.length){
-    e.preventDefault();
-  
+
+  if (otpValue.length < inputs.length) {
     Swal.fire("Error!", "Please enter full OTP.", "error");
-    return
+    return;
   }
 
-  if(otpExpired) {
-    e.preventDefault();
+  if (otpExpired) {
     Swal.fire("Error!", "OTP expired. Please resend.", "error");
     return;
   }
+
+  try {
+    const res = await fetch("/forgotverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ otp: otpValue })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      
+      Swal.fire("Error!", data.message || "Invalid OTP", "error");
+      return;
+    }
+
+    // ✅ OTP VERIFIED
+    Swal.fire({
+      icon: "success",
+      title: "Verified!",
+      text: "OTP verified successfully",
+      confirmButtonColor: "#d4af37"
+    }).then(() => {
+      window.location.href = "/reset-Newpass";
+    });
+
+  } catch (err) {
+    Swal.fire("Error!", "Something went wrong", "error");
+  }
+});
  
   
-  hiddenOtp.value = otpValue;  
-});
+ 
 </script>
 </body>
 </html>

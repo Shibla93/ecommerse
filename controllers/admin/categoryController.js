@@ -1,8 +1,8 @@
-const User=require("../../model/userSchema")
-const Category=require("../../model/categorySchema")
-const mongoose = require("mongoose");
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+
+import Category from "../../model/categorySchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+
 
 const getCategory = async (req, res) => {
   try {
@@ -17,7 +17,7 @@ const getCategory = async (req, res) => {
     const limit = 4;
     const skip = (page - 1) * limit;
 
-    const totalCategories = await Category.countDocuments(query);
+    const totalCategories = await Category.countDocuments({...query,isDeleted:false});
     const totalPages = Math.ceil(totalCategories / limit);
 
     const category = await Category.find({...query,isDeleted:false})
@@ -49,6 +49,7 @@ const addCategory = async (req, res) => {
 
     name = name?.trim();
     description = description?.trim();
+       
 
     
     if (!name || !description) {
@@ -70,6 +71,7 @@ const addCategory = async (req, res) => {
    return res.status(StatusCodes.OK).json({ success: true, message: Messages.CATEGORY_ADDED });
     
   } catch (error) {
+    console.log(error)
   
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -92,7 +94,7 @@ try{
             console.log(update)
             return res.json({success:true,message:"unlisted"})
          } else{
-              update=await Category.updateOne({_id:id},{$set:{isListed:true}})
+             let update=await Category.updateOne({_id:id},{$set:{isListed:true}})
          return res.json({success:true,message:"listed"})
         }
     }catch(error){
@@ -116,9 +118,20 @@ res.json({
 })
     }
 
+const existCategory = await Category.findOne({
+  name: { $regex: new RegExp("^" + name + "$", "i") },
+  _id: { $ne: categoryId }
+});
+
+if (existCategory) {
+  return res.json({
+    success: false,
+    message: Messages.CATEGORY_EXIST
+  });
+}
     const updatedCategory = await Category.findByIdAndUpdate(
       categoryId,
-      { name, description },
+      { name, description},
       { new: true }
     );
 
@@ -139,7 +152,7 @@ res.json({
 
   } catch (error) {
     console.error(error);
-      res
+     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ error: Messages.INTERNAL_SERVER_ERROR });
   }
@@ -165,7 +178,7 @@ const deleteCategory=async(req,res)=>{
 
 
 
-module.exports={
+const categoryController={
     getCategory,
     addCategory,
     listCategory,
@@ -173,3 +186,4 @@ module.exports={
     deleteCategory
     
 }
+export default categoryController

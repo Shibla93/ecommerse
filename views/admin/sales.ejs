@@ -1,0 +1,316 @@
+<%- include("../partials/admin/header") %>
+
+<style>
+  :root {
+    --color-gold: #d4af37;
+    --color-gold-hover: #c19a2e;
+    --color-dark: #1a1a1a;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-card-bg: #ffffff;
+    --color-light-bg: #f9fafb;
+    --radius-lg: 1rem;
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--color-light-bg);
+    min-height: 100vh;
+  }
+
+  .main-content {
+    background: var(--color-light-bg);
+    padding: 2.5rem 1.8rem;
+    min-height: calc(100vh - 80px);
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    letter-spacing: 1px;
+  }
+
+  /* Stats Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    padding: 1.8rem 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+    transition: transform 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .stat-value {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    margin: 0.5rem 0;
+  }
+
+  .stat-title {
+    font-size: 1rem;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Table Card */
+  .table-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+  }
+
+  .table-header {
+    background: var(--color-dark);
+    color: white;
+    padding: 1.4rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .table-header h5 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--color-gold);
+  }
+
+  .table thead th {
+    background: var(--color-dark);
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.8px;
+    padding: 1.2rem 1.5rem;
+    border: none;
+  }
+
+  .table tbody tr:hover {
+    background: #f8f9fa;
+  }
+
+  .table td {
+    padding: 1.2rem 1.5rem;
+    vertical-align: middle;
+  }
+
+  /* Buttons */
+  .btn-apply {
+    background: var(--color-gold);
+    color: white;
+    font-weight: 600;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-apply:hover {
+    background: var(--color-gold-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Pagination */
+  .pagination .page-link {
+    background: white;
+    color: var(--color-dark);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    margin: 0 4px;
+  }
+
+  .pagination .active .page-link {
+    background: var(--color-gold);
+    color: white;
+    border-color: var(--color-gold);
+  }
+
+  .form-select, .form-control {
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--color-muted);
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 992px) {
+    .main-content {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<div class="main-content">
+  <div class="container-fluid">
+
+    <h2 class="page-title">Sales Report</h2>
+
+    <!-- Filter Form -->
+    <form class="mb-4" method="GET" action="/admin/sales-report">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <select name="filter" class="form-select" onchange="toggleCustomDates(this)">
+            <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Daily</option>
+            <option value="weekly" <%= filter === 'weekly' ? 'selected' : '' %>>Weekly</option>
+            <option value="monthly" <%= filter === 'monthly' ? 'selected' : '' %>>Monthly</option>
+            <option value="yearly" <%= filter === 'yearly' ? 'selected' : '' %>>Yearly</option>
+            <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom Range</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 custom-dates" style="display: <%= filter === 'custom' ? 'block' : 'none' %>;">
+          <input type="date" name="startDate" class="form-control" value="<%= startDate %>" required>
+        </div>
+
+        <div class="col-md-3 custom-dates" style="display: <%= filter === 'custom' ? 'block' : 'none' %>;">
+          <input type="date" name="endDate" class="form-control" value="<%= endDate %>" required>
+        </div>
+
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-apply w-100">Apply Filter</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Total Orders</div>
+        <div class="stat-value"><%= overallSalesCount %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Total Revenue</div>
+        <div class="stat-value">₹<%= overallOrderAmount %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Offer Discount</div>
+        <div class="stat-value">₹<%= overallDiscount %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Coupon Deduction</div>
+        <div class="stat-value">₹<%= couponDeductions %></div>
+      </div>
+      <div class="stat-card">
+      <div class="stat-title">Total Refund</div>
+      <div class="stat-value" style="color:red;">
+    ₹<%= overallRefund %>
+  </div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-title">Net Revenue</div>
+  <div class="stat-value" style="color:green;">
+    ₹<%= (overallOrderAmount - overallRefund) %>
+  </div>
+</div>
+    </div>
+    
+
+    <!-- Orders Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h5>Order History</h5>
+        <div>
+          <a href="/admin/sales-report/download/pdf?filter=<%= filter %>&startDate=<%= startDate %>&endDate=<%= endDate %>" 
+             class="btn btn-sm btn-outline-primary me-2">PDF</a>
+          <a href="/admin/sales-report/download/excel?filter=<%= filter %>&startDate=<%= startDate %>&endDate=<%= endDate %>" 
+             class="btn btn-sm btn-outline-success">Excel</a>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Payment Method</th>
+              <th>Total Amount</th>
+              <th>Offer Discount</th>
+              <th>Coupon Deduction</th>
+              <th>Refund</th>
+           
+            </tr>
+          </thead>
+          <tbody>
+            <% if (orders.length === 0) { %>
+              <tr><td colspan="6" class="text-center py-5">No orders found for selected filter.</td></tr>
+            <% } %>
+            <% orders.forEach(order => { %>
+              <tr>
+                <td><strong><%= order.orderNumber %></strong></td>
+                <td><%= new Date(order.createdAt).toLocaleDateString('en-IN') %></td>
+                <td><%= order.paymentMethod %></td>
+                <td>₹<%= order.totalAmount.toFixed(2) %></td>
+                <td>₹<%= (order.discount || 0).toFixed(2) %></td>
+                <td>₹<%= (order.couponDiscount || 0).toFixed(2) %></td>
+                <td>₹<%= (order.refundAmount || 0).toFixed(2) %></td>
+   
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+      <nav>
+        <ul class="pagination">
+          
+
+          <% for(let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+              <a class="page-link" href="?page=<%= i %>&filter=<%= filter %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %></a>
+            </li>
+          <% } %>
+
+          <!--  -->
+        </ul>
+      </nav>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleCustomDates(select) {
+  document.querySelectorAll('.custom-dates').forEach(el => {
+    el.style.display = select.value === 'custom' ? 'block' : 'none';
+  });
+}
+</script>
+
+<%- include("../partials/admin/footer") %>

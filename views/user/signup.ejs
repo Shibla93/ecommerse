@@ -253,7 +253,7 @@
 
         <div>
           <label>Full Name</label>
-          <input type="text" id="name" name="name" placeholder="Enter the name" required />
+          <input type="text" id="name" name="name" placeholder="Enter the name"  required />
           <div id="error1" class="error-message"></div>
         </div>
 
@@ -286,7 +286,11 @@
           </div>
           <div id="error5" class="error-message"></div>
         </div>
-
+<div>
+  <label>Referral Code (Optional)</label>
+  <input type="text" id="referralCode" name="referralCode" placeholder="Enter referral code if any" />
+  <div id="error6" class="error-message"></div>
+</div>
         <button type="submit" class="btn-titan">Create Account</button>
       </form>
 
@@ -310,6 +314,8 @@
   let phoneId=document.getElementById("phone");
   let passId=document.getElementById("password");
   let cpassId=document.getElementById("cpass");
+const referralCodeId = document.getElementById("referralCode");
+
 
 
 
@@ -318,6 +324,7 @@
   let er3=document.getElementById("error3");
   let er4=document.getElementById("error4");
   let er5=document.getElementById("error5");
+  const er6 = document.getElementById("error6");
 
 
   const togglePassword = document.getElementById("togglePassword");
@@ -423,7 +430,17 @@ function passwordValidate() {
   }
  }
 
-
+function referralCodeValidate() {
+  const val = referralCodeId.value.trim();
+  if(val !== "" && !/^[A-Z0-9]{4,8}$/.test(val)){
+    er6.style.display = "block";
+    er6.innerHTML = "Invalid referral code format";
+    return false;
+  } else {
+    er6.style.display = "none";
+    return true;
+  }
+}
  const form = document.getElementById('signupform');
 
 form.addEventListener('submit', function(e) {
@@ -434,6 +451,9 @@ form.addEventListener('submit', function(e) {
   if (!phoneValidate()) valid = false;
   if (!passwordValidate()) valid = false;
   if (!confirmPasswordValidate()) valid = false;
+if (referralCodeId.value.trim() !== "") {
+    if (!referralCodeValidate()) valid = false;
+  }
 
   if (!valid) {
     e.preventDefault(); 
@@ -447,6 +467,7 @@ form.addEventListener('submit', function(e) {
   phoneId.addEventListener("input", phoneValidate);
   passId.addEventListener("input", passwordValidate);
   cpassId.addEventListener("input", confirmPasswordValidate);
+  referralCodeId.addEventListener("input", referralCodeValidate);
 </script>
 
 

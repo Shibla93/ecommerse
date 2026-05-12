@@ -7,9 +7,12 @@ const Messages = {
   PASSWORDS_DO_NOT_MATCH: "Passwords do not match",
   INTERNAL_SERVER_ERROR: "Something went wrong. Please try again later.",
   EMAIL_VERIFICATION_FAILED: "Failed to send verification email",
+  EMAIL_CHANGED:"EMAIL CHANGED  SUCCESSFULLY",
   USER_BLOCKED: "User is blocked ",
   USER_UNBLOCKED:"User is unblocked ",
+  PASSWORD_CHANGE:"Password changed succesfully",
   INCORRECT_PASSWORD: "Incorrect password",
+  GOOGLE_MANAGE:"Password changes are managed through your Google account",
   LOGIN_SUCCESS: "Login successful",
   LOGIN_FAILED: "Login failed",
   CATEGORY_NOT_FOUND:"Category not found",
@@ -28,6 +31,8 @@ const Messages = {
    BRAND_EXIST:"brand already exist",
    BRAND_ADDED:"brand added",
    BRAND_DELETE:"are you sure want to delete",
+   BRAND_BLOCKED:"Brand blocked successfully",
+BRAND_UNBLOCKED:"Brand unblocked successfully",
    OTP_RESENT_SUCCESS:"OTP resended successfully",
    OTP_INVALID:"OTP invalid",
    OTP_EXPIRED:"OTP expired,please try again",
@@ -39,10 +44,58 @@ const Messages = {
     
     VARIANT_NOTFOUD:"no variant found",
    REVIEW_ADDED: "Review added successfully",
-   SOLD_OUT:"sold out"
+   SOLD_OUT:"sold out",
+   ADDRESS_NOT_FOUND:"Address not found",
+   ADDRESS_SAVED:"Address saved succesfully",
+   ADDRESS_UPDATED:"Address updated succesfully",
+   ADDRESS_DELETED:"Address deleted successfully",
+   CART_EMPTY:"cart id empty",
+   STOCK_REACHED:"stock limit reached",
+  ADDED_TO_CART:"product added to cart succesfully",
+  OUT_OF_STOCK:"PRODUCT IS OUT OF STOCK",
+  VARIANT_UNAVAILABLE:"product variant not vailable",
+MAX_LIMIT_REACHED:"maximum 5 product can purachase at one time",
+   ITEM_REMOVED:"product removed from the cart" ,
+   ORDER_NOTFOUND:"order not found" ,
+   ITEM_NOT_FOUND:"item not found" ,
+   ORDER_ALREADY_CANCELLED:"order already canceelled", 
+ORDER_CANCELLED_SUCCESS:"order cancellled successfully",
+ORDER_ALREADY_RETURNED:"This order has already been returned.",
+  RETURN_NOT_ALLOWED : "Only delivered orders are eligible for return.",
+    INSUFFICIENT_STOCK: "Insufficient stock available for the selected product",
+    COUPON_ALREADY_EXISTS:"Coupon already exists",
+COUPON_ADDED:"Coupon added successfully",
+COUPON_UPDATED:"Coupon updated successfully",
+
+COUPON_EXPIRY_INVALID:
+"Expiry date must be future date",
+
+COUPON_PERCENTAGE_INVALID:
+"Percentage must be between 1 and 100",
+
+COUPON_FLAT_INVALID:
+"Flat discount must be less than minimum purchase",
 
 
-   
+
+COUPON_NOT_FOUND:"Coupon not found",
+OFFER_PERCENTAGE_INVALID:
+"Offer percentage must be between 1 and 90",
+
+OFFER_DATE_INVALID:
+"Expiry date must be after start date",
+
+OFFER_NOT_FOUND:
+"Offer not found",
+
+OFFER_ADDED:
+"Offer created successfully",
+
+OFFER_UPDATED:
+"Offer updated successfully",
+
+OFFER_DELETED:
+"Offer deleted successfully"
 };
 
-module.exports = Messages;
+export default Messages;

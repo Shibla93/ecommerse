@@ -1,11 +1,176 @@
+<%- include("../partials/admin/header") %>
 
-<%- include("../../views/partials/admin/header") %>
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Dashboard </h2>
-        </div>
-       
+<style>
+  :root {
+    --gold: #d4af37;
+    --gold-dark: #b8972e;
+    --dark: #1a1a1a;
+    --light-bg: #f9fafb;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --shadow: 0 10px 25px rgba(0,0,0,0.08);
+  }
+
+  body { background: var(--light-bg); font-family: 'Montserrat', sans-serif; }
+  .dashboard-container { max-width: 1400px; margin: 100px auto 60px; padding: 0 25px; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: var(--dark); text-align: center; margin-bottom: 2.5rem; letter-spacing: 1px; }
+  .filter-bar { background: var(--card-bg); padding: 1.2rem 2rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 2.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+  .main-chart-card { background: var(--card-bg); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 3rem; }
+  .section-title { font-size: 1.35rem; color: var(--dark); margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 2px solid var(--gold); display: inline-block; }
+  .top-list { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.8rem; margin-bottom: 2.5rem; }
+  .top-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+  .top-item:last-child { border-bottom: none; }
+  .rank { font-size: 1.1rem; font-weight: 700; color: var(--gold); width: 32px; }
+  .item-name { font-weight: 600; color: var(--text); flex: 1; }
+  .item-sales { color: var(--muted); font-size: 0.95rem; }
+  .chart-container { position: relative; height: 420px; }
+  .btn-gold { background: var(--gold); color: white; border: none; padding: 0.7rem 1.8rem; border-radius: 8px; font-weight: 600; transition: all 0.3s; }
+  .btn-gold:hover { background: var(--gold-dark); transform: translateY(-2px); }
+  @media (max-width: 992px) { .dashboard-container { margin-top: 80px; } .filter-bar { flex-direction: column; align-items: stretch; } }
+</style>
+
+<div class="dashboard-container">
+
+  <h2 class="page-title">Admin Dashboard</h2>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <div class="col-md-3">
+      <select id="timeFilter" class="form-select">
+        <option value="monthly" <%= filter === 'monthly' ? 'selected' : '' %>>This Month</option>
+        <option value="weekly" <%= filter === 'weekly' ? 'selected' : '' %>>This Week</option>
+        <option value="yearly" <%= filter === 'yearly' ? 'selected' : '' %>>This Year</option>
+        <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom Range</option>
+      </select>
     </div>
-</section>
-<%- include("../../views/partials/admin/footer") %>
+    <div class="col-md-3 custom-range" style="display:<%= filter === 'custom' ? 'block' : 'none' %>;">
+      <input type="date" id="startDate" class="form-control" value="<%= startDate %>">
+    </div>
+    <div class="col-md-3 custom-range" style="display:<%= filter === 'custom' ? 'block' : 'none' %>;">
+      <input type="date" id="endDate" class="form-control" value="<%= endDate %>">
+    </div>
+    <div class="col-md-3">
+      <button onclick="updateDashboard()" class="btn-gold w-100">Apply Filter</button>
+    </div>
+  </div>
+
+  <!-- Main Sales Chart -->
+  <div class="main-chart-card">
+    <h5 class="section-title">Sales Overview</h5>
+    <div class="chart-container">
+      <canvas id="salesChart"></canvas>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Top Products -->
+    <div class="col-lg-4">
+      <div class="top-list">
+        <h5 class="section-title">Best Selling Products (Top 5)</h5>
+        <% topProducts.forEach((product, index) => { %>
+          <div class="top-item">
+            <span class="rank"><%= index + 1 %></span>
+            <span class="item-name"><%= product.name || product.product %></span>
+            <span class="item-sales"><%= product.totalSold %> sold</span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Top Categories -->
+    <div class="col-lg-4">
+      <div class="top-list">
+        <h5 class="section-title">Best Selling Categories (Top 5)</h5>
+        <% topCategories.forEach((cat, index) => { %>
+          <div class="top-item">
+            <span class="rank"><%= index + 1 %></span>
+            <span class="item-name"><%= cat.name %></span>
+            <span class="item-sales"><%= cat.totalSold %> sold</span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Top Brands -->
+    <div class="col-lg-4">
+      <div class="top-list">
+        <h5 class="section-title">Best Selling Brands (Top 5)</h5>
+        <% topBrands.forEach((brand, index) => { %>
+          <div class="top-item">
+            <span class="rank"><%= index + 1 %></span>
+            <span class="item-name"><%= brand.name %></span>
+            <span class="item-sales"><%= brand.totalSold %> sold</span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- <div class="text-center mt-5">
+    <a href="/admin/ledger" class="btn btn-outline-dark btn-lg px-5">Generate Ledger Book</a>
+  </div> -->
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const salesDataBackend = <%- JSON.stringify(salesData) %>;
+const labelsBackend = <%- JSON.stringify(labels) %>;
+
+const ctx = document.getElementById('salesChart').getContext('2d');
+let salesChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: labelsBackend,
+    datasets: [{
+      label: 'Revenue (₹)',
+      data: salesDataBackend,
+      borderColor: '#d4af37',
+      backgroundColor: 'rgba(212, 175, 55, 0.1)',
+      tension: 0.4,
+      borderWidth: 3,
+      pointBackgroundColor: '#fff',
+      pointBorderColor: '#d4af37',
+      pointRadius: 5
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' } },
+      x: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' } }
+    }
+  }
+});
+
+// Show/hide custom fields
+document.getElementById('timeFilter').addEventListener('change', function(){
+  const customFields = document.querySelectorAll('.custom-range');
+  customFields.forEach(el => { el.style.display = this.value === 'custom' ? 'block' : 'none'; });
+});
+
+// Fetch new data and update chart
+function updateDashboard() {
+  const filter = document.getElementById('timeFilter').value;
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
+
+  fetch(`/admin/dashboard-data?filter=${filter}&startDate=${startDate}&endDate=${endDate}`)
+    .then(res => res.json())
+    .then(data => {
+      salesChart.data.labels = data.labels;    
+      salesChart.data.datasets[0].data = data.salesData;
+      salesChart.update();
+    })
+    .catch(err => console.error(err));
+}
+</script>
+
+<%- include("../partials/admin/footer") %>

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 
@@ -58,21 +58,17 @@ const productSchema = new Schema(
    strapMaterial:{
     type: String,
     trim: true,
-    enum: ["leather", "rubber", "metal", "ceramics","silicon","steel"], 
+    enum: ["leather", "rubber", "metal", "ceramics","silicon","steel","multicolored"], 
     required: true
    },
-    discount: { 
-        type: Number,
-         default: 0,
-          min:0
-         },
+  
 
     
-    categories: [
+    category: 
       { type: mongoose.Schema.Types.ObjectId,
          ref: "Category", 
-         required: true }
-    ],
+         required: true },
+    
 
     variants: [variantSchema],
     reviews: {
@@ -100,4 +96,4 @@ const productSchema = new Schema(
 );
 
 const Product = mongoose.model("Product", productSchema);
-module.exports = Product;
+export default Product;

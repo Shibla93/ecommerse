@@ -1,0 +1,333 @@
+<%- include("../partials/user/sidebar") %>
+
+<div class="app-wrapper">
+  <%- include("../partials/user/header") %>
+
+  <style>
+    :root {
+      --gold: #d4af37;
+      --gold-hover: #c19a2e;
+      --dark: #1a1a1a;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --card: #ffffff;
+      --bg: #f9fafb;
+    }
+
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); height:150vh; }
+    .app-wrapper { margin-left: 250px; transition: all 0.3s ease; }
+    @media (max-width: 991px) { .app-wrapper { margin-left: 0; } }
+    .main { padding: 110px 15px 60px; }
+    .orders-container { max-width: 1200px; margin: auto; }
+    .page-title { text-align: center; font-weight: 700; margin-bottom: 2rem; border-bottom: 2px solid var(--gold); display: inline-block; }
+
+    .search-bar { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+    .search-bar form { width: 100%; max-width: 320px; }
+    .search-bar input { width: 100%; padding: 0.7rem 1rem 0.7rem 2.5rem; border-radius: 8px; border: 1px solid var(--border); }
+
+    .orders-table-wrapper { background: var(--card); border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); overflow-x: auto; }
+    .orders-table { width: 100%; min-width: 700px; border-collapse: collapse; }
+    .orders-table th { background: var(--dark); color: white; padding: 1rem; font-size: 0.85rem; }
+    .orders-table td { padding: 1rem; border-bottom: 1px solid var(--border); }
+
+    .status { padding: 0.35rem 0.9rem; border-radius: 20px; font-size: 0.85rem; color: white; }
+    .processing { background: #f59e0b; }
+    .shipped { background: #3b82f6; }
+    .delivered { background: #10b981; }
+    .cancelled { background: #ef4444; }
+    .returned { background: #8b5cf6; }
+    .payment_failed { background: #dc2626; }
+    .completed { 
+  background: #6366f1; 
+}
+
+    .action-btn { padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; color: white; display: inline-block; margin-bottom: 5px; }
+    .btn-view { background: #3b82f6; }
+    .btn-invoice { background: #f59e0b; }
+    .btn-retry { background: #f59e0b; }
+    .btn-cancel { background: #ef4444; }
+    .btn-return { background: #8b5cf6; }
+
+    @media (max-width: 576px) { .action-btn { display: block; width: 100%; text-align: center; } }
+    .pagination { display: flex; justify-content: center; flex-wrap: wrap; margin: 25px 0; gap: 6px; }
+    .pagination a { padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); text-decoration: none; color: var(--dark); }
+    .pagination a.active { background: var(--dark); color: white; }
+
+    .no-orders { text-align: center; background: var(--card); padding: 3rem 1rem; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+  </style>
+
+  <main class="main">
+    <div class="orders-container">
+      <h2 class="page-title">My Orders</h2>
+
+      <div class="search-bar">
+        <form action="/orders" method="get">
+          <div class="position-relative">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" name="search" placeholder="Search by Order Number..." value="<%= search|| '' %>">
+          </div>
+        </form>
+      </div>
+
+      <% if (orders.length > 0) { %>
+        <div class="orders-table-wrapper">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach(order => { %>
+                <tr>
+                  <td><%= order.orderNumber %></td>
+                  <td><%= order.createdAt.toDateString() %></td>
+                  <td>
+                    <span class="status <%= order.displayStatus %>">
+                      <%= order.displayStatus === 'payment_failed' ? 'Payment Failed' : order.displayStatus.charAt(0).toUpperCase() + order.displayStatus.slice(1) %>
+                    </span>
+                  </td>
+                  <td>₹<%= order.totalAmount %></td>
+                  <td>
+                    <a href="/orders/<%= order._id %>" class="action-btn btn-view">View</a>
+
+         
+
+   <% if (order.orderStatus === "cancelled") { %>
+
+  <span class="status cancelled">Cancelled</span>
+
+<% } else if (order.displayStatus === "payment_failed") { %>
+
+  <button onclick="retryPayment('<%= order._id %>')" class="action-btn btn-retry">
+    Retry Payment
+  </button>
+
+  <button onclick="cancelFullOrder('<%= order.orderNumber %>')" class="action-btn btn-cancel">
+    Cancel Order
+  </button>
+
+<% } else if (order.orderStatus === "delivered") { %>
+
+  <a href="/order/invoice/<%= order.orderNumber %>" class="action-btn btn-invoice">
+    Invoice
+  </a>
+
+<% } else { %>
+
+  <!-- default: allow cancel for processing/shipped -->
+  <button onclick="cancelFullOrder('<%= order.orderNumber %>')" class="action-btn btn-cancel">
+    Cancel Order
+  </button>
+
+<% } %>
+</td>
+
+                    <!-- <% if(["processing","shipped"].includes(order.displayStatus)) { %>
+                      <button class="action-btn btn-cancel" onclick="cancelOrder('<%= order.orderNumber %>')">Cancel</button>
+                    <% } %>
+
+                    <% if(order.displayStatus === "delivered") { %>
+                      <button class="action-btn btn-return" onclick="returnOrder('<%= order.orderNumber %>')">Return</button>
+                    <% } %> -->
+
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="no-orders">
+          <h4>No orders found</h4>
+          <p>Start shopping to place your first order!</p>
+          <a href="/shop" class="btn btn-outline-dark mt-3">Shop Now</a>
+        </div>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+<div class="pagination">
+  <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="?page=<%= i %>&search=<%= search %>&status=<%= statusFilter %>&sortBy=<%= sortBy %>&sortOrder=<%= sortOrder %>" 
+       class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+  <% } %>
+</div>
+
+<%- include("../partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  // Your existing JS functions remain unchanged
+//   function cancelOrder(orderId) {
+//   Swal.fire({
+//     title: "Cancel Order?",
+//     input: "select",
+//     inputOptions: {
+//       "Ordered by mistake": "Ordered by mistake",
+//       "Found cheaper elsewhere": "Found cheaper elsewhere",
+//       "Delivery delay": "Delivery delay",
+//       "No longer needed": "No longer needed"
+//     },
+//     inputPlaceholder: "Select a reason",
+//     showCancelButton: true,
+//     confirmButtonText: "Yes, Cancel",
+//     inputValidator: (value) => {
+//       if (!value) {
+//         return "Please select a cancellation reason";
+//       }
+//     }
+//   }).then(result => {
+//     if (result.isConfirmed) {
+//       fetch(`/order/cancel/${orderId}`, {
+//         method: "PATCH",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({ reason: result.value })
+//       })
+//       .then(res => res.json())
+//       .then(data => {
+//         if (data.success) {
+//           Swal.fire("Cancelled!", data.message, "success")
+//             .then(() => location.reload());
+//         } else {
+//           Swal.fire("Error", data.message, "error");
+//         }
+//       });
+//     }
+//   });
+// }
+
+//   function returnOrder(orderNumber) {
+//   Swal.fire({
+//     title: "Return Order?",
+//     input: "select",
+//     inputOptions: {
+//       "Damaged product": "Damaged product",
+//       "Wrong item delivered": "Wrong item delivered",
+//       "Quality not satisfied": "Quality not satisfied",
+//       "Other": "Other"
+//     },
+//     inputPlaceholder: "Select return reason",
+//     showCancelButton: true,
+//     confirmButtonText: "Yes, Return",
+//     inputValidator: (value) => {
+//       if (!value) {
+//         return "Please select a return reason";
+//       }
+//     }
+//   }).then(result => {
+//     if (result.isConfirmed) {
+//       fetch(`/order/return/${orderNumber}`, {
+//         method: "PATCH",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({ reason: result.value })
+//       })
+//       .then(res => res.json())
+//       .then(data => {
+//         if (data.success) {
+//           Swal.fire("Returned!", data.message, "success")
+//             .then(() => location.reload());
+//         } else {
+//           Swal.fire("Error", data.message, "error");
+//         }
+//       });
+//     }
+//   });
+// }
+
+
+
+
+
+
+
+
+async function retryPayment(orderId) {
+  try {
+    const response = await fetch("/payment/razorpay/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId })
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      return alert("Retry failed");
+    }
+
+    const options = {
+      key: data.keyId,
+      amount: data.amount,
+      currency: "INR",
+      order_id: data.razorpayOrderId,
+      handler: async function (razorpayResponse) {
+        try {
+          const verifyRes = await fetch("/payment/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: razorpayResponse.razorpay_order_id,
+              razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+              razorpay_signature: razorpayResponse.razorpay_signature,
+              orderId: data.orderId
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            window.location.href = verifyData.redirectUrl; // success page
+          } else {
+            window.location.href = verifyData.redirectUrl; // failure page
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Payment verification failed");
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong");
+  }
+}
+function cancelFullOrder(orderNumber) {
+  Swal.fire({
+    title: "Cancel full order?",
+    input: "text",
+    inputPlaceholder: "Reason",
+    showCancelButton: true,
+    confirmButtonText: "Yes Cancel"
+  }).then(result => {
+    if (result.isConfirmed) {
+      fetch(`/order/cancel-full/${orderNumber}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: result.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire("Success", data.message, "success")
+            .then(() => location.reload());
+        } else {
+          Swal.fire("Error", data.message, "error");
+        }
+      });
+    }
+  });
+}
+</script>

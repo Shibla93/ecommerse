@@ -1,17 +1,21 @@
-const User=require("../../model/userSchema")
-const env=require("dotenv").config()
-const nodemailer=require("nodemailer")
+import User from "../../model/userSchema.js";
+import dotenv from "dotenv";
+dotenv.config();
+import nodemailer from "nodemailer";
 
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
-const bcrypt = require("bcrypt");
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
+import bcrypt from "bcrypt";
+import Wishlist from "../../model/wishlistSchema.js";
+import Cart from "../../model/cartSchema.js";
+import Brand from "../../model/brandSchema.js";
+import Category from "../../model/categorySchema.js";
+import Product from "../../model/productSchema.js";
+import mongoose from "mongoose";
+import cloudinary from "../../helpers/cloudinary.js";
+import moment from "moment/moment.js";
 
-
-const Brand = require("../../model/brandSchema");
-const Category = require("../../model/categorySchema");
-const Product = require("../../model/productSchema");
-const mongoose = require("mongoose");
-const cloudinary = require('../../helpers/cloudinary');
+const { max } = moment;
 
 
 const loadShoppingPage = async (req, res) => {
@@ -30,7 +34,14 @@ const loadShoppingPage = async (req, res) => {
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    
+    let wishlistItems = [];
+
+if (userId) {
+  const wishlist = await Wishlist.findOne({ userId });
+  if (wishlist) {
+    wishlistItems = wishlist.items.map(item => String(item.productId));
+  }
+}
     let minPrice = 0;
     let maxPrice = Number.MAX_SAFE_INTEGER;
     if (req.query.price) {
@@ -53,8 +64,9 @@ const loadShoppingPage = async (req, res) => {
       matchStage.product = { $regex: search, $options: "i" };
     }
     if (selectedCategory) {
-      matchStage.categories = { $in: [new mongoose.Types.ObjectId(selectedCategory)] };
-    }
+  matchStage.category = new mongoose.Types.ObjectId(selectedCategory);
+}
+
     if (selectedBrand) {
       matchStage.brand = { $in: [new mongoose.Types.ObjectId(selectedBrand)] };
     }
@@ -68,8 +80,10 @@ const loadShoppingPage = async (req, res) => {
       "variants.isListed": true,
       "variants.price": { $gte: minPrice, $lte: maxPrice },
       ...(search && { product: { $regex: search, $options: "i" } }),
-      ...(selectedCategory && { categories: { $in: [new mongoose.Types.ObjectId(selectedCategory)] } }),
-      ...(selectedBrand && { brand: { $in: [new mongoose.Types.ObjectId(selectedBrand)] } })
+     ...(selectedCategory && { category: new mongoose.Types.ObjectId(selectedCategory) }),
+     ...(selectedBrand && { 
+      brand: new mongoose.Types.ObjectId(selectedBrand) 
+    })
     } 
   },
   // join brand
@@ -78,7 +92,7 @@ const loadShoppingPage = async (req, res) => {
   { $match: { "brandDetails.isBlocked": false } },
 
   // join category
-  { $lookup: { from: "categories", localField: "categories", foreignField: "_id", as: "categoryDetails" } },
+  { $lookup: { from: "categories", localField: "category", foreignField: "_id", as: "categoryDetails" } },
   { $match: { "categoryDetails.isListed": true } },
 
   // projection
@@ -87,26 +101,40 @@ const loadShoppingPage = async (req, res) => {
       productId: "$_id",
       product: 1,
       brand: "$brandDetails",
-      categories: "$categoryDetails",
+      category: { $arrayElemAt: ["$categoryDetails", 0] },
       dialColor: "$variants.dialColor",
       strapColor: "$variants.strapColor",
       price: "$variants.price",
+       stock: "$variants.stock", 
       image: { $arrayElemAt: ["$variants.images.croppedUrl", 0] },
       variantId: "$variants._id",
       createdAt: "$createdAt",
+       productOffer: 1,
+    categoryOffer: { $arrayElemAt: ["$categoryDetails.categoryOffer", 0] }
     } 
   }
 ]);
 
-    products = products.sort(() => Math.random() - 0.5);
+  products = products.map(p => {
+  const maxOffer = Math.max(p.productOffer || 0, p.category.categoryOffer || 0);
+  const discount = p.price * (maxOffer / 100);
+  const finalPrice =  Math.round(p.price - discount);
+
+  return {
+    ...p,
+    maxOffer,
+    discount,
+    finalPrice
+  };
+});
 
     
     switch (sort) {
       case "priceLowHigh":
-        products.sort((a, b) => a.price - b.price);
+        products.sort((a, b) => a.finalPrice - b.finalPrice);
         break;
       case "priceHighLow":
-        products.sort((a, b) => b.price - a.price);
+        products.sort((a, b) => b.finalPrice - a.finalPrice);
         break;
       case "nameAsc":
         products.sort((a, b) => a.product.localeCompare(b.product));
@@ -134,7 +162,6 @@ const loadShoppingPage = async (req, res) => {
       user: userData,
       products,
       categories,
-      
       selectedCategory: req.query.category || null,
   selectedBrand: req.query.brand || null,
   sort: req.query.sort || null,
@@ -144,6 +171,7 @@ const loadShoppingPage = async (req, res) => {
       brands,
       currentPage: page,
       totalPages,
+        wishlistItems
     });
   } catch (error) {
     console.error("Error loading shop page:", error);
@@ -159,7 +187,7 @@ const loadProductDetail = async (req, res) => {
 
     const product = await Product.findById(id)
      .populate('brand', 'name')
-     .populate('categories', 'name')
+     .populate('category')
     .lean();
 
    if (!product) {
@@ -169,25 +197,47 @@ const loadProductDetail = async (req, res) => {
     
     const listedVariants = product.variants.filter(v => v.isListed===true && v.isDeleted===false);
 
-    
     if (listedVariants.length === 0) {
-      return res.render('product-detail', {
-        product,
-        message:Messages.SOLD_OUT
-      });
-    }
+  return res.render("product-unavailable", {
+    message: "This product is currently unavailable"
+  });
+}
+   
 
 
     const variantId = req.query.variant;
-    let activeVariant = listedVariants[0];
-    if (variantId) {
-      const found = listedVariants.find(v => String(v._id) === String(variantId));
-      if (found) activeVariant = found;
-    }
+ let activeVariant = null;
+
+if (variantId) {
+  activeVariant = listedVariants.find(
+    v => String(v._id) === String(variantId)
+  );
+
+
+  if (!activeVariant) {
+    return res.render("product-unavailable", {
+      message: "This selected variant is no longer available",
+      product
+    });
+  }
+}
+
+
+if (!activeVariant) {
+  activeVariant = listedVariants[0];
+}
+
+  const maxOffer = Math.max(
+  product.productOffer || 0,
+  product.category?.categoryOffer || 0
+);
+
+const discount = activeVariant.price * (maxOffer / 100);
+const finalPrice = Math.round(activeVariant.price - discount);
 
      const relatedProducts = await Product.find({
       _id: { $ne: product._id }, 
-     categories: { $in: product.categories },
+      category: product.category, 
       'variants.isListed': true,
   'variants.isDeleted': false
     })
@@ -196,13 +246,15 @@ const loadProductDetail = async (req, res) => {
       .lean();
 
     // render
+     
     res.render("product-details", {
      user: userData,
       product,
       activeVariant,
       listedVariants,
-      relatedProducts
-      
+      relatedProducts,
+       maxOffer,
+ finalPrice   
     });
   } catch (error) {
     console.log("Error loading product details:", error);
@@ -251,14 +303,37 @@ const addReview=async(req,res)=>{
     }
 }
 
-  
+  const checkVariantStatus = async (req, res) => {
+  try {
+    const { productId, variantId } = req.body;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.json({ status: "product_deleted" });
+    }
+
+    const variant = product.variants.id(variantId);
+
+    if (!variant || variant.isDeleted || !variant.isListed) {
+      return res.json({ status: "unavailable" });
+    }
+
+    return res.json({ status: "available" });
+
+  } catch (error) {
+    return res.status(500).json({ status: "error" });
+  }
+};
 
   
 
 
 
-module.exports={
+ const productController={
     loadShoppingPage,
     loadProductDetail,
-    addReview
+    addReview,
+    checkVariantStatus
 }
+export default  productController

@@ -1,320 +1,345 @@
 <%- include("../../views/partials/admin/header") %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customers</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <style>
-        :root {
-            --bg-dark: #0a0a0a;
-            --card-bg: #121212;
-            --text-light: #f0f0f0;
-            --text-muted: #fffcfc;
-            --gold: #e6c04a;
-            --gold-light: #f0d178;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --border: #2a2a2a;
-            --hover-bg: rgba(230, 192, 74, 0.08);
-        }
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-light);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        .page-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        .page-header h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.2rem;
-            font-weight: 700;
-            color: var(--gold);
-            margin: 0;
-            letter-spacing: 1px;
-        }
-        .page-header p {
-            color: var(--text-muted);
-            font-size: 1.15rem;
-            margin-top: 12px;
-        }
-        /* Search Bar */
-        .search-container {
-            max-width: 680px;
-            margin: 0 auto 50px;
-        }
-        .search-input-wrapper {
-            position: relative;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-        }
-        #searchInput {
-            width: 100%;
-            padding: 18px 60px 18px 56px;
-            font-size: 1.15rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            color: var(--text-light);
-            transition: all 0.4s ease;
-        }
-        #searchInput:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 0 4px rgba(230, 192, 74, 0.25);
-        }
-        .search-icon {
-            position: absolute;
-            left: 22px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gold);
-            font-size: 1.4rem;
-        }
-        /* Table Card */
-        .table-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--border);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        thead {
-            background: linear-gradient(to bottom, rgba(230, 192, 74, 0.12), transparent);
-        }
-        th {
-            padding: 24px 20px;
-            text-align: left;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-size: 0.85rem;
-            color: var(--gold);
-        }
-        td {
-            padding: 24px 20px;
-            border-top: 1px solid var(--border);
-             color:white
-        }
-        tr:hover {
-            background: var(--hover-bg);
-            transition: background 0.3s ease;
-        }
-        tr:nth-child(even) {
-            background: rgba(255, 255, 255, 0.02);
-        }
-        /* Buttons */
-        .action-btn {
-            padding: 12px 28px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            min-width: 120px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .action-btn.block {
-            background: var(--danger);
-            color: white
-        }
-        .action-btn.block:hover {
-            background: #dc2626;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
-        }
-        .action-btn.unblock {
-            background: var(--success);
-            color: white;
-        }
-        .action-btn.unblock:hover {
-            background: #16a34a;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
-        }
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 50px;
-        }
-        .pagination a {
-            padding: 14px 20px;
-            min-width: 52px;
-            text-align: center;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            color: var(--text-light);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.4s ease;
-        }
-        .pagination a:hover {
-            background: var(--gold);
-            color: #000;
-            border-color: var(--gold);
-            transform: translateY(-4px);
-            box-shadow: 0 6px 18px rgba(230, 192, 74, 0.3);
-        }
-        .pagination a.active {
-            background: var(--gold);
-            color: #000;
-            border-color: var(--gold);
-            font-weight: 700;
-        }
-        /* Responsive */
-        @media (max-width: 992px) {
-            .page-header h2 { font-size: 2.8rem; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { display: none; }
-            tr {
-                border-bottom: 3px solid var(--border);
-                margin-bottom: 24px;
-                border-radius: 16px;
-                overflow: hidden;
-                background: rgba(255, 255, 255, 0.03);
-            }
-            td {
-                border: none;
-                position: relative;
-                padding-left: 50%;
-                text-align: right;
-            }
-            td:before {
-                content: attr(data-label);
-                position: absolute;
-                left: 24px;
-                width: 45%;
-                font-weight: 600;
-                text-align: left;
-                color: var(--gold);
-            }
-            td:last-child { text-align: center; padding: 20px; }
-        }
-        @media (max-width: 576px) {
-            .page-header h2 { font-size: 2.4rem; }
-            #searchInput { padding: 16px 50px 16px 50px; font-size: 1.1rem; }
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h2>CUSTOMERS</h2>
-        <p>Manage and monitor registered users</p>
-    </div>
-    <!-- Search Bar -->
-    <div class="search-container">
-        <div class="search-input-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" placeholder="Search by name or email..." value="<%= typeof search !== 'undefined' ? search : '' %>">
-        </div>
-    </div>
-    <!-- Customers Table -->
-    <div class="table-card">
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th style="text-align: center;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% customers.forEach((cust)=>{ %>
-                    <tr>
-                        <td data-label="Name"><%= cust.name %></td>
-                        <td data-label="Email"><%= cust.email %></td>
-                        <td data-label="Actions" style="text-align: center;">
-                            <button class="action-btn <%= cust.isBlocked ? 'unblock' : 'block' %>"
-                                    data-id="<%= cust._id %>">
-                                <%= cust.isBlocked ? 'Unblock' : 'Block' %>
-                            </button>
-                        </td>
-                    </tr>
-                <% }) %>
-            </tbody>
-        </table>
-        <!-- Pagination -->
-        <% if (totalPages > 1) { %>
-        <div class="pagination">
-            <% for(let i = 1; i <= totalPages; i++) { %>
-                <a href="/admin/customers?page=<%= i %>&search=<%= encodeURIComponent(search || '') %>"
-                   class="<%= currentPage === i ? 'active' : '' %>">
-                   <%= i %>
-                </a>
-            <% } %>
-        </div>
-        <% } %>
-    </div>
+<style>
+  :root {
+    --color-gold: #d4af37;
+    --color-gold-hover: #c19a2e;
+    --color-dark: #1a1a1a;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-card-bg: #ffffff;
+    --color-light-bg: #f9fafb;
+    --radius-lg: 1rem;
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--color-light-bg);
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 120px auto 80px; /* Clears fixed header + space for footer */
+    padding: 0 20px;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid var(--color-gold);
+    display: inline-block;
+    padding-bottom: 0.5rem;
+  }
+
+  .table-wrapper {
+    background: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .search-bar {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .search-bar form {
+    position: relative;
+    width: 300px;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .search-bar input:focus {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  }
+
+  .search-bar input::placeholder {
+    color: var(--color-muted);
+  }
+
+  .search-bar .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-muted);
+    font-size: 1.1rem;
+  }
+
+  .customers-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .customers-table th,
+  .customers-table td {
+    padding: 1.2rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .customers-table th {
+    background: var(--color-dark);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+  }
+
+  .customers-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .customers-table tr:hover {
+    background: #f8f9fa;
+  }
+.pagination .page-link {
+  color: #d4af37;
+  border-radius: 8px;
+}
+
+.pagination .active .page-link {
+  background-color: #d4af37;
+  border-color: #d4af37;
+  color: white;
+}
+  /* Pagination Container */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  /* Pagination links */
+  .pagination a {
+    padding: 8px 12px;
+    margin: 2px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  /* Hover effect */
+  .pagination a:hover {
+    background-color: #d4af37; /* gold */
+    color: white;
+    border-color: #c19a2e;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  /* Active page */
+  .pagination a.active {
+    background-color: #1a1a1a; /* dark */
+    color: white;
+    border-color: #1a1a1a;
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .pagination a {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+    }
+  }
+
+  .action-btn {
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .action-btn.block {
+    background: #ef4444;
+    color: white;
+  }
+
+  .action-btn.block:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .action-btn.unblock {
+    background: #22c55e;
+    color: white;
+  }
+
+  .action-btn.unblock:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .no-customers {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .no-customers h4 {
+    font-size: 1.8rem;
+    color: var(--color-dark);
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 992px) {
+    .container {
+      margin: 100px auto 80px;
+    }
+  }
+</style>
+
+<div class="search-bar">
+  <div class="position-relative">
+    <i class="bi bi-search search-icon"></i>
+    <input type="text" name="search" id="searchInput" placeholder="Search by name or email..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+  </div>
 </div>
+
+<div class="container">
+  <h2 class="page-title">Customers</h2>
+
+  <% if (customers && customers.length > 0) { %>
+    <div class="table-wrapper">
+      <table class="customers-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th style="text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% customers.forEach((cust)=>{ %>
+            <tr>
+              <td><%= cust.name %></td>
+              <td><%= cust.email %></td>
+              <td style="text-align: center;">
+                <button class="action-btn <%= cust.isBlocked ? 'unblock' : 'block' %>"
+                        data-id="<%= cust._id %>">
+                  <%= cust.isBlocked ? 'Unblock' : 'Block' %>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+  <nav>
+    <ul class="pagination">
+
+     
+
+      <!-- Page Numbers -->
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+
+      
+
+    </ul>
+  </nav>
+</div>
+
+  <% } else { %>
+    <div class="no-customers">
+      <h4>No customers found</h4>
+      <p>No registered users match your search.</p>
+    </div>
+  <% } %>
+</div>
+
 <%- include("../../views/partials/admin/footer") %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    let debounceTimer;
-    document.getElementById("searchInput").addEventListener("keyup", function() {
-        clearTimeout(debounceTimer);
-        const searchTerm = this.value.trim();
-        debounceTimer = setTimeout(() => {
-            if (searchTerm === '') {
-                window.location.href = '/admin/customers';
-            } else {
-                window.location.href = `/admin/customers?search=${encodeURIComponent(searchTerm)}`;
-            }
-        }, 500);
+  let debounceTimeout;
+
+  const searchInput = document.getElementById('searchInput');
+
+  if (searchInput) {
+    searchInput.addEventListener('keyup', function() {
+      clearTimeout(debounceTimeout);
+
+      debounceTimeout = setTimeout(() => {
+        const query = this.value.trim();
+        if (query === '') {
+          window.location.href = '/admin/customers';
+        } else {
+          window.location.href = `/admin/customers?search=${encodeURIComponent(query)}`;
+        }
+      }, 500);
     });
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".action-btn").forEach((btn) => {
-            btn.addEventListener("click", async () => {
-                const userId = btn.dataset.id;
-                const isBlocked = btn.classList.contains("unblock");
-                const confirmText = isBlocked
-                    ? "Do you really want to unblock this user?"
-                    : "Do you really want to block this user?";
-                const ok = await swal({
-                    title: "Are you sure?",
-                    text: confirmText,
-                    icon: "warning",
-                    buttons: ["Cancel", "Yes"],
-                    dangerMode: true,
-                });
-                if (!ok) return;
-                try {
-                    const res = await fetch(`/admin/customers/block/${userId}`, { method: "POST" });
-                    const data = await res.json();
-                    if (data.success) {
-                        swal("Success", data.message, "success");
-                        btn.innerText = isBlocked ? "Block" : "Unblock";
-                        btn.classList.toggle("block");
-                        btn.classList.toggle("unblock");
-                    } else {
-                        swal("Error", data.error || "Something went wrong", "error");
-                    }
-                } catch (err) {
-                    swal("Error", "Server error!", "error");
-                }
-            });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".action-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const userId = btn.dataset.id;
+        const isBlocked = btn.classList.contains("unblock");
+
+        const result = await Swal.fire({
+          title: "Are you sure?",
+          text: isBlocked ? "Do you really want to unblock this user?" : "Do you really want to block this user?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+          cancelButtonText: "Cancel",
+          reverseButtons: true
         });
+
+        if (!result.isConfirmed) return;
+
+        try {
+          const res = await fetch(`/admin/customers/block/${userId}`, { method: "POST" });
+          const data = await res.json();
+
+          if (data.success) {
+            Swal.fire("Success", data.message, "success");
+            btn.innerText = isBlocked ? "Block" : "Unblock";
+            btn.classList.toggle("block");
+            btn.classList.toggle("unblock");
+          } else {
+            Swal.fire("Error", data.error || "Something went wrong", "error");
+          }
+        } catch (err) {
+          Swal.fire("Error", "Server error!", "error");
+        }
+      });
     });
+  });
 </script>
-</body>
-</html>

@@ -218,6 +218,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="wriston-card">
@@ -232,7 +233,7 @@
       <form id="loginform" method="POST" action="/login" novalidate>
         <div>
           <label>Email Address</label>
-          <input type="email" name="email" id="email" placeholder="you@example.com" required />
+          <input type="email" name="email" id="email" placeholder="you@example.com" value="<%= typeof email !== 'undefined' ? email : '' %>" required />
           <div id="error1" class="error-message"></div>
         </div>
 

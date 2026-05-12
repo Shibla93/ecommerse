@@ -1,0 +1,262 @@
+
+
+<style>
+body{
+font-family: Arial, sans-serif;
+background:#f5f5f5;
+}
+
+.invoice-container{
+width:210mm;
+min-height:297mm;
+margin:20px auto;
+background:#fff;
+padding:25mm;
+box-shadow:0 0 10px rgba(0,0,0,0.05);
+}
+
+.invoice-header{
+display:flex;
+justify-content:space-between;
+margin-bottom:30px;
+}
+
+.logo{
+width:120px;
+margin-bottom:10px;
+}
+
+.section-title{
+font-weight:bold;
+margin-top:20px;
+margin-bottom:8px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+table th{
+background:#f0f0f0;
+padding:10px;
+text-align:left;
+border-bottom:1px solid #ddd;
+}
+
+table td{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+.text-right{
+text-align:right;
+}
+
+.summary{
+width:40%;
+margin-left:auto;
+margin-top:20px;
+}
+
+.total-row{
+font-weight:bold;
+font-size:16px;
+border-top:2px solid #000;
+}
+
+.footer-note{
+margin-top:40px;
+font-size:13px;
+color:#555;
+}
+
+@media print{
+body{
+background:white;
+}
+
+.invoice-container{
+box-shadow:none;
+margin:0;
+}
+
+.btn{
+display:none;
+}
+
+@page{
+size:A4;
+margin:10mm;
+}
+}
+</style>
+
+
+<div class="invoice-container">
+
+<!-- HEADER -->
+<div class="invoice-header">
+
+<div>
+<!-- 
+<img src="/images/logo.png" class="logo"> -->
+
+<h4>WRISTON</h4>
+
+<p>
+123 Business Street<br>
+Kerala, India 670001<br>
+Email: support@watchnest.com<br>
+Phone: +91 9876543210
+</p>
+
+</div>
+
+<div>
+
+<h2>INVOICE</h2>
+
+<p>
+<strong>Invoice No:</strong> INV-<%= order.orderNumber %><br>
+<strong>Order No:</strong> <%= order.orderNumber %><br>
+<strong>Date:</strong> <%= new Date(order.createdAt).toLocaleDateString() %><br>
+<strong>Status:</strong> <%= order.orderStatus %>
+</p>
+
+</div>
+
+</div>
+
+
+<!-- BILLING ADDRESS -->
+<div class="section-title">Billing Address</div>
+
+<p>
+
+<strong><%= order.shippingAddress.name %></strong><br>
+
+
+
+<%= order.shippingAddress.city %>,
+<%= order.shippingAddress.state %><br>
+
+PIN : <%= order.shippingAddress.pincode %><br>
+
+Phone : <%= order.shippingAddress.phone %>
+
+</p>
+
+
+<!-- PRODUCT TABLE -->
+
+<div class="section-title">Order Details</div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Product</th>
+<th class="text-right">Price</th>
+<th class="text-right">Qty</th>
+<th class="text-right">Total</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<%
+let subtotal = 0;
+order.orderedItems.forEach(item=>{
+    if(!['cancelled'].includes(item.itemStatus)){
+let total = item.purchasedPrice * item.quantity;
+subtotal += total;
+%>
+
+<tr>
+
+<td><%= item.productId.product %></td>
+
+<td class="text-right">
+₹<%= item.purchasedPrice %>
+</td>
+
+<td class="text-right">
+<%= item.quantity %>
+</td>
+
+<td class="text-right">
+₹<%= total %>
+</td>
+
+</tr>
+
+<%} }) %>
+
+</tbody>
+
+</table>
+
+
+<!-- SUMMARY -->
+
+<div class="summary">
+
+<table>
+
+<tr>
+<td>Subtotal</td>
+<td class="text-right">₹<%= subtotal %></td>
+</tr>
+
+<tr>
+<td>Shipping</td>
+<td class="text-right">₹<%= order.shippingCharge || 0 %></td>
+</tr>
+<tr>
+<td>Tax</td>
+<td class="text-right">₹<%= order.tax || 0 %></td>
+</tr>
+
+
+<tr>
+<td>Discount</td>
+<td class="text-right">₹<%= order.couponDiscount || 0 %></td>
+</tr>
+
+<tr class="total-row">
+<td>Grand Total</td>
+<td class="text-right">
+₹<%= subtotal +(order.tax||0) +(order.shippingCharge || 0) - (order.couponDiscount || 0) %>
+</td>
+</tr>
+
+</table>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<div class="footer-note">
+
+Thank you for shopping with wriston.<br>
+
+This is a computer generated invoice.
+
+</div>
+
+
+<div style="margin-top:30px;">
+
+<button onclick="window.print()" class="btn btn-dark">
+Download / Print Invoice
+</button>
+
+</div>
+
+</div>
+

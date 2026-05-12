@@ -1,7 +1,6 @@
-const User=require("../../model/userSchema")
-const mongoose = require("mongoose");
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+import User from "../../model/userSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
 
 const getCustomer = async (req, res) => {
   try {
@@ -50,26 +49,6 @@ const getCustomer = async (req, res) => {
   }
 };
 
-// const blockCustomer=async(req,res)=>{
-//         try{
-    
-//         let userId=req.params.id
-//          const user=await User.findById(userId)
-//         if(check.isBlocked){
-//             const update=await User.updateOne({_id:userId},{$set:{isBlocked:false}})
-//             console.log(update)
-//             return res.json({success:true,message:Messages.USER_UNBLOCKED})
-            
-
-//          } else{
-//              const update=await User.updateOne({_id:userId},{$set:{isBlocked:true}})
-             
-//          return res.json({success:true,message:Messages.USER_BLOCKED})
-//         }
-//     }catch(error){
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
-//     }
-// }
 
 const blockCustomer = async (req, res) => {
   try {
@@ -77,7 +56,7 @@ const blockCustomer = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.USER_NOT_FOUND });
     }
 
     if (user.isBlocked) {
@@ -114,23 +93,8 @@ const blockCustomer = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports={
+const userController={
     getCustomer,
     blockCustomer
 }
+export default userController

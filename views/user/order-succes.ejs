@@ -1,0 +1,175 @@
+<%- include("../partials/user/sidebar") %>
+
+<div class="app-wrapper">
+  <%- include("../partials/user/header") %>
+
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== SIDEBAR & MAIN LAYOUT ===== */
+    .app-wrapper {
+      margin-left: 300px; /* Matches your sidebar width */
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.4s ease;
+    }
+
+    @media (max-width: 991px) {
+      .app-wrapper {
+        margin-left: 0;
+      }
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      flex: 1;
+      padding: 120px 0 100px; /* Clears fixed header + space for footer */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-container {
+      max-width: 700px;
+      width: 100%;
+      background: var(--color-card-bg);
+      padding: 4rem 2.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .success-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+      z-index: -1;
+    }
+
+    .success-icon {
+      width: 120px;
+      height: 120px;
+      background: var(--color-gold);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 10px 20px rgba(212,175,55,0.3);
+      font-size: 3rem;
+    }
+
+    .success-title {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--color-gold);
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .success-message {
+      font-size: 1.3rem;
+      color: var(--color-muted);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .success-btn {
+      display: inline-block;
+      padding: 0.9rem 2.2rem;
+      margin: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .btn-details {
+      background: var(--color-dark);
+      color: white;
+    }
+
+    .btn-details:hover {
+      background: #333;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-continue {
+      background: var(--color-gold);
+      color: white;
+    }
+
+    .btn-continue:hover {
+      background: var(--color-gold-hover);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    @media (max-width: 768px) {
+      .success-container {
+        padding: 2.5rem 1.5rem;
+        margin: 100px auto 80px;
+      }
+      .success-title {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+
+  <main class="main">
+    <div class="success-container">
+      <!-- Success Icon -->
+      <div class="success-icon">
+        <i class="bi bi-check2-circle"></i>
+      </div>
+
+      <!-- Thank You Message -->
+      <h1 class="success-title">Thank You!</h1>
+      <p class="success-message">
+        Your order has been successfully placed.<br>
+        We are preparing your items for shipment.
+      </p>
+
+      <!-- Buttons -->
+        <a href="/orders/<%= orderId %>" class="success-btn btn-details">
+  View Order Details
+</a>
+
+      <a href="/shop" class="success-btn btn-continue">
+        Continue Shopping
+      </a>
+    </div>
+  </main>
+
+ 
+</div>
+ <%- include("../partials/user/footer") %>

@@ -1,0 +1,394 @@
+<style>
+  :root {
+    --color-gold: #d4af37;
+    --color-gold-hover: #c19a2e;
+    --color-dark: #1a1a1a;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-card-bg: #ffffff;
+    --color-light-bg: #f9fafb;
+    --radius-lg: 1rem;
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  body {
+    font-family: 'Inter', 'Poppins', sans-serif;
+    background-color: var(--color-light-bg);
+    color: var(--color-dark);
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ===== Sidebar Wrapper Fix ===== */
+  .app-wrapper {
+    margin-left: 100px;
+    /* sidebar width */
+    min-height: 100vh;
+    transition: margin-left 0.4s ease;
+  }
+
+  @media (max-width: 991px) {
+    .app-wrapper {
+      margin-left: 0;
+    }
+  }
+
+  /* ===== Main Content ===== */
+  .main-content {
+    min-height: 100vh;
+    background-color: var(--color-light-bg);
+  }
+
+  /* ===== Container ===== */
+  .container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .content {
+    width: 100%;
+  }
+
+  /* ===== Page Header ===== */
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-subtitle {
+    color: var(--color-muted);
+    font-size: 1.1rem;
+  }
+
+  /* ===== Address Cards ===== */
+  .addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .address-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .address-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .address-type {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-gold);
+    margin-bottom: 0.75rem;
+    text-transform: capitalize;
+  }
+
+  .address-details {
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .address-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.3s ease;
+  }
+
+  .btn-edit {
+    border: 1px solid var(--color-gold);
+    color: var(--color-gold);
+  }
+
+  .btn-edit:hover {
+    background: var(--color-gold);
+    color: #fff;
+  }
+
+  .btn-delete {
+    border: 1px solid #dc2626;
+    color: #dc2626;
+  }
+
+  .btn-delete:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  .btn-add {
+    background: var(--color-gold);
+    color: #fff;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-add:hover {
+    background: var(--color-gold-hover);
+  }
+
+  /* ===== Empty State ===== */
+  .no-address {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+  .pagination {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 25px 0;
+  gap: 6px;
+}
+
+.pagination a {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--dark);
+}
+
+.pagination a.active {
+  background: var(--dark);
+  color: white;
+}
+
+  @media (max-width: 768px) {
+    .addresses-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  footer {
+    width: 100%;
+    margin-top: auto;
+  }
+  /* ================= RESPONSIVE FIXES ================= */
+
+/* Small laptops & tablets */
+@media (max-width: 992px) {
+  .container {
+    margin: 30px auto;
+    padding: 0 16px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 576px) {
+
+  /* Page header */
+  .page-title {
+    font-size: 1.6rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  /* Cards grid */
+  .addresses-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Address card */
+  .address-card {
+    padding: 1.2rem;
+  }
+
+  .address-details {
+    font-size: 0.95rem;
+    word-wrap: break-word;
+  }
+
+  /* Default badge wrap fix */
+  .address-type span {
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  /* Buttons stack */
+  .address-actions {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .address-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Add button full width */
+  .btn-add {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  /* Empty state */
+  .no-address {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .address-details {
+    font-size: 0.9rem;
+  }
+}
+
+</style>
+
+
+<%- include("../../views/partials/user/sidebar") %>
+
+  <div class="app-wrapper">
+
+    <%- include("../../views/partials/user/header") %>
+
+      <div class="main-content">
+        <div class="container">
+          <div class="content">
+
+            <div class="page-header">
+              <h1 class="page-title">Shipping Addresses</h1>
+              <p class="page-subtitle">Manage your delivery addresses</p>
+            </div>
+
+            <% if (userAddress.length===0) { %>
+              <div class="no-address">
+                <h3>No addresses saved yet</h3>
+                <p>Add a new address to speed up checkout and ensure smooth delivery.</p>
+                <br>
+                <a href="/addAddress">
+                  <button class="btn-add">+ Add New Address</button>
+                </a>
+              </div>
+              <% } else { %>
+
+                <div class="addresses-grid">
+                  <% userAddress.forEach((addr, index)=> { %>
+                    <div class="address-card">
+                      <div class="address-type">
+                        <%= addr.addressType %>
+                          <% if (index===0) { %>
+                            <span
+                              style="font-size:0.8rem;background:var(--color-gold);color:#fff;padding:0.3rem 0.8rem;border-radius:20px;margin-left:0.5rem;">
+                              Default
+                            </span>
+                            <% } %>
+                      </div>
+
+                      <div class="address-details">
+                        <strong>
+                          <%= addr.name %>
+                        </strong><br>
+                        <%= addr.houseName || addr.street %>
+                          <%= addr.city %><br>
+                            <%= addr.state %> - <%= addr.pincode %><br>
+                                Phone: <%= addr.phone %>
+                      </div>
+
+                      <div class="address-actions">
+                        <a href="/editAddress/<%= addr._id %>" class="btn btn-edit">Edit</a>
+                        <a href="javascript:void(0);" class="btn btn-delete"
+                          onclick="confirmDelete('<%= addr._id %>')">Delete</a>
+
+                      </div>
+                    </div>
+                    <% }) %>
+                </div>
+
+                <div style="text-align:center">
+                  <a href="/addAddress">
+                    <button class="btn-add">+ Add New Address</button>
+                  </a>
+                </div>
+
+                <% } %>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <% if (totalPages > 1) { %>
+  <div class="pagination">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+      <a href="?page=<%= i %>"
+         class="<%= i === currentPage ? 'active' : '' %>">
+        <%= i %>
+      </a>
+    <% } %>
+  </div>
+<% } %>
+
+      <%- include("../../views/partials/user/footer") %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+          function confirmDelete(addressId) {
+            Swal.fire({
+              title: 'Are you sure?',
+              text: "This address will be permanently deleted.",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, delete it!',
+              cancelButtonText: 'Cancel'
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                try {
+                  const response = await fetch(`/deleteAddress/${addressId}`, {
+                    method: 'DELETE'
+                  });
+
+                  const data = await response.json();
+
+                  if (data.success) {
+                    Swal.fire('Deleted!', data.message, 'success').then(() => {
+
+                      window.location.href = '/address';
+                    });
+                  } else {
+                    Swal.fire('Error!', data.message, 'error');
+                  }
+                } catch (err) {
+                  Swal.fire('Error!', 'Something went wrong.', 'error');
+                }
+              }
+            });
+          }
+        </script>

@@ -42,6 +42,9 @@
         .logo img {
             width: 100px;
         }
+        .form-group input {
+    padding-right: 40px;
+}
         .form-group {
             margin-bottom: 15px;
             text-align: left;
@@ -97,16 +100,21 @@
 
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" >
+                <input type="email" id="email" name="email" 
+  value="<%= typeof email !== 'undefined' ? email : '' %>" >
                 <div class="error" id="error1"></div>
                 
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" >
-                <div class="error" id="error2"></div>
+            <div class="form-group" style="position: relative;">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password">
+    
+    <i class="fa-solid fa-eye" id="togglePassword"
+       style="position:absolute; right:10px; top:38px; cursor:pointer; color:#aaa;">
+    </i>
 
-            </div>
+    <div class="error" id="error2"></div>
+</div>
             <div class="error">
               <%= typeof error !== "undefined" ? error : "" %>
              </div>
@@ -175,6 +183,19 @@ if (!emailValidate())
     e.preventDefault(); 
   }
 })
+
+
+const togglePassword = document.getElementById("togglePassword");
+const passwordField = document.getElementById("password");
+
+togglePassword.addEventListener("click", function () {
+    const type = passwordField.type === "password" ? "text" : "password";
+    passwordField.type = type;
+
+    this.classList.toggle("fa-eye");
+    this.classList.toggle("fa-eye-slash");
+});
+
 
 const errorMsg = "<%= typeof error !== 'undefined' ? error : '' %>";
 if (errorMsg) Swal.fire("Error", errorMsg, "error");

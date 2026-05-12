@@ -1,7 +1,6 @@
-const Messages = require("../constants/messages");
-const StatusCodes = require("../constants/StatusCodes");
-const User = require("../model/userSchema");
-
+import Messages from "../constants/messages.js";
+import StatusCodes from "../constants/StatusCodes.js";
+import User from "../model/userSchema.js";
 const userAuth = async (req, res, next) => {
   try {
     if (!req.session.user) {
@@ -22,7 +21,26 @@ const userAuth = async (req, res, next) => {
     return res.redirect("/login")
     }
   }
+// const userAuth = async (req, res, next) => {
+//   try {
+//     if (!req.session?.user) {
+//       return res.redirect("/login");
+//     }
 
+//     const user = await User.findById(req.session.user);
+
+//     if (!user || user.isBlocked || user.isAdmin) {
+//       return req.session.destroy(() => {
+//         res.redirect("/login");
+//       });
+//     }
+
+//     next();
+//   } catch (error) {
+//     console.log("userAuth error:", error);
+//     return res.redirect("/login");
+//   }
+// };
 
 
 const adminAuth = (req, res, next) => {
@@ -51,7 +69,7 @@ const adminAuth = (req, res, next) => {
 
 
 
-module.exports={
+export{
     userAuth,
     adminAuth,
     

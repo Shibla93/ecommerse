@@ -1,12 +1,11 @@
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+import Messages from '../../constants/messages.js';
+import StatusCodes from '../../constants/StatusCodes.js';
+import Brand from '../../model/brandSchema.js';
+import Category from '../../model/categorySchema.js';
+import Product from '../../model/productSchema.js';
 
+import cloudinary from '../../helpers/cloudinary.js';
 
-const Brand = require("../../model/brandSchema");
-const Category = require("../../model/categorySchema");
-const Product = require("../../model/productSchema");
-const mongoose = require("mongoose");
-const cloudinary = require('../../helpers/cloudinary');
 
 const addproduct = async (req, res) => {
   try {
@@ -23,13 +22,13 @@ const addproduct = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     
-    const { product, brand, description, strapMaterial, discount, productOffer } = req.body;
+    const { product, brand, description, strapMaterial,  productOffer } = req.body;
     
 
     
 
     
-    const parsedCategories = req.body.categories ? JSON.parse(req.body.categories) : [];
+    const category = req.body.category
 let parsedVariants = [];
 try {
     parsedVariants = req.body.variants ? JSON.parse(req.body.variants) : [];
@@ -39,9 +38,9 @@ try {
     return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: "Invalid variants format" });
 }
 
-if (!parsedVariants.length) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: Messages.VARIENT_REQUIRED });
-}
+// if (!parsedVariants.length) {
+//     return res.status(StatusCodes.BAD_REQUEST).json({ success:false, message: Messages.VARIENT_REQUIRED });
+// }
 
 
 
@@ -62,17 +61,14 @@ if (!parsedVariants.length) {
        return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:Messages.PRODUCT_BRAND_STRAPE });
     }
     
-    if (!parsedCategories || parsedCategories.length === 0){
-       return res.status(StatusCodes.BAD_REQUEST).json({success:false,message:Messages.CATOGORY_SELECT })
-    };
-
-    const discountVal = Number(discount);
-if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: "Discount must be a number between 0 and 100"
-    });
+   if (!category) {
+ return res.status(StatusCodes.BAD_REQUEST).json({
+   success:false,
+   message:"Category is required"
+ })
 }
+
+  
 
 // Validate productOffer
 const productOfferVal = Number(productOffer);
@@ -93,7 +89,7 @@ if (isNaN(productOfferVal) || productOfferVal < 0 || productOfferVal > 100) {
     if (!v.price || v.price <= 0) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Price must be greater than 0` });
     }
-    if (!v.stock || v.stock < 0) {
+   if (v.stock === undefined || v.stock < 0) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: `Variant ${i + 1}: Stock must be 0 or more` });
     }
     if (!v.images || v.images.length < 4) {
@@ -132,10 +128,10 @@ const newProduct = new Product({
   brand,
   description,
   strapMaterial,
-  discount,
+  
   productOffer,
   variants: parsedVariants,
-  categories: parsedCategories
+  category: category
 });
 
 await newProduct.save();
@@ -155,8 +151,13 @@ const getProduct = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const skip = (page - 1) * limit;
+    const baseMatch = {};
 
-    // 🔹 Build search match stage
+if (search) {
+  baseMatch.product = { $regex: search, $options: "i" };
+}
+
+
     const matchStage = {
       "variants.isDeleted": false
     };
@@ -164,15 +165,20 @@ const getProduct = async (req, res) => {
       matchStage.product = { $regex: search, $options: "i" };
     }
 
-    // 🔹 Count total products with non-deleted variants
+    
     const totalProductsArr = await Product.aggregate([
-      { $unwind: "$variants" },
-      { $match: matchStage },
-      { $group: { _id: "$_id" } } // unique products
-    ]);
+  { $unwind: "$variants" },
+  { $match: matchStage },
+  { $group: { _id: "$_id" } },
+  { $count: "total" }
+]);
 
-    const totalProducts = totalProductsArr.length;
-    const totalPages = Math.ceil(totalProducts / limit);
+const totalProducts = totalProductsArr[0]?.total || 0;
+const totalPages = Math.ceil(totalProducts / limit);
+
+//    const totalProducts = await Product.countDocuments(baseMatch);
+// const totalPages = Math.ceil(totalProducts / limit);
+
 
   
 
@@ -185,9 +191,9 @@ const getProduct = async (req, res) => {
      {
     $lookup: {
       from: "categories",
-      localField: "categories",
+      localField: "category",
       foreignField: "_id",
-      as: "categories"
+      as: "category"
     }
   },
   { $group: {
@@ -196,8 +202,7 @@ const getProduct = async (req, res) => {
       brand: { $first: "$brand" },
       description: { $first: "$description" },
       strapMaterial: { $first: "$strapMaterial" },
-      discount: { $first: "$discount" },
-      categories: { $first: "$categories" },
+      category: { $first: "$category" },
       variants: { $push: "$variants" },
       productOffer: { $first: "$productOffer" },
       createdAt: { $first: "$createdAt" },
@@ -239,7 +244,7 @@ const listProduct=async(req,res)=>{
     const variant=product.variants.id(variantId);
     
         if (!variant) {
-            return res.status(404).json({ success: false, message:Messages.VARIANT_NOTFOUD });
+            return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: Messages.VARIANT_NOT_FOUND });
         }
 
 
@@ -303,11 +308,11 @@ const getEditProduct = async (req, res) => {
     const product = await Product.findById(productId)
 
       .populate("brand")
-      .populate("categories")
+      .populate("category")
       ;
     console.log("Product found:", product);
     if (!product) {
-      return res.status(404).jsonjson({ success: false, message: Messages.PRODUCT_NOT_FOUND});
+      return res.status(404).json({ success: false, message: Messages.PRODUCT_NOT_FOUND});
     }
 
     product.variants = product.variants.filter(v => !v.isDeleted);
@@ -333,8 +338,7 @@ const getEditProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const { product, brand, description, strapMaterial, discount, productOffer } = req.body;
-
-    const parsedCategories = req.body.categories ? JSON.parse(req.body.categories) : [];
+const category = req.body.category
     let parsedVariants = [];
 
     try {
@@ -359,19 +363,15 @@ const getEditProduct = async (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "Strap material is required" });
     }
 
-    if (!parsedCategories.length) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "At least one category must be selected" });
-    }
-
     
-    // 🔹 Discount & Product Offer Validation
-    const discountVal = Number(discount);
-    if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: "Discount must be a number between 0 and 100"
-      });
-    }
+    
+    if (!category) {
+ return res.status(StatusCodes.BAD_REQUEST).json({
+   success:false,
+   message:"Category is required"
+ })
+}
+   
 
     const productOfferVal = Number(productOffer);
     if (isNaN(productOfferVal) || productOfferVal < 0 || productOfferVal > 100) {
@@ -471,14 +471,14 @@ if (stock > 10000) {
       }
     });
 
-    // 🔹 Update main product details
+  
     productDoc.product = product;
     productDoc.brand = brand;
     productDoc.description = description;
     productDoc.strapMaterial = strapMaterial;
-    productDoc.discount = discount;
+   
     productDoc.productOffer = productOffer;
-    productDoc.categories = parsedCategories;
+    productDoc.category = category;
 
     await productDoc.save();
 
@@ -497,7 +497,7 @@ if (stock > 10000) {
 
 
 
-module.exports = {
+const productController={
   addproduct,
   createProduct,
   getProduct,
@@ -506,3 +506,4 @@ module.exports = {
   getEditProduct,
   editProduct
 };
+export default productController

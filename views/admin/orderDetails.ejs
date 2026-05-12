@@ -1,0 +1,348 @@
+<%- include("../../views/partials/admin/header") %>
+
+<style>
+  :root {
+    --color-gold: #d4af37;
+    --color-gold-hover: #c19a2e;
+    --color-dark: #1a1a1a;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-card-bg: #ffffff;
+    --color-light-bg: #f9fafb;
+    --radius-lg: 1rem;
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--color-light-bg);
+    min-height: 100vh;
+  }
+
+  .order-details-container {
+    max-width: 1300px;
+    margin: 120px auto 80px; /* Clears fixed header + space for footer */
+    padding: 0 20px;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid var(--color-gold);
+    display: inline-block;
+    padding-bottom: 0.5rem;
+  }
+
+  .info-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .card-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--color-gold);
+    display: inline-block;
+    padding-bottom: 0.5rem;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .info-label {
+    font-weight: 600;
+    color: var(--color-dark);
+  }
+
+  .info-value {
+    color: var(--color-muted);
+  }
+
+  .status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    color: white;
+  }
+      .status-processing { background: #f59e0b; color: white; }
+    .status-shipped    { background: #3b82f6; color: white; }
+    .status-delivered  { background: #10b981; color: white; }
+    .status-cancelled  { background: #ef4444; color: white; }
+    .status-returned   { background: #8b5cf6; color: white; }
+    .status-return_requested { background: #f97316; color: white; }
+.status-cancel_requested { background: #f97316; color: white; }
+.status-payment_failed {
+  background: #ef4444;
+}
+
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .order-table th,
+  .order-table td {
+    padding: 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .order-table th {
+    background: var(--color-dark);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+
+  .order-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .total-row {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-gold);
+    border-top: 2px solid var(--color-gold);
+    padding-top: 1rem;
+    margin-top: 1rem;
+  }
+.action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.btn-approve {
+  background-color: #10b981; /* Green */
+}
+
+.btn-approve:hover {
+  background-color: #059669; /* Darker green on hover */
+  transform: translateY(-2px);
+}
+
+.btn-reject {
+  background-color: #ef4444; /* Red */
+}
+
+.btn-reject:hover {
+  background-color: #b91c1c; /* Darker red on hover */
+  transform: translateY(-2px);
+}
+  .back-btn {
+    display: inline-block;
+    padding: 0.8rem 1.8rem;
+    background: var(--color-dark);
+    color: white;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .back-btn:hover {
+    background: #333;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  @media (max-width: 992px) {
+    .order-details-container {
+      margin: 100px auto 80px;
+    }
+  }
+</style>
+
+
+
+<div class="order-details-container">
+  <h2 class="page-title">Order Details (Admin)</h2>
+
+  <!-- Order Info -->
+  <div class="info-card">
+    <h5 class="card-title">Order Info</h5>
+    <div class="info-row"><span class="info-label">Order Number:</span><span class="info-value"><%= order.orderNumber %></span></div>
+    <div class="info-row"><span class="info-label">Date:</span><span class="info-value"><%= order.createdAt.toDateString() %></span></div>
+    <div class="info-row"><span class="info-label">Payment Method:</span><span class="info-value"><%= order.paymentMethod %></span></div>
+    <div class="info-row"><span class="info-label">Payment Status:</span><span class="info-value"><%= order.paymentStatus %></span></div>
+    <div class="info-row"><span class="status-badge status-<%= order.displayStatus %>">
+  <%= order.displayStatus.replace('_', ' ') %>
+</span></div>
+  <% if(order.couponDiscount && order.couponDiscount > 0){ %>
+      <div class="info-row"><span class="info-label">Discount:</span><span class="info-value"> ₹<%= order.couponDiscount %> %></span></div>
+    <% } %>
+    <div class="info-row"><span class="info-label">Total Amount:</span><span class="info-value">₹<%= totalAmount %></span></div>
+  </div>
+
+  <!-- User Details -->
+  <div class="info-card">
+    <h5 class="card-title">User Details</h5>
+    <div class="info-row"><span class="info-label">Name:</span><span class="info-value"><%= order.userId.name %></span></div>
+    <div class="info-row"><span class="info-label">Email:</span><span class="info-value"><%= order.userId.email %></span></div>
+    <div class="info-row"><span class="info-label">Shipping Address:</span><span class="info-value"><%= order.shippingAddress.house %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></span></div>
+  </div>
+
+  <!-- Ordered Items -->
+  <div class="info-card">
+    <h5 class="card-title">Ordered Items</h5>
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Return Status</th>
+          <th>Admin Remark</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% order.orderedItems.forEach(item => { %>
+        <tr>
+          <td><%= item.productId.product %></td>
+          <td><%= item.quantity %></td>
+          <td>₹<%= item.purchasedPrice %></td>
+          <td>
+  <% if(order.paymentStatus === 'failed') { %>
+    <span class="status-badge status-payment_failed">
+      Payment Failed
+    </span>
+  <% } else { %>
+    <span class="status-badge status-<%= item.itemStatus %>">
+      <%= item.itemStatus %>
+    </span>
+  <% } %>
+</td>
+          <td>
+  <%= item.return?.status || "none" %>
+</td>
+<td>
+  <%= item.return?.adminRemark || "" %>
+</td>
+       <td>
+  <% if(item.itemStatus === "return_requested") { %>
+
+    <button class="action-btn btn-approve"
+      onclick="approveItem('<%= order._id %>','<%= item._id %>')">
+      Approve Return
+    </button>
+
+    <button class="action-btn btn-reject"
+      onclick="rejectItem('<%= order._id %>','<%= item._id %>')">
+      Reject
+    </button>
+
+  <% } else if(item.itemStatus === "cancel_requested") { %>
+
+    <button class="action-btn btn-approve"
+      onclick="approveCancel('<%= order._id %>','<%= item._id %>')">
+      Approve Cancel
+    </button>
+
+    <button class="action-btn btn-reject"
+      onclick="rejectItem('<%= order._id %>','<%= item._id %>')">
+      Reject
+    </button>
+
+  <% } else { %>
+    -
+  <% } %>
+</td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function approveItem(orderId, itemId) {
+  Swal.fire({
+    title: "Approve this request?",
+    icon: "question",
+    showCancelButton: true
+  }).then(result => {
+    if(result.isConfirmed){
+      fetch(`/admin/order/item/approve/${orderId}/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remark: "Approved by admin" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) location.reload();
+        else Swal.fire("Error", data.message, "error");
+      });
+    }
+  });
+}
+
+function rejectItem(orderId, itemId) {
+  Swal.fire({
+    title: "Reject this request?",
+    icon: "warning",
+    showCancelButton: true
+  }).then(result => {
+    if(result.isConfirmed){
+      fetch(`/admin/order/item/reject/${orderId}/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remark: "Rejected by admin" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) location.reload();
+        else Swal.fire("Error", data.message, "error");
+      });
+    }
+  });
+}
+function approveCancel(orderId, itemId) {
+  Swal.fire({
+    title: "Approve cancel request?",
+    icon: "question",
+    showCancelButton: true
+  }).then(result => {
+    if(result.isConfirmed){
+      fetch(`/admin/order/item/cancel/approve/${orderId}/${itemId}`, {
+        method: "PATCH"
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) location.reload();
+        else Swal.fire("Error", "Something went wrong", "error");
+      });
+    }
+  });
+}
+</script>
+
+<%- include("../../views/partials/admin/footer") %>
+

@@ -111,27 +111,31 @@
     transform: scale(1.1);
   }
 
-  .wishlist-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(255,255,255,0.9);
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-size: 1.3rem;
-    transition: all 0.3s;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
+  
+    .wishlist-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.9);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #999;
+      transition: all 0.3s;
+    }
 
-  .wishlist-btn:hover, .wishlist-btn.active {
-    color: #e74c3c;
-    background: white;
-  }
+    .wishlist-btn:hover,
+    .wishlist-btn.active {
+      color: #e74c3c;
+      background: white;
+    }
+
+
 
   .product-info {
     padding: 25px;
@@ -282,7 +286,12 @@
                 No Image
               </div>
             <% } %>
-            <a href="#" class="wishlist-btn"><i class="fa fa-heart"></i></a>
+       <a 
+  href="#" 
+  class="wishlist-btn <%= wishlistItems.includes(String(product._id)) ? 'active' : '' %>"
+  onclick="addToWishlist('<%= product._id %>', '<%= product.variants[0]._id %>', this)">
+  <i class="fa fa-heart"></i>
+</a>
           </div>
           <div class="product-info">
             <div>
@@ -299,7 +308,7 @@
 </section>
 
 <%- include("../../views/partials/user/footer.ejs") %>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
@@ -322,13 +331,34 @@
       if (bg) el.style.backgroundImage = `url(${bg})`;
     });
 
-    // Wishlist (your original code)
-    document.querySelectorAll(".wishlist-btn").forEach(btn => {
-      btn.addEventListener("click", function (e) {
-        e.preventDefault();
-        this.classList.toggle("active");
-        // Add your fetch code here if needed
-      });
-    });
-  });
+  })
+   function addToWishlist(productId, variantId, btn) {
+          fetch("/wishlist/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, variantId })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                btn.classList.add('active');
+                updateWishlistBadge(data.wishlistCount)
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Added to Wishlist ❤️',
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+              } else {
+                Swal.fire({
+                  icon: 'info',
+                  title: data.message || 'Already in wishlist',
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+              }
+            })
+            .catch(err => console.log(err));
+        }
+
 </script>

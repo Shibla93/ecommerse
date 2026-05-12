@@ -1,11 +1,11 @@
-const Brand=require("../../model/brandSchema.js")
-const mongoose = require("mongoose");
-const Messages = require('../../constants/messages');
-const StatusCodes = require("../../constants/StatusCodes");
+
+import Brand from "../../model/brandSchema.js";
+import Messages from "../../constants/messages.js";
+import StatusCodes from "../../constants/StatusCodes.js";
 
 const getBrand=async(req,res)=>{
     
-    
+    try{
         const search=req.query.search||""
         let query={}
         if(search){
@@ -24,9 +24,16 @@ const getBrand=async(req,res)=>{
     const totalBrands = await Brand.countDocuments(query);
      const totalPages = Math.ceil(totalBrands/ limit);
 
-        const brands = await (await Brand.find(query).sort({createdAt:-1}).skip(skip).limit(limit))
+        const brands = await Brand.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
         res.render("admin/brand",{brands,search,currentPage:page,totalPages
 })
+}catch(error){
+return res.status(
+StatusCodes.INTERNAL_SERVER_ERROR
+).json({
+message:Messages.INTERNAL_SERVER_ERROR
+})
+}
 }
 
 
@@ -66,10 +73,12 @@ const blockBrand=async(req,res)=>{
         if(check.isBlocked){
             const update=await Brand.updateOne({_id:id},{$set:{isBlocked:false}})
             console.log(update)
-            return res.json({success:true,message:"unblock"})
+            return res.json({success:true,message:Messages.BRAND_UNBLOCKED
+              
+            })
          } else{
              const update=await Brand.updateOne({_id:id},{$set:{isBlocked:true}})
-         return res.json({success:true,message:"block"})
+         return res.json({success:true,message:Messages.BRAND_BLOCKED})
         }
     }catch(error){
          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.INTERNAL_SERVER_ERROR });
@@ -85,10 +94,12 @@ const blockBrand=async(req,res)=>{
 
 
 
-module.exports={
+const brandController={
     getBrand,
     addBrand,
     blockBrand,
     
 
+
 }
+export default brandController

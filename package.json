@@ -1,9 +1,10 @@
 {
   "name": "watchstore",
   "version": "1.0.0",
+  "type": "module",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,17 +15,23 @@
     "connect-flash": "^0.1.1",
     "connect-mongo": "^4.6.0",
     "connect-redis": "^9.0.0",
+    "crypto": "^1.0.1",
     "dotenv": "^17.2.1",
     "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "ioredis": "^5.8.2",
+    "moment": "^2.30.1",
     "mongoose": "^8.19.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.5",
     "nodemon": "^3.1.10",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "pdfkit": "^0.17.2",
+    "razorpay": "^2.9.6",
+    "streamifier": "^0.1.1"
   }
 }

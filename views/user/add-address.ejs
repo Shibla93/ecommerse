@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Shipping Address</title>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --color-gold: #d4af37;
+      --color-gold-hover: #c19a2e;
+      --color-dark: #1a1a1a;
+      --color-muted: #6b7280;
+      --color-border: #e5e7eb;
+      --color-card-bg: #ffffff;
+      --color-light-bg: #f9fafb;
+      --radius-lg: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Poppins', sans-serif;
+      background: var(--color-light-bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== SIDEBAR & MAIN LAYOUT ===== */
+    .app-wrapper {
+      margin-left: 100px;
+      /* Space for fixed sidebar */
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.4s ease;
+    }
+
+    @media (max-width: 991px) {
+      .app-wrapper {
+        margin-left: 0;
+      }
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #fff;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      flex: 1;
+      padding: 40px 20px 60px;
+      /* Extra bottom padding for footer */
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .form-card {
+      background: var(--color-card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2.5rem;
+    }
+
+    .page-title {
+      font-size: 2.3rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: .5rem;
+      color: var(--color-dark);
+    }
+
+    .page-subtitle {
+      text-align: center;
+      color: var(--color-muted);
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: .5rem;
+      color: var(--color-dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: .85rem 1rem;
+      border-radius: .7rem;
+      border: 1px solid var(--color-border);
+      font-size: 1rem;
+      transition: border-color .3s, box-shadow .3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, .15);
+    }
+
+    .btn-submit {
+      background: var(--color-gold);
+      color: #fff;
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: .75rem;
+      border: none;
+      cursor: pointer;
+      display: block;
+      margin: 2.5rem auto 0;
+      transition: .3s ease;
+    }
+
+    .btn-submit:hover {
+      background: var(--color-gold-hover);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .error-text {
+      color: #dc2626;
+      font-size: 0.85rem;
+      margin-top: 0.35rem;
+    }
+
+
+    /* ===== FOOTER ===== */
+    footer {
+      width: 100%;
+      background: #111;
+      color: #fff;
+      padding: 30px 0;
+      text-align: center;
+      margin-top: auto;
+      /* Pushes footer to bottom if content is short */
+    }
+
+    @media (max-width: 768px) {
+      .form-card {
+        padding: 1.8rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .main-content {
+        padding: 30px 15px 60px;
+      }
+    }
+    /* ================= RESPONSIVE FIXES ================= */
+
+/* Small laptops & tablets */
+@media (max-width: 992px) {
+  .container {
+    margin: 30px auto;
+    padding: 0 16px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 576px) {
+
+  /* Page header */
+  .page-title {
+    font-size: 1.6rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  /* Cards grid */
+  .addresses-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Address card */
+  .address-card {
+    padding: 1.2rem;
+  }
+
+  .address-details {
+    font-size: 0.95rem;
+    word-wrap: break-word;
+  }
+
+  /* Default badge wrap fix */
+  .address-type span {
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  /* Buttons stack */
+  .address-actions {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .address-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Add button full width */
+  .btn-add {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  /* Empty state */
+  .no-address {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .page-title {
+    font-size: 1.4rem;
+  }
+
+  .address-details {
+    font-size: 0.9rem;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- SIDEBAR (Fixed on left) -->
+  <%- include("../../views/partials/user/sidebar") %>
+
+    <!-- MAIN WRAPPER -->
+    <div class="app-wrapper">
+
+      <!-- HEADER (Sticky top) -->
+      <%- include("../../views/partials/user/header") %>
+
+        <!-- PAGE CONTENT -->
+        <main class="main-content">
+          <div class="container">
+            <div class="form-card">
+
+              <h3 class="page-title">Add New Shipping Address</h3>
+              <p class="page-subtitle">Fill in the details below to save a new delivery address</p>
+
+              <form id="addressForm">
+
+                <div class="row">
+                  <div class="form-group">
+                    <label class="form-label">Address Type <span style="color: red;">*</span></label>
+                    <input type="text" class="form-control" id="addressType" name="addressType"
+                      placeholder="e.g. Home, Office">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Full Name <span style="color: red;">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="John Doe">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">City <span style="color: red;">*</span></label>
+                    <input type="text" class="form-control" id="city" name="city" placeholder="Mumbai">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group">
+                    <label class="form-label">Landmark (Optional)</label>
+                    <input type="text" class="form-control" id="landMark" name="landMark" placeholder="Near ABC Tower">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">State <span style="color: red;">*</span></label>
+                    <input type="text" class="form-control" id="state" name="state" placeholder="Maharashtra">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Pincode <span style="color: red;">*</span></label>
+                    <input type="number" class="form-control" id="pincode" name="pincode" placeholder="400001">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group">
+                    <label class="form-label">Phone Number <span style="color: red;">*</span></label>
+                    <input type="number" class="form-control" id="phone" name="phone" placeholder="9876543210">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Alternate Phone (Optional)</label>
+                    <input type="number" class="form-control" id="altphone" name="altphone" placeholder="9876543211">
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Save Address</button>
+
+              </form>
+
+            </div>
+          </div>
+        </main>
+
+        <!-- FOOTER (Always at bottom) -->
+       </div>
+
+    </div>
+    <!-- End app-wrapper -->
+    <%- include("../../views/partials/user/footer") %>
+
+    <!-- SweetAlert2 for validation -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Your existing validation script (make sure IDs match) -->
+    <script>
+      const form = document.getElementById("addressForm");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        if (!validateForm()) return;
+
+        submitAddress();
+      });
+
+      function showError(input, message) {
+        removeError(input);
+
+        const error = document.createElement("div");
+        error.className = "error-text";
+        error.innerText = message;
+
+        input.parentNode.appendChild(error);
+      }
+
+      function removeError(input) {
+        const error = input.parentNode.querySelector(".error-text");
+        if (error) error.remove();
+      }
+
+      function validateForm() {
+        let isValid = true;
+
+        const addressType = document.getElementById("addressType");
+        const name = document.getElementById("name");
+        const city = document.getElementById("city");
+        const landMark = document.getElementById("landMark");
+        const state = document.getElementById("state");
+        const pincode = document.getElementById("pincode");
+        const phone = document.getElementById("phone");
+        const altphone = document.getElementById("altphone");
+
+        const namePattern = /^[A-Za-z\s]+$/;
+        const pincodePattern = /^\d{6}$/;
+        const phonePattern = /^[6-9]\d{9}$/;
+
+        // Address Type
+        if (!addressType.value.trim()) {
+          showError(addressType, "Address type is required");
+          isValid = false;
+        }
+
+        // Name
+        if (!name.value.trim()) {
+          showError(name, "Full name is required");
+          isValid = false;
+        } else if (!namePattern.test(name.value.trim())) {
+          showError(name, "Only alphabets allowed");
+          isValid = false;
+        }
+
+        // City
+        if (!city.value.trim()) {
+          showError(city, "City is required");
+          isValid = false;
+        } else if (!namePattern.test(city.value.trim())) {
+          showError(city, "Only alphabets allowed");
+          isValid = false;
+        }
+
+        // Landmark (optional)
+        if (landMark.value.trim()) {
+          removeError(landMark);
+        }
+
+        // State
+        if (!state.value.trim()) {
+          showError(state, "State is required");
+          isValid = false;
+        } else if (!namePattern.test(state.value.trim())) {
+          showError(state, "Only alphabets allowed");
+          isValid = false;
+        }
+
+        // Pincode
+        if (!pincode.value.trim()) {
+          showError(pincode, "Pincode is required");
+          isValid = false;
+        } else if (!pincodePattern.test(pincode.value.trim())) {
+          showError(pincode, "Enter a valid 6-digit pincode");
+          isValid = false;
+        }
+
+        // Phone
+        if (!phone.value.trim()) {
+          showError(phone, "Phone number is required");
+          isValid = false;
+        } else if (!phonePattern.test(phone.value.trim())) {
+          showError(phone, "Enter a valid 10-digit phone number");
+          isValid = false;
+        }
+
+        // Alternate Phone (optional)
+        if (altphone.value.trim()) {
+          if (!phonePattern.test(altphone.value.trim())) {
+            showError(altphone, "Enter a valid 10-digit number");
+            isValid = false;
+          } else if (altphone.value === phone.value) {
+            showError(altphone, "Alternate number must be different");
+            isValid = false;
+          }
+        }
+
+        return isValid;
+      }
+
+      // Remove error while typing
+      document.querySelectorAll(".form-control").forEach(input => {
+        input.addEventListener("input", () => removeError(input));
+      });
+
+      async function submitAddress() {
+
+        const data = {
+          addressType: document.getElementById("addressType").value.trim(),
+          name: document.getElementById("name").value.trim(),
+          city: document.getElementById("city").value.trim(),
+          landMark: document.getElementById("landMark").value.trim(),
+          state: document.getElementById("state").value.trim(),
+          pincode: document.getElementById("pincode").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          altphone: document.getElementById("altphone").value.trim()
+        };
+
+        try {
+          const response = await fetch(window.location.pathname + window.location.search, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"   // ⭐ VERY IMPORTANT
+            },
+            body: JSON.stringify(data)
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Address saved successfully!",
+              confirmButtonColor: "#d4af37"
+            }).then(() => {
+          window.location.href = result.redirectUrl;
+            });
+          } else {
+            Swal.fire("Error", "Something went wrong", "error");
+          }
+
+        } catch (error) {
+          Swal.fire("Error", "Server error", "error");
+        }
+      }
+
+    </script>
+
+
+</body>
+
+</html>

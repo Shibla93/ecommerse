@@ -1,570 +1,832 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Titan Watch Store</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
 </head>
-<%- include("../../views/partials/user/header") %>
-<%- include("../../views/partials/user/sidebar") %>
+
 
 <style>
-/* Reset and Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  /* Colors */
-  --color-background: #ffffff;
-  --color-foreground: #1a1a1a;
-  --color-muted: #6b7280;
-  --color-muted-bg: #f9fafb;
-  --color-border: #e5e7eb;
-  --color-card: #ffffff;
-
-  /* Watch Colors */
-  --color-gold: #d4af37;
-  --color-gold-hover: #c19a2e;
-  --color-steel: #4b5563;
-  --color-steel-hover: #374151;
-  --color-bronze: #cd7f32;
-
-  /* Typography */
-  --font-serif: "Playfair Display", serif;
-  --font-sans: "Inter", sans-serif;
-
-  /* Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
-  --spacing-xl: 3rem;
-  --spacing-2xl: 4rem;
-  --spacing-3xl: 5rem;
-
-  /* Border Radius */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-body {
-  font-family: var(--font-sans);
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  line-height: 1.6;
-  min-height: 100vh;
-}
-.container {
-  min-height: 200vh;
-  background-color: var(--color-background);
-  display: flex;
-  justify-content: center;
-}
-
-
-.content-wrapper {
-  width: 100%;
-  max-width: 1100px;
-  padding: 3rem 2rem;
-}
-
-
-/* Page Header */
-.page-header {
-  text-align: center;
-  margin-bottom: var(--spacing-3xl);
-}
-
-.page-title {
-  font-family: var(--font-serif);
-  font-size: 3.5rem;
-  color: var(--color-foreground);
-  margin-bottom: var(--spacing-sm);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  color: var(--color-muted);
-  font-size: 1.125rem;
-}
-
-/* Profile Card */
-.profile-card {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  margin: 0 auto;
-  width: 100%;
-
-}
-
-/* Profile Avatar Section */
-.profile-avatar-section {
-  padding: var(--spacing-xl);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 1rem;
-}
-.form-footer {
-  padding: 2rem 3rem;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  justify-content: center;
-}
-.form-group {
-  width: 100%;
-}
-@media (max-width: 768px) {
-  .profile-form {
-    padding: 2rem 1.5rem;
+  /* Reset and Base Styles */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
-  .form-footer {
-    padding: 2rem 1.5rem;
+  :root {
+    /* Colors */
+    --color-background: #ffffff;
+    --color-foreground: #1a1a1a;
+    --color-muted: #6b7280;
+    --color-muted-bg: #f9fafb;
+    --color-border: #e5e7eb;
+    --color-card: #ffffff;
+
+    /* Watch Colors */
+    --color-gold: #d4af37;
+    --color-gold-hover: #c19a2e;
+    --color-steel: #4b5563;
+    --color-steel-hover: #374151;
+    --color-bronze: #cd7f32;
+
+    /* Typography */
+    --font-serif: "Playfair Display", serif;
+    --font-sans: "Inter", sans-serif;
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-2xl: 4rem;
+    --spacing-3xl: 5rem;
+
+    /* Border Radius */
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
-}
 
-.avatar-container {
-  position: relative;
-}
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
 
-.avatar-wrapper {
-  width: 10rem;
-  height: 10rem;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  border: 4px solid var(--color-gold);
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.3s ease;
-}
+  .container {
+    min-height: 100vh;
+    background-color: var(--color-background);
+    display: flex;
+    justify-content: center;
+  }
 
-.avatar-wrapper:hover {
-  transform: scale(1.05);
-}
 
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--color-gold), var(--color-bronze));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 3rem;
-  font-family: var(--font-serif);
-}
-
-.avatar-upload-btn {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  width: 3rem;
-  height: 3rem;
-  background-color: var(--color-gold);
-  border: none;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-lg);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: white;
-}
-
-.avatar-upload-btn:hover {
-  background-color: var(--color-gold-hover);
-  transform: scale(1.1);
-}
-
-.profile-name {
-  margin-top: var(--spacing-md);
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: var(--color-foreground);
-}
-
-/* Profile Form */
-.profile-form {
-  padding: var(--spacing-xl);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-}
-
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.form-label svg {
-  color: var(--color-gold);
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  padding-left: 3rem;
-  background-color: rgba(249, 250, 251, 0.3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-foreground);
-  font-size: 1rem;
-  font-family: var(--font-sans);
-  transition: all 0.3s ease;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
-}
-
-.form-input.editable {
-  background-color: var(--color-background);
-}
-
-.input-icon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-muted);
-}
-
-.button-group {
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-xs);
-  align-items: center;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-outline {
-  background-color: transparent;
-  border: 1px solid var(--color-gold);
-  color: var(--color-gold);
-}
-
-.btn-outline:hover {
-  background-color: var(--color-gold);
-  color: white;
-}
-
-.btn-steel {
-  background-color: var(--color-steel);
-  color: white;
-}
-
-.btn-steel:hover {
-  background-color: var(--color-steel-hover);
-}
-
-.btn-primary {
-  background-color: var(--color-gold);
-  color: white;
-  padding: 1.25rem 3rem;
-  font-size: 1.125rem;
-  box-shadow: var(--shadow-lg);
-}
-
-.btn-primary:hover {
-  background-color: var(--color-gold-hover);
-  box-shadow: var(--shadow-xl);
-}
-
-.google-badge {
-  display: flex;
-  align-items: center;
-  font-size: 0.875rem;
-  color: var(--color-muted);
-}
-/*  */
-
-/* Responsive Design */
-@media (min-width: 768px) {
   .content-wrapper {
-    padding: var(--spacing-3xl) var(--spacing-md);
+    width: 100%;
+    max-width: 1100px;
+    padding: 3rem 2rem;
+  }
+
+
+  /* Page Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: var(--spacing-3xl);
   }
 
   .page-title {
-    font-size: 4rem;
+    font-family: var(--font-serif);
+    font-size: 3.5rem;
+    color: var(--color-foreground);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
+  .page-subtitle {
+    color: var(--color-muted);
+    font-size: 1.125rem;
+  }
+
+  /* Profile Card */
+  .profile-card {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin: 0 auto;
+    width: 100%;
+
+  }
+
+  /* Profile Avatar Section */
   .profile-avatar-section {
-    padding: var(--spacing-2xl) var(--spacing-3xl);
-  }
-.profile-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-  .profile-form {
-    padding: var(--spacing-2xl) var(--spacing-3xl);
+    padding: var(--spacing-xl);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
   }
 
   .form-footer {
-    padding: var(--spacing-2xl) var(--spacing-3xl);
+    padding: 2rem 3rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: center;
   }
-}
 
-@media (max-width: 767px) {
-  .page-title {
-    font-size: 2.5rem;
+  .form-group {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .profile-form {
+      padding: 2rem 1.5rem;
+    }
+
+    .form-footer {
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  .avatar-container {
+    position: relative;
+  }
+
+  .avatar-wrapper {
+    width: 10rem;
+    height: 10rem;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    border: 4px solid var(--color-gold);
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.3s ease;
+  }
+
+  .avatar-wrapper:hover {
+    transform: scale(1.05);
+  }
+
+  .avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--color-gold), var(--color-bronze));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    font-family: var(--font-serif);
+  }
+
+  .avatar-upload-btn {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    width: 3rem;
+    height: 3rem;
+    background-color: var(--color-gold);
+    border: none;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+  }
+
+  .avatar-upload-btn:hover {
+    background-color: var(--color-gold-hover);
+    transform: scale(1.1);
+  }
+
+  .profile-name {
+    margin-top: var(--spacing-md);
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    color: var(--color-foreground);
+  }
+
+  /* Profile Form */
+  .profile-form {
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .form-label svg {
+    color: var(--color-gold);
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-left: 3rem;
+    background-color: rgba(249, 250, 251, 0.3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground);
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+  }
+
+  .form-input.editable {
+    background-color: var(--color-background);
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-muted);
   }
 
   .button-group {
-    flex-direction: column;
-    align-items: flex-start;
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
+    align-items: center;
   }
-}
-</style>
-<body>
-    <div class="main-content">
-    <div class="profile-container">
-        <div class="content-wrapper">
 
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+
+    font-family: var(--font-sans);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline {
+    background-color: var(--color-foreground);
+    border: 1px solid var(--color-gold);
+    color: var(--color-gold);
+  }
+
+  .btn-outline:hover {
+    background-color: var(--color-gold);
+    color: white;
+  }
+
+  .btn-steel {
+    background-color: var(--color-steel);
+    color: white;
+  }
+
+  .btn-steel:hover {
+    background-color: var(--color-steel-hover);
+  }
+
+  .btn-primary {
+    background-color: var(--color-gold);
+    color: white;
+    padding: 1.25rem 3rem;
+    font-size: 1.125rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-gold-hover);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .google-badge {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  /*  */
+
+  /* Responsive Design */
+  @media (min-width: 768px) {
+    .content-wrapper {
+      padding: var(--spacing-3xl) var(--spacing-md);
+    }
+
+    .page-title {
+      font-size: 4rem;
+    }
+
+    .profile-avatar-section {
+      padding: var(--spacing-2xl) var(--spacing-3xl);
+    }
+
+    .profile-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .profile-form {
+      padding: var(--spacing-2xl) var(--spacing-3xl);
+    }
+
+    .form-footer {
+      padding: var(--spacing-2xl) var(--spacing-3xl);
+    }
+  }
+
+  .section-title {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-gold);
+    display: inline-block;
+  }
+
+  /* Responsive adjustments */
+  @media (min-width: 768px) {
+    .content-wrapper {
+      padding: var(--spacing-3xl) var(--spacing-md);
+    }
+
+    .page-title {
+      font-size: 4rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+  }
+
+  /* Password Card Specific */
+  .password-form .form-input {
+    background-color: rgba(249, 250, 251, 0.3);
+  }
+
+  .password-form .form-input.editable {
+    background-color: var(--color-background);
+  }
+
+  .password-error {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .page-title {
+      font-size: 2.5rem;
+    }
+
+    .button-group {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--color-muted);
+    font-size: 1rem;
+  }
+
+  .toggle-password:hover {
+    color: var(--color-gold);
+  }
+</style>
+
+<body>
+
+  <%- include("../../views/partials/user/sidebar") %>
+    <div class="main-content">
+      <div class="profile-container">
+        <div class="content-wrapper">
+          <%- include("../../views/partials/user/header") %>
             <!-- Page Header -->
             <div class="page-header">
-                <h1 class="page-title">My Profile</h1>
-                <p class="page-subtitle">Manage your personal information with elegance</p>
+              <h1 class="page-title">My Profile</h1>
+              <p class="page-subtitle">Manage your personal information with elegance</p>
             </div>
 
             <!-- Content Card -->
             <div class="profile-card">
+              <form id="profileForm" class="profile-form" action="/userProfile" method="POST"
+                enctype="multipart/form-data">
                 <!-- Profile Avatar Section -->
                 <div class="profile-avatar-section">
-                    <div class="avatar-container">
-                        <div class="avatar-wrapper">
-                            <% if (user.hasCustomImage) { %>
-                                <img src="<%= user.profileImage %>" alt="Profile" class="avatar-image">
-                            <% } else { %>
-                                <div class="avatar-placeholder">
-                                    <%= user.name.charAt(0) %>
-                                </div>
-                            <% } %>
-                        </div>
-
-                        <!-- Upload Button -->
-                        <button class="avatar-upload-btn" onclick="handleImageUpload()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                <circle cx="12" cy="13" r="4"></circle>
-                            </svg>
-                        </button>
-                        <input type="file" id="dp" name="profileImage"accept="image/*" style="display: none;">
+                  <div class="avatar-container">
+                    <div class="avatar-wrapper">
+                      <% if (user.hasCustomImage) { %>
+                        <img src="<%= user.profileImage %>" alt="Profile" class="avatar-image">
+                        <% } else { %>
+                          <div class="avatar-placeholder">
+                            <%= user.name.charAt(0).toUpperCase() %>
+                          </div>
+                          <% } %>
                     </div>
 
-                    <h2 class="profile-name"><%= user.name %></h2>
+                    <!-- Upload Button -->
+                    <button type="button" class="avatar-upload-btn" onclick="handleImageUpload()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z">
+                        </path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                    </button>
+
+
+                    <input type="file" id="dp" name="profileImage" accept="image/*" style="display: none;">
+                    <small id="imageError" style="color:red; display:none;"></small>
+
+
+                  </div>
+
+                  <h2 class="profile-name">
+                    <%= user.name %>
+                  </h2>
                 </div>
 
                 <!-- Form Fields -->
-                <form id="profileForm" class="profile-form" action="/userprofile"
-  method="POST"
-  enctype="multipart/form-data">
-                    <!-- Full Name -->
-                    <div class="form-group">
-                        <label class="form-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            Full Name
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="text" name="name" value="<%= user.name %>" readonly class="form-input">
-                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                        </div>
-                    </div>
 
-                    <!-- Email -->
-                    <div class="form-group">
-                        <label class="form-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                            </svg>
-                            Email Address
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="email" name="email" value="<%= user.email %>" readonly class="form-input">
-                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                            </svg>
-                        </div>
-                        <div class="button-group">
-                            <button type="button" class="btn btn-outline" onclick="changeEmail()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
-                                </svg>
-                                Change Email
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Phone -->
-                    <div class="form-group">
-                        <label class="form-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                            Phone Number
-                        </label>
-                        <div class="input-wrapper">
-                            <input type="tel" name="phone" id="phone" value="<%= user.phone %>" placeholder="e.g. +91 1234567890" class="form-input editable">
-                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <!-- Password -->
-                    <div class="form-group">
-                        <label class="form-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            Password
-                        </label>
-                        <div class="button-group">
-                            <button type="button" class="btn btn-steel" onclick="changePassword()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"></path>
-                                    <path d="m21 2-9.6 9.6"></path>
-                                    <circle cx="7.5" cy="15.5" r="5.5"></circle>
-                                </svg>
-                                Change Password
-                            </button>
-                            <% if (user.isGoogleUser) { %>
-                                <span class="google-badge">Account linked with Google</span>
-                            <% } %>
-                        </div>
-                    </div>
-                </form>
-
-                <!-- Save Button -->
-                <div class="form-footer">
-                    <button type="submit" form="profileForm" class="btn btn-primary">
-                        Save Changes
-                    </button>
+                <!-- Full Name -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Full Name
+                  </label>
+                  <div class="input-wrapper">
+                    <input type="text" name="name" value="<%= user.name %>" readonly class="form-input">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
                 </div>
-           
+
+                <!-- Email -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                    Email Address
+                  </label>
+                  <div class="input-wrapper">
+                    <input type="email" name="email" value="<%= user.email %>" readonly class="form-input">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                    </svg>
+                  </div>
+                  <div class="button-group">
+                    <button type="button" class="btn btn-outline">
+                      <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
+                                </svg> -->
+                      <a href="/change-email" class="btn btn-seconadary">
+                        <i class="fas fa-edit"></i> Change Email
+                      </a>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                      </path>
+                    </svg>
+                    Phone Number
+                  </label>
+                  <div class="input-wrapper">
+                    <input type="tel" name="phone" id="phone" value="<%= user.phone %>"
+                      placeholder="e.g. +91 1234567890" class="form-input editable">
+                    <small id="phoneError" style="color:red; display:none;"></small>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                      </path>
+                    </svg>
+                  </div>
+                </div>
+               <div class="form-group">
+  <label class="form-label">
+    🎁 Referral Code
+  </label>
+
+  <div class="input-wrapper" style="display:flex; gap:10px;">
+    
+    <input 
+      type="text" 
+   value="<%= user.referralCode || '' %>"
+      readonly 
+      class="form-input"
+      style="flex:1; font-weight:bold; letter-spacing:2px;"
+    >
+
+    <button type="button" class="btn btn-outline" onclick="copyReferral()">
+      Copy
+    </button>
+
+  </div>
+
+  <small style="color: var(--color-muted);">
+    Share this code with friends & earn rewards 🎉
+  </small>
+</div>
+<div class="form-group">
+  <!-- <label>Total Rewards</label>
+  <p>₹<%= user.referralRewards.length * 100 %></p>
+</div> -->
+                <!-- Password -->
+
+                <div class="form-footer">
+                  <button type="submit" form="profileForm" class="btn btn-dark">
+                    Save Changes
+                  </button>
+                </div>
+
+
+            </div>
+            </form>
+
+            <!-- Save Button -->
+
 
             <!-- Additional Info -->
-           
+
+
+            <div class="profile-card">
+              <div style="padding: var(--spacing-xl); text-align: center;">
+                <h2 class="section-title">Change Password</h2>
+              </div>
+
+              <% if (user.isGoogleUser) { %>
+                <div style="padding: var(--spacing-xl); text-align: center;">
+                  <p class="google-badge" style="font-size: 1rem; color: var(--color-muted);">Your account is linked
+                    with Google. Password changes are managed through your Google account.</p>
+                </div>
+                <% } else { %>
+                  <form id="passwordForm" class="profile-form password-form" action="/change-password" method="POST">
+                    <div class="form-group">
+                      <label class="form-label">Current Password</label>
+                      <div class="input-wrapper">
+                        <input type="password" name="currentPassword" class="form-input editable">
+                        <span class="toggle-password" onclick="togglePassword('currentPassword')">
+                          <i class="fas fa-eye"></i>
+                        </span>
+                        <small class="password-error" id="currentError"></small>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">New Password</label>
+                      <div class="input-wrapper">
+                        <input type="password" name="newPassword" class="form-input editable">
+                        <span class="toggle-password" onclick="togglePassword('newPassword')">
+                          <i class="fas fa-eye"></i>
+                        </span>
+                        <small class="password-error" id="newError"></small>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Confirm New Password</label>
+                      <div class="input-wrapper">
+                        <input type="password" id="" name="confirmPassword" class="form-input editable">
+                        <span class="toggle-password" onclick="togglePassword('confirmPassword')">
+                          <i class="fas fa-eye"></i>
+                        </span>
+                        <small class="password-error" id="confirmError"></small>
+                      </div>
+                    </div>
+
+                    <div class="form-footer">
+                      <button type="submit" class="btn btn-dark">Change Password</button>
+                      <a href="/forgotpass" style="margin-left: var(--spacing-md); color: var( --color-bronze);">Forgot
+                        Password?</a>
+                    </div>
+                  </form>
+                  <% } %>
+                 
+            
+            </div>
+           </div>
         </div>
+      </div>
     </div>
-</div>
+    
+  </div>
+      
+    
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="/js/script.js"></script>
 
-    <script>
+      <script>
 
         function handleImageUpload() {
-    document.getElementById("dp").click();
-  }
-document.getElementById("dp").addEventListener("change", function (event) {
-    const file = event.target.files[0];
+          document.getElementById("dp").click();
+        }
+        document.getElementById("dp").addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          const error = document.getElementById("imageError");
+          if (!file) return
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const avatarWrapper = document.querySelector(".avatar-wrapper");
-        avatarWrapper.innerHTML = `
-          <img src="${e.target.result}" class="avatar-image" />
-        `;
-      };
-      reader.readAsDataURL(file);
-    }
+          if (!file.type.startsWith("image/")) {
+            error.innerText = "Only image files allowed";
+            error.style.display = "block";
+            e.target.value = "";
+            return;
+          }
+
+          // Size check (2MB)
+          if (file.size > 2 * 1024 * 1024) {
+            error.innerText = "Image must be less than 2MB";
+            error.style.display = "block";
+            e.target.value = "";
+            return;
+          }
+          error.style.display = "none";
+
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              const avatarWrapper = document.querySelector(".avatar-wrapper");
+              avatarWrapper.innerHTML = `
+    <img src="${event.target.result}" class="avatar-image" />
+  `;
+            };
+
+            reader.readAsDataURL(file);
+          }
+        });
+
+        const phoneInput = document.getElementById("phone");
+        const phoneError = document.getElementById("phoneError");
+
+        function validatePhone() {
+          const phone = phoneInput.value.trim();
+          const pattern = /^[6-9]\d{9}$/;
+
+          if (phone === "") {
+            phoneError.innerText = "Phone number is required";
+            phoneError.style.display = "block";
+            return false;
+          }
+
+          if (!pattern.test(phone)) {
+            phoneError.innerText = "Enter valid 10 digit Indian phone number";
+            phoneError.style.display = "block";
+            return false;
+          }
+
+          phoneError.style.display = "none";
+          return true;
+        }
+        function togglePassword(fieldId) {
+          const input = document.getElementById(fieldId);
+          const icon = input.nextElementSibling.querySelector("i");
+
+          if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+          } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+          }
+        }
+
+
+        document.getElementById("profileForm").addEventListener("submit", function (e) {
+          if (!validatePhone()) {
+            e.preventDefault(); // stop submit
+          }
+        });
+        document.getElementById("passwordForm")?.addEventListener("submit", function (e) {
+          const current = document.querySelector("[name='currentPassword']").value;
+          const newPass = document.querySelector("[name='newPassword']").value;
+          const confirm = document.querySelector("[name='confirmPassword']").value;
+
+          let valid = true;
+
+          if (!current) {
+            document.getElementById("currentError").textContent = "Current password is required";
+            document.getElementById("currentError").style.display = "block";
+            valid = false;
+          }
+
+          if (newPass.length < 8) {
+            document.getElementById("newError").textContent = "New password must be at least 8 characters";
+            document.getElementById("newError").style.display = "block";
+            valid = false;
+          }
+
+          if (newPass !== confirm) {
+            document.getElementById("confirmError").textContent = "Passwords do not match";
+            document.getElementById("confirmError").style.display = "block";
+            valid = false;
+          }
+
+          if (!valid) e.preventDefault();
+        }); 
+          <% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
+            Swal.fire({
+              icon: "<%= success ? 'success' : 'error' %>",
+              title: "<%= success ? 'Success' : 'Error' %>",
+              text: "<%= message %>",
+              confirmButtonColor: "#d4af37"
+            });
+  <% } %>
+
+  
+function copyReferral() {
+  const code = "<%= user.referralCode %>";
+  navigator.clipboard.writeText(code);
+
+  Swal.fire({
+    icon: "success",
+    title: "Copied!",
+    text: "Referral code copied",
+    timer: 1500,
+    showConfirmButton: false
   });
+}
 
-  let phoneId=document.getElementById("phone");
-  
+      </script>
 
- 
-  function phoneValidate(){
-    let phoneval=phoneId.value.trim();
-    let phonepattern= /^[6-9]\d{9}$/;
-    if(phoneval===""){
-      er3.style.display="block";
-      er3.innerHTML="phone number is required";
-      return false;
-    }else if(!phonepattern.test(phoneval)){
-       er3.style.display="block"
-       er3.innerHTML="invalid phone number";
-       return false;
-    }else{
-      er3.style.display="none";
-      return true;
-    }
-
-  }
-  
-    </script>
 </body>
+
 </html>
