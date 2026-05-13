@@ -75,13 +75,13 @@ app.use("/admin",adminSession,adminRouter)
 app.use("/",userSession,setLocals,userRouter);
 
 app.use(errorHandler);
-
 const PORT = process.env.PORT || 3000;
-
 dbConnect().then(() => {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log("🚀 Server running on port", PORT);
+  app.listen(process.env.PORT, () => {
+    console.log(`🚀 Server running on port ${process.env.PORT}`);
   });
 });
+
+
 
 export default app;
