@@ -50,6 +50,8 @@ const adminSession = session({
         path: "/admin"
   },
 });
+
+app.use(userSession);
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -70,9 +72,11 @@ app.use((req,res,next)=>{
   res.set('cache-control','no-store')
   next()
 })
+app.use(setLocals);
+app.use("/", userRouter);
 
 app.use("/admin",adminSession,adminRouter)
-app.use("/",userSession,setLocals,userRouter);
+
 
 app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
