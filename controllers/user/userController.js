@@ -19,6 +19,7 @@ const pageNotFound=async(req,res)=>{
     try{
         res.status(404).render("error")
     }catch(error){
+      console.log(error)
         res.status(500).send("Internal Server Error")
     }
 }
@@ -85,6 +86,7 @@ const home = async (req, res) => {
       userData = await User.findById(userId).lean();
     }
 let wishlistItems = [];
+
 
 if (userId) {
   const wishlist = await Wishlist.findOne({ userId });
