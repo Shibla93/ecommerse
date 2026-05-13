@@ -50,8 +50,8 @@ const adminSession = session({
         path: "/admin"
   },
 });
-// app.use(passport.initialize())
-// app.use(passport.session())
+app.use(passport.initialize())
+app.use(passport.session())
 
 
 app.set("view engine", "ejs");
