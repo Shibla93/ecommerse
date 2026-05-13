@@ -79,66 +79,76 @@ async function sendVerificationEmail(email, otp) {
 // 
 const home = async (req, res) => {
   try {
-   
-    let userData = null;
+
     const userId = req.session.user;
+
+    const userData = userId
+      ? await User.findById(userId).lean()
+      : null;
+
+    let wishlistItems = [];
+
     if (userId) {
-      userData = await User.findById(userId).lean();
+      const wishlist = await Wishlist.findOne({ userId }).lean();
+
+      wishlistItems = wishlist?.items?.map(item =>
+        String(item.productId)
+      ) || [];
     }
-let wishlistItems = [];
 
+    const [categories, brands, productsData] = await Promise.all([
+      Category.find({ isListed: true }).lean(),
+      Brand.find({ isBlocked: false }).lean(),
+      Product.find({
+        "variants.isDeleted": false,
+        "variants.isListed": true
+      })
+        .populate("brand")
+        .populate("category")
+        .sort({ createdAt: -1 })
+        .lean()
+    ]);
 
-if (userId) {
-  const wishlist = await Wishlist.findOne({ userId });
-  if (wishlist) {
-    wishlistItems = wishlist.items.map(item => String(item.productId));
-  }
-}
-    const categories = await Category.find({ isListed: true }).lean();
-    const brands = await Brand.find({ isBlocked: false }).lean();
+    const products = productsData
+      .filter(product => {
+        if (!product.brand || product.brand.isBlocked) return false;
 
-  
-    let products = await Product.find({ "variants.isDeleted": false, "variants.isListed": true })
-      .populate("brand")
-      .populate("category")
-      .sort({ createdAt: -1 })
-      .lean();
+        if (!product.category || !product.category.isListed)
+          return false;
 
-    
-    products = products.filter(p => {
-      if (!p.brand || p.brand.isBlocked) return false;
+        const validVariant = product.variants.find(
+          v => !v.isDeleted && v.isListed
+        );
 
-     if (!p.category || !p.category.isListed) return false;
+        if (!validVariant) return false;
 
+        product.variants = [validVariant];
 
-      
-      const validVariants = p.variants.filter(v => !v.isDeleted && v.isListed);
-      if (validVariants.length === 0) return false;
+        product.displayImage =
+          validVariant.images?.[0]?.croppedUrl ||
+          validVariant.images?.[0]?.originalUrl ||
+          null;
 
-      p.variants = [validVariants[0]]; 
-      p.displayImage = validVariants[0].images.length > 0 
-        ? (validVariants[0].images[0].croppedUrl || validVariants[0].images[0].originalUrl)
-        : null;
-      p.displayPrice = validVariants[0].price;
+        product.displayPrice = validVariant.price;
 
-      return true;
-    });
-
-    const productLimit = products.slice(0, 4);
+        return true;
+      })
+      .slice(0, 4);
 
     res.render("home", {
       user: userData,
-      products: productLimit,
+      products,
       categories,
       brands,
-    wishlistItems
+      wishlistItems
     });
+
   } catch (error) {
-    console.error("Home controller error:", error);
-     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:Messages.INTERNAL_SERVER_ERROR})
+    console.log("HOME ERROR:", error);
+
+    res.status(500).send("Internal Server Error");
   }
 };
-
 const signup=async(req,res)=>{
     try {
         res.render("signup")
