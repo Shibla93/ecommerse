@@ -116,7 +116,7 @@ const home = async (req, res) => {
         if (!product.category || !product.category.isListed)
           return false;
 
-        const validVariant = product.variants.find(
+        const validVariant = product?.variants?.find(
           v => !v.isDeleted && v.isListed
         );
 
