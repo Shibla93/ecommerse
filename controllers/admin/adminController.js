@@ -33,7 +33,7 @@ const login = async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, admin.password);
 
       if (passwordMatch) {
-            req.session.user = null; 
+            
         req.session.admin = admin._id;
     
       
@@ -355,21 +355,38 @@ const getDashboardData = async (req, res) => {
 
 
 
-const logout = async (req, res) => {
-  try {
-    req.session.destroy(err => {
+// const logout = async (req, res) => {
+//   try {
+//     req.session.destroy(err => {
       
-      if (err) {
+//       if (err) {
        
-        return res.redirect("/pageError")
-      }
-      res.redirect("/admin/login")
-    })
+//         return res.redirect("/pageError")
+//       }
+//       res.redirect("/admin/login")
+//     })
+//   } catch (error) {
+
+//     res.redirect("/pageError")
+//   }
+// }
+const logout = async (req, res) => {
+
+  try {
+
+    req.session.admin = null;
+
+    res.clearCookie("adminSession");
+
+    return res.redirect("/admin/login");
+
   } catch (error) {
 
-    res.redirect("/pageError")
+    console.log(error);
+
+    return res.redirect("/pageError");
   }
-}
+};
 const adminController = {
   loadLogin,
   login,

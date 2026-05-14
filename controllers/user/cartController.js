@@ -162,10 +162,11 @@ const getCartPage = async (req, res) => {
 const addToCart=async(req,res)=>{
     try {
     const userId = req.session.user;
-    if(!userId){
-return res.status(401).json({
-redirect:"/login"
-})
+    if (!req.session.user) {
+  return res.status(401).json({
+    success: false,
+    redirect: "/login"
+  });
 }
     const { productId, variantId } = req.body;
  
@@ -296,7 +297,10 @@ const changeQuantity = async (req, res) => {
     
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.status(StatusCodes.NOT_FOUND).json({ success: false });
+      return res.status(StatusCodes.NOT_FOUND).json({
+  success: false,
+  message: "Cart not found"
+});
     }
 
     
@@ -384,7 +388,10 @@ const removeProduct = async (req, res) => {
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.json({ success: false });
+      return res.status(StatusCodes.NOT_FOUND).json({
+  success: false,
+  message: "Cart not found"
+});
     }
 
     const item = cart.items.id(cartItemId);

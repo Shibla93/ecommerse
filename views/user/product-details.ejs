@@ -564,11 +564,14 @@ form.addEventListener("submit", async (e) => {
 });
 
 async function addToCart(productId, variantId) {
+
   try {
+
     const res = await fetch('/addToCart', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify({
         productId,
@@ -578,13 +581,16 @@ async function addToCart(productId, variantId) {
     });
 
     const data = await res.json();
-if (data.redirect) {
-  window.location.href = data.redirect;
-  return;
-}
 
+    // login redirect
+    if (res.status === 401 || data.redirect) {
+      window.location.href = data.redirect || "/login";
+      return;
+    }
+
+    // success
     if (data.success) {
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Added to Cart',
@@ -593,15 +599,25 @@ if (data.redirect) {
       }).then(() => {
         window.location.href = "/cart";
       });
+
     } else {
-      Swal.fire('Error', data.message, 'error');
+
+      Swal.fire({
+        icon: 'error',
+        title: data.message || 'Failed'
+      });
     }
 
   } catch (err) {
-    Swal.fire('Error', 'Something went wrong', 'error');
+
+    console.log(err);
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Something went wrong'
+    });
   }
 }
-
 const productId = "<%= product._id %>";
 const variantId = "<%= activeVariant._id %>";
 

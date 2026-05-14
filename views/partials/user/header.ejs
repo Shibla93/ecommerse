@@ -369,17 +369,20 @@
 const userMenuTrigger = document.querySelector('.user-menu-trigger');
 const userMenu = document.querySelector('.user-menu');
 
-if (userMenuTrigger) {
-  userMenuTrigger.addEventListener('click', () => {
+if (userMenu && userMenuTrigger) {
+
+  userMenuTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
     userMenu.classList.toggle('active');
   });
-}
 
-document.addEventListener('click', (e) => {
-  if (!userMenu.contains(e.target)) {
-    userMenu.classList.remove('active');
-  }
-});
+  document.addEventListener('click', (e) => {
+    if (!userMenu.contains(e.target)) {
+      userMenu.classList.remove('active');
+    }
+  });
+
+}
 
   function updateCartBadge(count) {
     const cartIcon = document.querySelector('.icon-btn[href="/cart"]');

@@ -108,7 +108,25 @@ const home = async (req, res) => {
         .sort({ createdAt: -1 })
         .lean()
     ]);
+// product.displayImage =
+//   validVariant.images?.[0]?.croppedUrl ||
+//   validVariant.images?.[0]?.originalUrl ||
+//   null;
 
+// const productOffer = product.productOffer || 0;
+// const categoryOffer = product.category?.categoryOffer || 0;
+
+// const maxOffer = Math.max(productOffer, categoryOffer);
+
+// const discount = validVariant.price * (maxOffer / 100);
+
+// const finalPrice = Math.round(validVariant.price - discount);
+
+// product.displayPrice = finalPrice;
+// product.oldPrice = validVariant.price;
+// product.maxOffer = maxOffer;
+
+// return true;
     const products = productsData
       .filter(product => {
         if (!product.brand || product.brand.isBlocked) return false;
@@ -130,6 +148,18 @@ const home = async (req, res) => {
           null;
 
         product.displayPrice = validVariant.price;
+        const productOffer = product.productOffer || 0;
+const categoryOffer = product.category?.categoryOffer || 0;
+
+const maxOffer = Math.max(productOffer, categoryOffer);
+
+const discount = validVariant.price * (maxOffer / 100);
+
+const finalPrice = Math.round(validVariant.price - discount);
+
+product.displayPrice = finalPrice;
+product.oldPrice = validVariant.price;
+product.maxOffer = maxOffer;
 
         return true;
       })

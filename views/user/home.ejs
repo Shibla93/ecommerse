@@ -297,7 +297,19 @@
             <div>
               <h4><%= product.product %></h4>
               <p class="brand">Brand: <%= product.brand ? product.brand.name : 'N/A' %></p>
-              <div class="price">₹<%= product.displayPrice %></div>
+              <div class="price">
+  ₹<%= product.displayPrice %>
+
+  <% if(product.maxOffer > 0){ %>
+    <span style="text-decoration: line-through; color: gray; font-size:14px;">
+      ₹<%= product.oldPrice %>
+    </span>
+
+    <span style="color:red; font-size:14px;">
+      <%= product.maxOffer %>% OFF
+    </span>
+  <% } %>
+</div>
             </div>
             <a href="/product/<%= product._id %>">View Details</a>
           </div>
