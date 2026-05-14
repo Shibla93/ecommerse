@@ -286,12 +286,13 @@ background:#44ccee;
                 <td>
                   <%= order.createdAt.toDateString() %>
                 </td>
-                <td>
-                  <%= order.userId.name %> <br>
-                    <small class="text-muted">
-                      <%= order.userId.email %>
-                    </small>
-                </td>
+     <td>
+  <%= order.userId?.name || "Deleted User" %> <br>
+
+  <small class="text-muted">
+    <%= order.userId?.email || "" %>
+  </small>
+</td>
                 <td>
                   
 
