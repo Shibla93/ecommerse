@@ -354,8 +354,10 @@ const approveItem = async (req, res) => {
       item.return.status = "approved";
       item.return.adminRemark = remark || "";
       item.return.approvedAt = new Date();
-    
-      if (order.paymentStatus === "paid" && order.paymentMethod !== "COD") {
+    if (
+  order.paymentStatus === "paid" ||
+  (order.paymentMethod === "COD" && order.orderStatus === "delivered")
+)  {
 
 
 
