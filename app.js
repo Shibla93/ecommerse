@@ -77,7 +77,15 @@ app.use("/", userRouter);
 
 app.use("/admin",adminSession,adminRouter)
 
+app.use((req, res, next) => {
+  res.status(404);
 
+  if (req.originalUrl.startsWith('/admin')) {
+    return res.render('admin/404');     // Admin 404 page
+  }
+
+  res.render('404');                    // User side 404 page
+});
 app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 dbConnect().then(() => {

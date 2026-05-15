@@ -1,0 +1,106 @@
+
+
+<style>
+  :root {
+    --gold: #d4af37;
+    --dark: #1a1a1a;
+    --light: #f8f9fa;
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .error-page {
+    text-align: center;
+    max-width: 700px;
+    padding: 2rem;
+  }
+
+  .error-emoji {
+    font-size: 7.5rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-25px); }
+  }
+
+  .error-code {
+    font-size: 8rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .error-title {
+    font-size: 2.4rem;
+    color: var(--dark);
+    margin: 1rem 0;
+  }
+
+  .error-text {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+
+  .btn-home {
+    background: var(--gold);
+    color: white;
+    padding: 1rem 2.8rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border-radius: 50px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+  }
+
+  .btn-home:hover {
+    background: #c19a2e;
+    transform: scale(1.08);
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+  }
+
+  .shop-now {
+    margin-top: 2rem;
+    color: var(--dark);
+    font-weight: 500;
+  }
+</style>
+
+<div class="error-page">
+  <div class="error-emoji">😵‍💫⌚</div>
+  
+  <h1 class="error-code">404</h1>
+  <h2 class="error-title">Oops! Page Not Found</h2>
+  <p class="error-text">
+    The page you're looking for has gone on a luxury watch hunt!<br>
+    Don't worry, let's get you back to shopping.
+  </p>
+
+  <a href="/" class="btn-home">
+    <i class="fas fa-home"></i>
+    Back to Homepage
+  </a>
+
+  <br><br>
+  <a href="/shop" class="shop-now">
+    Browse Our Collection →
+  </a>
+</div>
+

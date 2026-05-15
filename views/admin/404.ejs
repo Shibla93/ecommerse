@@ -1,0 +1,110 @@
+
+
+<style>
+  :root {
+    --gold: #d4af37;
+    --gold-hover: #c19a2e;
+    --dark: #1a1a1a;
+    --light-bg: #f9fafb;
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--light-bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .error-container {
+    text-align: center;
+    max-width: 620px;
+    padding: 2rem;
+  }
+
+  .error-illustration {
+    font-size: 8.5rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-25px); }
+  }
+
+  .error-code {
+    font-size: 7.5rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    text-shadow: 0 15px 30px rgba(212, 175, 55, 0.25);
+  }
+
+  .error-title {
+    font-size: 2.1rem;
+    color: var(--dark);
+    margin: 0.5rem 0 1rem;
+    font-weight: 700;
+  }
+
+  .error-subtitle {
+    font-size: 1.15rem;
+    color: #64748b;
+    margin-bottom: 2.5rem;
+    line-height: 1.5;
+  }
+
+  .btn-fun {
+    background: var(--gold);
+    color: white;
+    padding: 1.1rem 2.8rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+  }
+
+  .btn-fun:hover {
+    background: var(--gold-hover);
+    transform: scale(1.08) rotate(3deg);
+    box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+  }
+
+  .lost-text {
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-top: 2.5rem;
+  }
+</style>
+
+<div class="error-container">
+  <div class="error-illustration">🤔🕵️‍♂️</div>
+  
+  <h1 class="error-code">404</h1>
+  <h2 class="error-title">Oops! Page Got Lost</h2>
+  <p class="error-subtitle">
+    Looks like this page wandered off to explore the watch collection.<br>
+    Don't worry, we'll help you find your way back!
+  </p>
+
+  <a href="/admin/dashboard" class="btn-fun">
+    <span>Take Me Back to Dashboard</span>
+    <i class="fas fa-home"></i>
+  </a>
+
+  <p class="lost-text">
+    Still lost? Try searching or contact support 🛠️
+  </p>
+</div>
+

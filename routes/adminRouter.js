@@ -79,6 +79,7 @@ router.get("/sales-report", adminAuth,salesController.getSalesReport)
 
 router.get("/sales-report/download/pdf", adminAuth,salesController.downloadPDF);
  router.get("/sales-report/download/excel",adminAuth, salesController.downloadExcel);
+  
 
 
 export default router
