@@ -364,7 +364,8 @@ const changeQuantity = async (req, res) => {
     res.status(StatusCodes.OK).json({
       success: true,
       quantity: item.quantity,
-      totalPrice: item.totalPrice
+      totalPrice: item.totalPrice,
+        cartCount: cart.items.reduce((t, i) => t + i.quantity, 0)
     });
 
   } catch (error) {

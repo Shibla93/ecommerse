@@ -682,7 +682,7 @@ class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
 
     // success
     if (data.success) {
-
+    updateCartBadge(data.cartCount);
       Swal.fire({
         icon: 'success',
         title: 'Added to Cart',

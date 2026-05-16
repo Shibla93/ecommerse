@@ -525,7 +525,26 @@
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            location.reload();
+              
+      const row = document
+        .querySelector(`button[onclick="changeQuantity('${cartItemId}', 1)"]`)
+        .closest("tr");
+
+      
+      row.querySelector(".quantity-input").value = data.quantity;
+
+      
+      row.querySelector(".price span").innerText =
+        `₹${data.totalPrice}`;
+
+      
+      updateGrandTotal();
+
+      
+      if (data.cartCount !== undefined) {
+        updateCartBadge(data.cartCount);
+      }
+
           } else {
             Swal.fire("Error", data.message || "Something went wrong", "error");
           }
