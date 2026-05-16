@@ -508,7 +508,21 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
+function updateGrandTotal() {
 
+  let total = 0;
+
+  document.querySelectorAll('[data-label="price"] span').forEach(el => {
+
+    const amount = el.innerText.replace("₹", "").trim();
+
+    total += Number(amount);
+
+  });
+
+  document.getElementById("total").innerText = total;
+
+}
     function changeQuantity(cartItemId, value) {
       const action = value === 1 ? "increment" : "decrement";
 
@@ -527,23 +541,21 @@
           if (data.success) {
               
       const row = document
-        .querySelector(`button[onclick="changeQuantity('${cartItemId}', 1)"]`)
-        .closest("tr");
+          .querySelector(`button[onclick="changeQuantity('${cartItemId}', 1)"]`)
+          .closest("tr");
 
-      
-      row.querySelector(".quantity-input").value = data.quantity;
+        
+        row.querySelector(".quantity-input").value = data.quantity;
 
-      
-      row.querySelector(".price span").innerText =
-        `₹${data.totalPrice}`;
+        
+        row.querySelector('[data-label="price"] span').innerText =
+          `₹${data.totalPrice}`;
 
-      
-      updateGrandTotal();
+        
+        updateGrandTotal();
 
-      
-      if (data.cartCount !== undefined) {
+        
         updateCartBadge(data.cartCount);
-      }
 
           } else {
             Swal.fire("Error", data.message || "Something went wrong", "error");
